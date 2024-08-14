@@ -58,7 +58,7 @@
    1. if you don't have pnpm, you may need to install it
       - run `npm install -g pnpm` in terminal or following the official tutorial https://pnpm.io/installation
       - pnpm is a node module manager better than npm
-
+3. run `pnpm dev`
 
 # Git
 ## Commit Message Format
