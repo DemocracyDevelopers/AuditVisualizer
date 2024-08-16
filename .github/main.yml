@@ -2,7 +2,7 @@ name: Merge Protection
 
 on:
   pull_request:
-    branches: [main, release]
+    branches: [main, release, doc]
 
 jobs:
   check-branch-rules:
@@ -29,5 +29,9 @@ jobs:
                 echo "Error: release can only be merged from feature/* branches."
                 exit 1
               fi
+              ;;
+            doc)
+              echo "Error: doc branch cannot be merged from any other branch."
+              exit 1
               ;;
           esac
