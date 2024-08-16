@@ -1,0 +1,43 @@
+name: Merge Protection
+
+on:
+  pull_request:
+    branches: [main, release, doc]
+
+jobs:
+  check-branch-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Check branch merge rules
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          base_branch="${{ github.base_ref }}"
+          head_branch="${{ github.head_ref }}"
+
+          case $base_branch in
+            main)
+              if [[ $head_branch != "release" && $head_branch != "doc" ]]; then
+                echo "Error: main can only be merged from release or doc branches."
+                exit 1
+              fi
+              ;;
+            release)
+              if [[ $head_branch != feature/* ]]; then
+                echo "Error: release can only be merged from feature/* branches."
+                exit 1
+              fi
+              ;;
+            doc)
+              echo "Error: doc branch cannot be merged from any other branch."
+              exit 1
+              ;;
+            *)
+              if [[ $head_branch == test/* ]]; then
+                echo "Error: test/ branches cannot be merged into any other branch."
+                exit 1
+              fi
+              ;;
+          esac
