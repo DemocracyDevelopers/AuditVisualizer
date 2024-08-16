@@ -34,4 +34,10 @@ jobs:
               echo "Error: doc branch cannot be merged from any other branch."
               exit 1
               ;;
+            *)
+              if [[ $head_branch == test/* ]]; then
+                echo "Error: test/ branches cannot be merged into any other branch."
+                exit 1
+              fi
+              ;;
           esac
