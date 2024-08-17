@@ -1,7 +1,9 @@
 # AuditVisualizer
+
 ## Project Description
 
 ## Team Member
+
 | Name        | Roles                |
 | ----------- | -------------------- |
 | Yang Xu     | Lead Programmer      |
@@ -16,6 +18,7 @@
 | Jiamin Gu   | Back-end programmer  |
 
 # Technologies Used
+
 - react
 - typescript
 - nextjs
@@ -26,6 +29,7 @@
 - husky
 
 # Environment and Tools
+
 - vscode
   - used for frontend development
   - extension
@@ -45,8 +49,11 @@
 - github desktop
 
 # Getting Started
+
 1. git clone repository
+
 ## frontend
+
 1. run `nvm use` to initialize the right node version for the frontend development environment
    1. if you don't have nvm, you need to install it
       - windows
@@ -61,7 +68,9 @@
 3. run `pnpm dev`
 
 # Git
+
 ## Commit Message Format
+
 - feat: New feature
 - fix: Bug fix
 - docs: Documentation only changes
@@ -77,7 +86,7 @@
   │       │             │
   │       │             └─⫸ Summary in present tense, not capitalized, no period at the end.
   │       │
-  │       └─⫸ Commit Scope (optional): 
+  │       └─⫸ Commit Scope (optional):
   │            animations|common|core|forms|http|router|service-worker|docs
   │
   └─⫸ Commit Type: feat|fix|docs|style|refactor|pref|test|revert|chore
@@ -87,6 +96,7 @@
 > reference: [commit message header](https://github.com/angular/angular/blob/main/CONTRIBUTING.md#commit-message-header)
 
 ## Branch Management
+
 - `main`
   - `doc`
   - `release`
@@ -94,8 +104,10 @@
     - `feature/<feature-name>`
       - `feature/<feature-name>-<developer-name>`
     - `feature/<feature-name>`
+  - `test/<test-name>`
 
 Example Structure:
+
 - `main`
   - `doc` Dedicated to documentation-related updates and changes. No source code or executable files should be modified or added in this branch, ensuring it remains purely for documentation purposes.
   - `release`
@@ -104,5 +116,6 @@ Example Structure:
       - `feature/init-lc` Developer lc working on the init feature.
     - `feature/login` A branch dedicated to the login feature.
     - `feature/tutorial-mode` A branch focused on the tutorial mode feature.
+  - `test/<test-name>` A branch focused on testing
 
 > You can read the detailed information here 👉 [branch management](./docs/BRANCH_MANAGEMENT.md)
