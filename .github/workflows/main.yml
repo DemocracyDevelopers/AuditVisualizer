@@ -41,12 +41,3 @@ jobs:
               fi
               ;;
           esac
-  prevent-merge-on-failure:
-    needs: check-branch-rules
-    runs-on: ubuntu-latest
-    if: ${{ failure() }}
-    steps:
-      - name: Prevent merge
-        run: |
-          echo "Branch merge rules check failed. Preventing merge."
-          exit 1
