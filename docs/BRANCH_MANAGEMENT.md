@@ -13,31 +13,31 @@
 
 ## 1. Branch Structure Overview
 
-- Main Branch (main)
+- Main Branch (`main`)
   - Represents the stable version of the project.
   - Code must undergo a pull request (PR) and pass code reviews.
   - Only merges from:
-    - release
-    - doc
-- Documentation Branch (doc)
+    - `release`
+    - `doc`
+- Documentation Branch (`doc`)
   - Used exclusively for documentation.
   - Cannot merge from any other branches.
-- Release Branch (release)
+- Release Branch (`release`)
   - Contains stable code ready for delivery.
   - Code must undergo a pull request (PR) and pass code reviews.
-  - Only merges from feature/\* branches.
-- Feature Branches (feature/\*)
+  - Only merges from `feature/*` branches.
+- Feature Branches (`feature/*`)
   - Used for specific feature development.
   - Developers pull the latest code from main or release as needed.
   - Can be organized as:
-    - feature/<feature-name>
-    - feature/<feature-name>-<developer-name>
+    - `feature/<feature-name>`
+    - `feature/<feature-name>-<developer-name>`
   - Periodically merges into release.
-- Test Branches (test/\*)
+- Test Branches (`test/*`)
   - Used for testing specific aspects of the project.
   - Should not merge into any other branch but can receive merges.
 
-> protected branches: main, release
+> protected branches: `main`, `release`
 
 ## 2. Best Practices
 
