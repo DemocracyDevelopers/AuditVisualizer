@@ -11,7 +11,7 @@
 | Yilin Lyu   | Scrum Mater/Front-end Developer     |
 | Fuxing Zhao | Back-end programmer                 |
 | Yang Xu     | Front-end Developer                 |
-| linsheng Ge | Front-end Developer                 |
+| Linsheng Ge | Front-end Developer                 |
 | Yuling Mao  | Test Officer                        |
 | Chang Liu   | Front-end programmer                |
 | Weijia Kong | Front-end programmer                |
