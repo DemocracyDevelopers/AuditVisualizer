@@ -4,18 +4,18 @@
 
 ## Team Member
 
-| Name        | Roles                |
-| ----------- | -------------------- |
-| Yang Xu     | Lead Programmer      |
-| Emily Zhang | Project Manager      |
-| Yilin Lyu   | Scrum Mater          |
-| Fuxing Zhao | Front-end programmer |
-| Aaron Lee   | Technical Officer    |
-| linsheng Ge | Architecture Lead    |
-| Yuling Mao  | Test Officer         |
-| Chang Liu   | Front-end programmer |
-| Weijia Kong | Back-end programmer  |
-| Jiamin Gu   | Back-end programmer  |
+| Name        | Roles                               |
+|-------------|-------------------------------------|
+| Aaron Lee   | Technical Officer/Client Liaison    |
+| Emily Zhang | Project Manager/Front-end Developer |
+| Yilin Lyu   | Scrum Mater/Front-end Developer     |
+| Fuxing Zhao | Back-end programmer                 |
+| Yang Xu     | Front-end Developer                 |
+| Linsheng Ge | Front-end Developer                 |
+| Yuling Mao  | Test Officer                        |
+| Chang Liu   | Front-end programmer                |
+| Weijia Kong | Front-end programmer                |
+| Jiamin Gu   | Quality Assurance/Test Officer      |
 
 # Technologies Used
 
