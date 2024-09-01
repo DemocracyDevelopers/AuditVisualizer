@@ -1,46 +1,59 @@
 # Branch Management Guidelines
 
+```bash
+- `main`
+  - `doc`
+  - `release`
+    - `feature/<feature-name>`
+    - `feature/<feature-name>`
+      - `feature/<feature-name>-<developer-name>`
+    - `feature/<feature-name>`
+  - `test/<test-name>`
+```
+
 ## 1. Branch Structure Overview
 
-- **Main Branch (`main`)**
+- Main Branch (`main`)
   - Represents the stable version of the project.
-  - Protected from direct pushes.
+  - Code must undergo a pull request (PR) and pass code reviews.
   - Only merges from:
     - `release`
     - `doc`
-  - Code must undergo a pull request (PR) and pass code reviews.
-- **Documentation Branch (`doc`)**
+- Documentation Branch (`doc`)
   - Used exclusively for documentation.
   - Cannot merge from any other branches.
-
-- **Release Branch (`release`)**
+- Release Branch (`release`)
   - Contains stable code ready for delivery.
-  - Protected from direct pushes.
+  - Code must undergo a pull request (PR) and pass code reviews.
   - Only merges from `feature/*` branches.
-
-- **Feature Branches (`feature/*`)**
+- Feature Branches (`feature/*`)
   - Used for specific feature development.
-  - Developers pull the latest code from `main` or `release` as needed.
+  - Developers pull the latest code from main or release as needed.
   - Can be organized as:
     - `feature/<feature-name>`
     - `feature/<feature-name>-<developer-name>`
-  - Periodically merges into `release`.
-
-- **Test Branches (`test/*`)**
+  - Periodically merges into release.
+- Test Branches (`test/*`)
   - Used for testing specific aspects of the project.
-  - Should not merge into any branch.
-  - Merges from other branches for testing purposes.
+  - Should not merge into any other branch but can receive merges.
+
+> protected branches: `main`, `release`
 
 ## 2. Best Practices
 
-- **Tool Recommendations:**
-  - **GitHub Desktop:** Preferred for beginners due to its user-friendly guidance.
-  - **VSCode:** Use the GitLens plugin for enhanced Git experience.
-  - **SourceTree:** An alternative option for managing Git operations.
-  
-- **Code Review:** Mandatory before merging into protected branches.
-- **Regular Updates:** Frequently pull from the release branch to stay up-to-date.
+### Tool Recommendations
 
+- GitHub Desktop: Preferred for beginners due to its user-friendly guidance.
+- VSCode: Use the GitLens plugin for enhanced Git experience.
+- SourceTree: An alternative option for managing Git operations.
+
+### Code Review:
+
+Mandatory before merging into protected branches.
+
+### Regular Updates
+
+Frequently pull from the main or release branch to stay up-to-date.
 
 <!-- ```bash
 - `main`
@@ -52,14 +65,15 @@
     - `feature/<feature-name>`
 ```
 
-- 推荐使用github desktop处理git
-  - 如果在vscode内使用,推荐gitlens插件
-  - 可以使用sourcetree来处理
-  - 选择其一即可，优先github desktop, 有给初学者最人性化的引导
-  - 除了github desktop的其他工具通常功能更多，比如可视化查看分支的情况。但是bug也可能会更多
-- main 分支长期保持稳定,只有每次业务完全开发完成,需要阶段性交付时才从release合并
-  - main 只能从 doc 或者 release合并. doc不能涉及代码
-- release 分支仅合并`feature/`
-- 代码随时可以从主干流向分支, 自行拉取
-- 代码定期从分支逐级合并到主干, 需要code review
-- main和release 都不能直接写, 只能从分支合并, 如果有不属于现有任何分支的情况,需要先创建一个temp分支在本地, 处理好后分支上传到云端,然后发起pull request -->
+- It is recommended to use GitHub Desktop for handling Git operations.
+  - If using VSCode, the GitLens extension is recommended.
+  - You can also use Sourcetree for handling Git.
+  - Choose one of these tools; GitHub Desktop is preferred as it provides the most user-friendly guidance for beginners.
+  - Other tools besides GitHub Desktop typically offer more features, such as a visual representation of branches. However, they may also come with more bugs.
+
+- The `main` branch should be kept stable over the long term. It should only be merged from the `release` branch when a business feature is fully developed and needs to be delivered.
+  - The `main` branch should only be merged from the `doc` or `release` branches. The `doc` branch should not contain any code changes.
+- The `release` branch should only merge from `feature/*` branches.
+- Code can always flow from the main branch to feature branches; developers should pull the latest changes as needed.
+- Code should be regularly merged from feature branches back to the main branch, but this requires a code review.
+- Direct changes are not allowed on the `main` and `release` branches; changes must be merged through feature branches. If there is a need to make changes that do not belong to any existing branches, a temporary branch should be created locally, and after the changes are made, the branch should be pushed to the remote repository, followed by a pull request.
