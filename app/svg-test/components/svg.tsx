@@ -10,10 +10,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, UserRound } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Download, UserRoundIcon } from "lucide-react";
+import { createRoot } from "react-dom/client";
 
-// 定义 JSON 数据的类型
+// Define the JSON data type
 interface TreeNode {
   name: string;
   children?: TreeNode[];
@@ -24,9 +24,9 @@ interface TreeProps {
 }
 
 export default function Tree({ data }: TreeProps) {
-  const [zoomEnabled, setZoomEnabled] = useState<boolean>(true); // 状态管理缩放功能的启用/禁用
+  const [zoomEnabled, setZoomEnabled] = useState<boolean>(true); // State for zoom enable/disable
   const svgRef = useRef<SVGSVGElement | null>(null);
-  const gRef = useRef<SVGGElement | null>(null); // 通过 ref 访问群组元素
+  const gRef = useRef<SVGGElement | null>(null); // Ref for the group element
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
   useEffect(() => {
@@ -35,18 +35,16 @@ export default function Tree({ data }: TreeProps) {
         const parent = svgRef.current.parentElement;
         if (parent) {
           setDimensions({
-            // width: parent.clientWidth,
-            width: 400,
-            // height: parent.clientHeight,
-            height: 300,
+            width: parent.clientWidth, // Use parent's width
+            height: parent.clientHeight, // Use parent's height
           });
         }
       }
     };
 
-    // 初始化时设置尺寸
+    // Set dimensions initially
     handleResize();
-    // 监听窗口大小变化
+    // Add resize event listener
     window.addEventListener("resize", handleResize);
 
     return () => {
@@ -57,7 +55,7 @@ export default function Tree({ data }: TreeProps) {
   useEffect(() => {
     if (svgRef.current) {
       const svgElement = d3.select(svgRef.current);
-      svgElement.selectAll("*").remove(); // 清空之前的内容
+      svgElement.selectAll("*").remove(); // Clear previous contents
 
       const { width, height } = dimensions;
       const margin = { top: 20, right: 20, bottom: 20, left: 20 };
@@ -78,9 +76,9 @@ export default function Tree({ data }: TreeProps) {
       const g = svgElement
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
-      gRef.current = g.node(); // 保存群组元素的引用
+      gRef.current = g.node(); // Save group element ref
 
-      // 绘制链接
+      // Draw links
       g.selectAll("line")
         .data(links)
         .enter()
@@ -91,17 +89,33 @@ export default function Tree({ data }: TreeProps) {
         .attr("y2", (d) => (d.target as d3.HierarchyPointNode<TreeNode>).y)
         .attr("stroke", "gray");
 
-      // 绘制节点
-      g.selectAll("circle")
+      // Draw nodes with React Portal
+      g.selectAll("g.node")
         .data(nodes)
         .enter()
-        .append("circle")
-        .attr("cx", (d) => d.x)
-        .attr("cy", (d) => d.y)
-        .attr("r", 5)
-        .attr("fill", "black");
+        .append("g")
+        .attr("class", "node")
+        .attr("transform", (d) => `translate(${d.x}, ${d.y})`)
+        .each(function () {
+          const node = d3.select(this);
+          const nodeContainer = node
+            .append("foreignObject")
+            .attr("width", 24)
+            .attr("height", 24)
+            .append("xhtml:div")
+            .style("width", "24px")
+            .style("height", "24px")
+            .style("display", "flex")
+            .style("justify-content", "center")
+            .style("align-items", "center");
 
-      // 绘制节点标签
+          // Render React component into SVG
+          const containerNode = nodeContainer.node() as HTMLElement;
+          const root = createRoot(containerNode);
+          root.render(<UserRoundIcon />);
+        });
+
+      // Draw node labels
       g.selectAll("text")
         .data(nodes)
         .enter()
@@ -110,28 +124,30 @@ export default function Tree({ data }: TreeProps) {
         .attr("y", (d) => d.y + 3)
         .text((d) => d.data.name);
 
-      // 创建缩放行为
+      // Create zoom behavior
       const zoom = d3
         .zoom<SVGSVGElement, unknown>()
         .scaleExtent([0.5, 2])
         .on("zoom", (event) => {
           if (zoomEnabled) {
-            d3.select(gRef.current).attr("transform", event.transform);
+            d3.select(gRef.current).attr(
+              "transform",
+              event.transform.toString(),
+            );
           }
         });
 
       svgElement.call(zoom);
 
-      // 清理函数，避免内存泄漏
+      // Cleanup function to prevent memory leaks
       return () => {
         svgElement.on(".zoom", null);
       };
     }
   }, [data, zoomEnabled, dimensions]);
-  console.log("render");
 
   return (
-    <Card className="w-3/4 h-[400px] ">
+    <Card className="w-3/4 h-[400px]">
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           <div>Process Explores</div>
@@ -141,7 +157,6 @@ export default function Tree({ data }: TreeProps) {
           </Button>
         </CardTitle>
       </CardHeader>
-      <UserRound />
       <div className="flex flex-col h-full">
         <svg
           ref={svgRef}
