@@ -10,8 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, UserRoundIcon } from "lucide-react";
-import { createRoot } from "react-dom/client";
+import { Download } from "lucide-react";
 
 // Define the JSON data type
 interface TreeNode {
@@ -89,31 +88,38 @@ export default function Tree({ data }: TreeProps) {
         .attr("y2", (d) => (d.target as d3.HierarchyPointNode<TreeNode>).y)
         .attr("stroke", "gray");
 
-      // Draw nodes with React Portal
-      g.selectAll("g.node")
+      // Draw nodes circles
+      // 绘制节点
+      // g.selectAll("circle")
+      //   .data(nodes)
+      //   .enter()
+      //   .append("circle")
+      //   .attr("cx", (d) => d.x)
+      //   .attr("cy", (d) => d.y)
+      //   .attr("r", 5)
+      //   .attr("fill", "black");
+
+      g.selectAll("foreignObject")
         .data(nodes)
         .enter()
-        .append("g")
-        .attr("class", "node")
-        .attr("transform", (d) => `translate(${d.x}, ${d.y})`)
-        .each(function () {
-          const node = d3.select(this);
-          const nodeContainer = node
-            .append("foreignObject")
-            .attr("width", 24)
-            .attr("height", 24)
-            .append("xhtml:div")
-            .style("width", "24px")
-            .style("height", "24px")
-            .style("display", "flex")
-            .style("justify-content", "center")
-            .style("align-items", "center");
+        .append("foreignObject")
+        .attr("x", (d) => d.x - 12) // Adjust position so the icon is centered
+        .attr("y", (d) => d.y - 12)
+        .attr("width", 24)
+        .attr("height", 24)
+        .html(
+          `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>`,
+        );
 
-          // Render React component into SVG
-          const containerNode = nodeContainer.node() as HTMLElement;
-          const root = createRoot(containerNode);
-          root.render(<UserRoundIcon />);
-        });
+      // <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      // stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      // class="lucide lucide-user-round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
+
+      // g.selectAll("i")
+      //   .data(nodes)
+      //   .enter()
+      //   .append("i")
+      //   .attr("data-lucide", "user-round");
 
       // Draw node labels
       g.selectAll("text")
@@ -174,6 +180,7 @@ export default function Tree({ data }: TreeProps) {
             onCheckedChange={setZoomEnabled}
           />
         </div>
+        {/* <i data-lucide="user-round"></i> */}
       </div>
     </Card>
   );
