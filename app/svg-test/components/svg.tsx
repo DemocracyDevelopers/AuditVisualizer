@@ -16,6 +16,7 @@ import { Download } from "lucide-react";
 interface TreeNode {
   name: string;
   children?: TreeNode[];
+  _children?: TreeNode[]; // Hidden children when collapsed
 }
 
 interface TreeProps {
@@ -27,6 +28,7 @@ export default function Tree({ data }: TreeProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const gRef = useRef<SVGGElement | null>(null); // Ref for the group element
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+  const [treeData, setTreeData] = useState(data); // State for the tree data
 
   useEffect(() => {
     const handleResize = () => {
@@ -62,15 +64,15 @@ export default function Tree({ data }: TreeProps) {
       const treeLayout = d3
         .tree<TreeNode>()
         .size([
-          height - margin.top - margin.bottom,
-          width - margin.left - margin.right,
+          height - margin.top - margin.bottom - 10,
+          width - margin.left - margin.right - 150,
         ]);
 
-      const root = d3.hierarchy(data);
-      const treeData = treeLayout(root);
+      const root = d3.hierarchy(treeData);
+      const treeDataLayout = treeLayout(root);
 
-      const nodes = treeData.descendants();
-      const links = treeData.links();
+      const nodes = treeDataLayout.descendants();
+      const links = treeDataLayout.links();
 
       const g = svgElement
         .append("g")
@@ -88,46 +90,33 @@ export default function Tree({ data }: TreeProps) {
         .attr("y2", (d) => (d.target as d3.HierarchyPointNode<TreeNode>).y)
         .attr("stroke", "gray");
 
-      // Draw nodes circles
-      // 绘制节点
-      // g.selectAll("circle")
-      //   .data(nodes)
-      //   .enter()
-      //   .append("circle")
-      //   .attr("cx", (d) => d.x)
-      //   .attr("cy", (d) => d.y)
-      //   .attr("r", 5)
-      //   .attr("fill", "black");
-
-      g.selectAll("foreignObject")
+      //  创建组以便绑定事件
+      const groups = g
+        .selectAll("g")
         .data(nodes)
         .enter()
-        .append("foreignObject")
-        .attr("x", (d) => d.x - 12) // Adjust position so the icon is centered
-        .attr("y", (d) => d.y - 12)
-        .attr("width", 24)
-        .attr("height", 24)
-        .html(
-          `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>`,
-        );
+        .append("g")
+        .attr("transform", (d) => `translate(${d.x},${d.y})`)
+        .classed("cursor-pointer", true) // 添加 Tailwind 的 cursor-pointer 类
+        .on("click", (event, d) => {
+          toggleChildren(d.data); // Toggle children on click
+          setTreeData({ ...treeData }); // Re-render tree with updated data
+        });
 
-      // <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-      // stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-      // class="lucide lucide-user-round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
+      // 添加圆形
+      groups
+        .append("circle")
+        .attr("r", 18) // 圆的半径
+        .attr("fill", "white") // 设置为空心
+        .attr("stroke", "black") // 圆的边框颜色
+        .attr("stroke-width", 2); // 边框宽度
 
-      // g.selectAll("i")
-      //   .data(nodes)
-      //   .enter()
-      //   .append("i")
-      //   .attr("data-lucide", "user-round");
-
-      // Draw node labels
-      g.selectAll("text")
-        .data(nodes)
-        .enter()
+      // 添加文本
+      groups
         .append("text")
-        .attr("x", (d) => d.x + 6)
-        .attr("y", (d) => d.y + 3)
+        .attr("y", 3) // 让文本在圆的中央对齐
+        .attr("text-anchor", "middle")
+        .attr("font-size", "10px") // 字体大小
         .text((d) => d.data.name);
 
       // Create zoom behavior
@@ -150,7 +139,18 @@ export default function Tree({ data }: TreeProps) {
         svgElement.on(".zoom", null);
       };
     }
-  }, [data, zoomEnabled, dimensions]);
+  }, [treeData, zoomEnabled, dimensions]);
+
+  // Function to toggle the children (collapse/expand)
+  const toggleChildren = (node: TreeNode) => {
+    if (node.children) {
+      node._children = node.children;
+      node.children = undefined;
+    } else if (node._children) {
+      node.children = node._children;
+      node._children = undefined;
+    }
+  };
 
   return (
     <Card className="w-3/4 h-[400px]">
@@ -180,7 +180,6 @@ export default function Tree({ data }: TreeProps) {
             onCheckedChange={setZoomEnabled}
           />
         </div>
-        {/* <i data-lucide="user-round"></i> */}
       </div>
     </Card>
   );
