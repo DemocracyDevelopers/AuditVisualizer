@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Candidate, candidateList } from "../constants";
 import { Card, CardContent } from "@/components/ui/card";
+import Image from "next/image";
 
 function SearchDropdown() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -42,7 +43,7 @@ function SearchDropdown() {
                 className="cursor-pointer p-2 rounded-sm hover:bg-gray-200 "
               >
                 {candidate.avatar && (
-                  <img
+                  <Image
                     src={candidate.avatar}
                     alt={candidate.name}
                     className="inline-block w-6 h-6 mr-2"
