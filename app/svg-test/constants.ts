@@ -210,4 +210,41 @@ const dataMultiWinner = [
   },
 ];
 
-export { testData, dataOneTree, dataStepByStep, dataMultiWinner, dataOneTree2 };
+type Candidate = {
+  id: number;
+  name: string;
+  avatar: string;
+};
+const candidateList: Candidate[] = [
+  {
+    id: 1,
+    name: "Alice",
+    avatar: "",
+  },
+  {
+    id: 2,
+    name: "Bob",
+    avatar: "",
+  },
+  {
+    id: 3,
+    name: "Chuan",
+    avatar: "",
+  },
+  {
+    id: 4,
+    name: "Diego",
+    avatar: "",
+  },
+];
+
+export type { Candidate };
+
+export {
+  testData,
+  dataOneTree,
+  dataStepByStep,
+  dataMultiWinner,
+  dataOneTree2,
+  candidateList,
+};

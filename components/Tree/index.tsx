@@ -2,15 +2,6 @@
 import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import { Switch } from "@/components/ui/switch";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
 import { toggleChildren, TreeNode } from "./helper";
 
 // Define the JSON data type
@@ -20,7 +11,7 @@ interface TreeProps {
 }
 
 export default function Tree({ data }: TreeProps) {
-  const [zoomEnabled, setZoomEnabled] = useState<boolean>(true); // State for zoom enable/disable
+  const [zoomEnabled, setZoomEnabled] = useState<boolean>(false); // State for zoom enable/disable
   const svgRef = useRef<SVGSVGElement | null>(null);
   const gRef = useRef<SVGGElement | null>(null); // Ref for the group element
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
@@ -59,7 +50,7 @@ export default function Tree({ data }: TreeProps) {
 
       const treeLayout = d3.tree<TreeNode>().size([
         height - margin.top - margin.bottom - 10, // 横向高度!!!
-        (width - margin.left - margin.right - 150) * 0.4, // 纵向高度!!!
+        width - margin.left - margin.right - 150, // 纵向高度!!!
       ]);
 
       const root = d3.hierarchy(treeData);
@@ -154,34 +145,23 @@ export default function Tree({ data }: TreeProps) {
   }, [treeData, zoomEnabled, dimensions]);
 
   return (
-    <Card className="w-3/4 h-[400px]">
-      <CardHeader>
-        <CardTitle className="flex justify-between items-center">
-          <div>Process Explores</div>
-          <Button size="sm">
-            Save
-            <Download className="ml-1 h-4 w-4" />
-          </Button>
-        </CardTitle>
-      </CardHeader>
-      <div className="flex flex-col h-full">
-        <svg
-          ref={svgRef}
-          width="100%"
-          height="100%"
-          className="overflow-hidden"
-          viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
-          preserveAspectRatio="xMidYMid meet"
+    <div className="flex flex-col h-full">
+      <svg
+        ref={svgRef}
+        width="100%"
+        height="100%"
+        className="overflow-hidden"
+        viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
+        preserveAspectRatio="xMidYMid meet"
+      />
+      <div className="flex items-center h-8 mt-2">
+        <span>Enable Zoom</span>
+        <Switch
+          className="ml-2"
+          checked={zoomEnabled}
+          onCheckedChange={setZoomEnabled}
         />
-        <div className="flex items-center h-8 mt-2">
-          <span>Enable Zoom</span>
-          <Switch
-            className="ml-2"
-            checked={zoomEnabled}
-            onCheckedChange={setZoomEnabled}
-          />
-        </div>
       </div>
-    </Card>
+    </div>
   );
 }
