@@ -11,13 +11,9 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
+import { toggleChildren, TreeNode } from "./helper";
 
 // Define the JSON data type
-interface TreeNode {
-  name: string;
-  children?: TreeNode[];
-  _children?: TreeNode[]; // Hidden children when collapsed
-}
 
 interface TreeProps {
   data: TreeNode;
@@ -61,12 +57,10 @@ export default function Tree({ data }: TreeProps) {
       const { width, height } = dimensions;
       const margin = { top: 20, right: 20, bottom: 20, left: 20 };
 
-      const treeLayout = d3
-        .tree<TreeNode>()
-        .size([
-          height - margin.top - margin.bottom - 10,
-          width - margin.left - margin.right - 150,
-        ]);
+      const treeLayout = d3.tree<TreeNode>().size([
+        height - margin.top - margin.bottom - 10, // 横向高度!!!
+        (width - margin.left - margin.right - 150) * 0.4, // 纵向高度!!!
+      ]);
 
       const root = d3.hierarchy(treeData);
       const treeDataLayout = treeLayout(root);
@@ -119,6 +113,24 @@ export default function Tree({ data }: TreeProps) {
         .attr("font-size", "10px") // 字体大小
         .text((d) => d.data.name);
 
+      // 添加折叠节点数量的圆形
+      groups
+        .filter((d) => !!d.data.collapsedCount)
+        .append("circle")
+        .attr("cy", 40) // 圆心y坐标
+        .attr("r", 12) // 半径
+        .attr("fill", "#e77d00") // 设置填充色为 #e77d00
+        .attr("stroke-width", 1); // 设置圆形边框的宽度
+
+      // 添加折叠节点数量
+      groups
+        .filter((d) => !!d.data.collapsedCount)
+        .append("text")
+        .attr("y", 46) // 控制折叠数量的文本位置
+        .attr("text-anchor", "middle")
+        .attr("class", "text-lg text-black")
+        .text((d) => (d.data.collapsedCount ? `${d.data.collapsedCount}` : ""));
+
       // Create zoom behavior
       const zoom = d3
         .zoom<SVGSVGElement, unknown>()
@@ -140,17 +152,6 @@ export default function Tree({ data }: TreeProps) {
       };
     }
   }, [treeData, zoomEnabled, dimensions]);
-
-  // Function to toggle the children (collapse/expand)
-  const toggleChildren = (node: TreeNode) => {
-    if (node.children) {
-      node._children = node.children;
-      node.children = undefined;
-    } else if (node._children) {
-      node.children = node._children;
-      node._children = undefined;
-    }
-  };
 
   return (
     <Card className="w-3/4 h-[400px]">

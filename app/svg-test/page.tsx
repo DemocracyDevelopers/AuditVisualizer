@@ -1,12 +1,17 @@
-import Svg from "./components/svg";
+import Tree from "../../components/Tree";
+import Dropdown from "./components/dropdown";
 import { dataOneTree, dataOneTree2, testData } from "./constants";
 
 function SvgTest() {
   return (
     <div>
-      page
+      <div>page</div>
+      <div className="flex justify-center">
+        <Dropdown />
+      </div>
+
       {/* <Svg data={testData} /> */}
-      <Svg data={dataOneTree2} />
+      <Tree data={dataOneTree2} />
     </div>
   );
 }
