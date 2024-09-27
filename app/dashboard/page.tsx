@@ -1,10 +1,23 @@
 "use client";
 
-import React from "react";
 import Image from "next/image";
 import Uploader from "./components/uploader";
+import React, { useEffect } from "react";
 
 const Dashboard: React.FC = () => {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("https://httpbin.org/get");
+        const data = await response.json();
+        console.log(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
   return (
     <div className="flex flex-col h-screen">
       <main className="flex flex-col bg-gray-100 p-8 h-screen">
