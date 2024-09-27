@@ -3,7 +3,11 @@ import { AlertCircle, X, CloudUpload } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-const Uploader: React.FC = () => {
+interface UploaderProps {
+  className?: string; // Optional className prop
+}
+
+const Uploader: React.FC<UploaderProps> = ({ className }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [showAlert, setShowAlert] = useState(false);
   const allowedFileTypes = [".json", ".txt"]; // Allowed file extensions
@@ -49,16 +53,9 @@ const Uploader: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className={className}>
       {showAlert && (
-        <div
-          style={{
-            position: "fixed",
-            top: "10px",
-            right: "10px",
-            zIndex: 1000,
-          }}
-        >
+        <div className="fixed top-2 right-2 z-50">
           <Alert
             variant="destructive"
             className="flex justify-between items-center"
@@ -82,27 +79,17 @@ const Uploader: React.FC = () => {
         </div>
       )}
 
-      <div className="uploader-container text-left p-4 mx-auto">
-        <h2 className="text-2xl font-bold">Upload your data</h2>
-        <p className="mb-4 text-sm text-gray-500">
-          Use the dropzone below to upload your file.
-        </p>
+      <h2 className="text-2xl font-bold">Upload your data</h2>
+      <p className="mb-4 text-sm text-gray-500">
+        Use the dropzone below to upload your file.
+      </p>
 
-        <div
-          className="dropzone"
-          style={{
-            border: "2px solid gray",
-            padding: "2rem",
-            borderRadius: "8px",
-            backgroundColor: "#f9f9f9",
-            cursor: "pointer",
-            margin: "auto",
-            position: "relative",
-            textAlign: "center",
-          }}
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
-        >
+      <div
+        className="border-2 border-gray-300 p-8 rounded-lg bg-gray-50 cursor-pointer w-full relative text-center flex flex-grow justify-center items-center "
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
+        <div className="">
           <CloudUpload className="mx-auto mb-2" size={80} />
           <p className="text-gray-600">
             Drag or <span className="text-blue-600 cursor-pointer">Browse</span>{" "}
@@ -117,35 +104,20 @@ const Uploader: React.FC = () => {
             type="file"
             accept=".json, .txt"
             onChange={handleFileChange}
-            style={{
-              opacity: 0,
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              cursor: "pointer",
-            }}
+            className="top-0 left-0 w-full h-full opacity-0 cursor-pointer"
           />
-          <p
-            className="text-sm text-gray-400 mt-4"
-            style={{
-              position: "absolute",
-              bottom: "10px",
-              left: "10px",
-            }}
-          >
-            Supported files: raire-rs in .json, .txt | Upload limit: 100MB
+          <p className="text-sm text-gray-400 mt-4 absolute bottom-2 left-2">
+            Supported files: .json, .txt | Upload limit: 100MB
           </p>
         </div>
-
-        {selectedFile && (
-          <div className="mt-4">
-            <p>Selected file: {selectedFile.name}</p>
-            <p>File type: {selectedFile.type}</p>
-          </div>
-        )}
       </div>
+
+      {selectedFile && (
+        <div className="mt-4">
+          <p>Selected file: {selectedFile.name}</p>
+          <p>File type: {selectedFile.type}</p>
+        </div>
+      )}
     </div>
   );
 };
