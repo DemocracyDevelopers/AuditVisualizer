@@ -1,23 +1,10 @@
 "use client";
 
-import Image from "next/image";
-import Uploader from "./components/uploader";
-import React, { useEffect } from "react";
+import React from "react";
+import SampleSelector from "./components/SampleSelector";
+import Uploader from "@/app/dashboard/components/uploader";
 
-const Dashboard: React.FC = () => {
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("https://httpbin.org/get");
-        const data = await response.json();
-        console.log(data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    fetchData();
-  }, []);
-
+const Sample = () => {
   return (
     <div className="flex flex-col h-screen bg-white ">
       {/* Main content */}
@@ -31,8 +18,15 @@ const Dashboard: React.FC = () => {
           </p>
         </div>
         <div className="bg-white border border-gray-300 shadow-md rounded-lg p-6 flex flex-col flex-grow">
-          {/* Using Uploader component */}
-          <Uploader className="flex flex-col flex-grow text-left p-4" />
+          <SampleSelector />
+        </div>
+        <div className="mt-8">
+          <button
+            className="text-blue-500 hover:underline"
+            onClick={() => window.history.back()}
+          >
+            ← Back
+          </button>
         </div>
 
         <p className="text-sm text-gray-500 text-center mt-4">
@@ -51,4 +45,4 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard;
+export default Sample;
