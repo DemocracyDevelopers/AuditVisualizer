@@ -1,0 +1,36 @@
+{
+  "metadata": {
+    "candidates": ["Alice", "Bob", "Chuan", "Diego"],
+    "note": "An example set of assertions in A Guide To RAIRE Example 5."
+  },
+  "solution": {
+    "Ok": {
+      "assertions": [
+        {
+          "assertion": {
+            "type": "NEB",
+            "winner": 0,
+            "loser": 3
+          }
+        },
+        {
+          "assertion": {
+            "type": "NEB",
+            "winner": 0,
+            "loser": 2
+          }
+        },
+        {
+          "assertion": {
+            "type": "NEN",
+            "winner": 0,
+            "loser": 1,
+            "continuing": [0, 1]
+          }
+        }
+      ],
+      "winner": 0,
+      "num_candidates": 4
+    }
+  }
+}
