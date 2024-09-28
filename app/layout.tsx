@@ -24,9 +24,7 @@ export default function RootLayout({
             <h1 className="text-3xl font-bold ml-4">AuditVisualiser</h1>
           </header>
           {/* Main content */}
-          <main className="flex flex-col flex-grow bg-gray-100">
-            {children}
-          </main>
+          <main className="flex flex-col flex-grow bg-white">{children}</main>
         </div>
       </body>
     </html>

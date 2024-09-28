@@ -1,13 +1,26 @@
 "use client";
 
-import React from "react";
-import SampleSelector from "./components/sampleSelector";
-import Uploader from "@/app/upload/components/uploader";
+import Image from "next/image";
+import Uploader from "./components/uploader";
+import React, { useEffect } from "react";
 import Link from "next/link";
 
-const Sample = () => {
+const Upload: React.FC = () => {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("https://httpbin.org/get");
+        const data = await response.json();
+        console.log(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
   return (
-    <div className="flex flex-col h-screen ">
+    <div className="flex flex-col h-screen bg-white ">
       {/* Main content */}
       <main className="flex flex-col flex-grow p-8">
         <div className=" mb-4">
@@ -19,15 +32,8 @@ const Sample = () => {
           </p>
         </div>
         <div className="border border-gray-300 shadow-md rounded-lg p-6 flex flex-col flex-grow">
-          <SampleSelector />
-        </div>
-        <div className="mt-8">
-          <button
-            className="text-blue-500 hover:underline"
-            onClick={() => window.history.back()}
-          >
-            ← Back
-          </button>
+          {/* Using Uploader component */}
+          <Uploader className="flex flex-col flex-grow text-left p-4" />
         </div>
 
         <p className="text-sm text-gray-500 text-center mt-4">
@@ -53,4 +59,4 @@ const Sample = () => {
   );
 };
 
-export default Sample;
+export default Upload;
