@@ -7,7 +7,20 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 const assertionsData = [
-  { index: 1, content: "Chuan NEB Diego", type: "NEB", color: "orange" },
+  {
+    index: 1,
+    name: "Chuan",
+    avatarSrc: "/path-to-avatar-image/chuan.png",
+    content: "Chuan NEB Diego",
+    type: "NEB",
+  },
+  {
+    index: 2,
+    name: "Alice",
+    avatarSrc: "/path-to-avatar-image/alice.png",
+    content: "Alice > Diego if only {Alice, Bob, Chuan, Diego} remain",
+    type: "NEN",
+  },
 ];
 const Dashboard = () => {
   return (

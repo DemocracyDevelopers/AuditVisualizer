@@ -1,40 +1,43 @@
 import React from "react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
-interface AssertionTableProps {
-  assertions: {
-    index: number;
-    content: string;
-    type: string;
-    color: string;
-  }[];
-}
-
-const AssertionTable: React.FC<AssertionTableProps> = ({ assertions }) => {
+const AssertionTable = ({ assertions }) => {
   return (
-    <table className="w-full text-center text-gray-600">
-      <thead>
-        <tr>
-          <th className="py-4 border-b">Index</th>
-          <th className="py-4 border-b">Content</th>
-          <th className="py-4 border-b">Type</th>
-        </tr>
-      </thead>
-      <tbody>
-        {assertions.map((assertion) => (
-          <tr key={assertion.index} className="border-b">
-            <td className="py-6">{assertion.index}</td>
-            <td className="py-6 flex justify-center items-center">
-              <span
-                className="rounded-full p-2 mr-2"
-                style={{ backgroundColor: assertion.color }}
-              ></span>
-              {assertion.content}
-            </td>
-            <td className="py-6">{assertion.type}</td>
+    <div>
+      <table className="min-w-full table-auto">
+        <thead>
+          <tr>
+            <th className="px-4 py-2 border-b">Index</th>
+            <th className="px-4 py-2 border-b">Content</th>
+            <th className="px-4 py-2 border-b">Type</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {assertions.map((assertion, index) => (
+            <tr key={index}>
+              <td className="px-4 py-2 text-center border-b">
+                {assertion.index}
+              </td>
+              <td className="px-4 py-2 text-center border-b">
+                <div className="flex items-center justify-center">
+                  <Avatar className="mr-2">
+                    <AvatarImage
+                      src={assertion.avatarSrc}
+                      alt={assertion.name}
+                    />
+                    <AvatarFallback>{assertion.name[0]}</AvatarFallback>
+                  </Avatar>
+                  <span>{assertion.content}</span>
+                </div>
+              </td>
+              <td className="px-4 py-2 text-center border-b">
+                {assertion.type}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };
 
