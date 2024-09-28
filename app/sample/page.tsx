@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
-import SampleSelector from "./components/SampleSelector";
+import SampleSelector from "./components/sampleSelector";
 import Uploader from "@/app/dashboard/components/uploader";
+import Link from "next/link";
 
 const Sample = () => {
   return (
@@ -39,6 +40,13 @@ const Sample = () => {
             Privacy Policy
           </a>
           .
+        </p>
+        <p className="text-center mt-4 text-gray-500">
+          Need help? Click{" "}
+          <Link href="#" className="text-blue-500 hover:underline">
+            here
+          </Link>{" "}
+          for a tutorial.
         </p>
       </main>
     </div>

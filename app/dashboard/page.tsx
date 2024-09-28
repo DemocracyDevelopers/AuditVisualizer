@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Uploader from "./components/uploader";
 import React, { useEffect } from "react";
+import Link from "next/link";
 
 const Dashboard: React.FC = () => {
   useEffect(() => {
@@ -45,6 +46,13 @@ const Dashboard: React.FC = () => {
             Privacy Policy
           </a>
           .
+        </p>
+        <p className="text-center mt-4 text-gray-500">
+          Need help? Click{" "}
+          <Link href="#" className="text-blue-500 hover:underline">
+            here
+          </Link>{" "}
+          for a tutorial.
         </p>
       </main>
     </div>
