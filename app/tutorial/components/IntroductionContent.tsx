@@ -88,12 +88,11 @@ const IntroductionContent: React.FC = () => {
           <div>
             <Link
               href="/tutorial"
-              className="text-gray-500 hover:text-gray-700 flex items-center"
+              className="text-black hover:text-gray-500 flex items-center"
             >
-              <span className="mr-2">←</span> Back
+              <span className="mr-2 text-black">←</span> Back
             </Link>
           </div>
-
           {/* Next and Home Links - Right aligned */}
           <div className="text-right">
             <div className="mb-2">
@@ -102,7 +101,7 @@ const IntroductionContent: React.FC = () => {
                 href="/tutorial/outcomes"
                 className="text-blue-500 hover:underline"
               >
-                IRV elections and Visualizing Outcomes
+                IRV Elections and Visualizing Outcomes
               </Link>
             </div>
             <div>
