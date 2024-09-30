@@ -1,19 +1,34 @@
 "use client";
-import React from "react";
+import React, { useState } from "react"; // added useState
 import Card from "./components/card";
 import AssertionTable from "./components/assertionTable";
+import AssertionsDetailsModal from "./components/AssertionsDetailsModal"; //import new Modal
 import { FaUserFriends, FaTrophy, FaList } from "react-icons/fa"; // Example icons
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ChevronRight, FilePenLine } from "lucide-react";
 
-const assertionsData = [
+//add an interface of Assertion
+interface Assertion {
+  // do we need a unique id here?
+  index: number;
+  name: string;
+  avatarSrc: string;
+  content: string;
+  type: string;
+  difficulty: number; // new attributes
+  margin: number; // new attributes
+}
+
+const assertionsData: Assertion[] = [
   {
     index: 1,
     name: "Chuan",
     avatarSrc: "/path-to-avatar-image/chuan.png",
     content: "Chuan NEB Diego",
     type: "NEB",
+    difficulty: 3.375,
+    margin: 4000,
   },
   {
     index: 2,
@@ -21,9 +36,28 @@ const assertionsData = [
     avatarSrc: "/path-to-avatar-image/alice.png",
     content: "Alice > Diego if only {Alice, Bob, Chuan, Diego} remain",
     type: "NEN",
+    difficulty: 27,
+    margin: 500,
   },
+  // we can add new assertions here
+  //just using for test
 ];
-const Dashboard = () => {
+const Dashboard: React.FC = () => {
+  // add state to manage the modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  //calculate the max difficulty and min margin
+  const maxDifficulty = Math.max(...assertionsData.map((a) => a.difficulty));
+  const minMargin = Math.min(...assertionsData.map((a) => a.margin));
+
+  const handleViewDetails = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <div className="p-4">
       <div className="flex justify-end mb-4 mt-[-20px] pr-6">
@@ -52,11 +86,12 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="border border-gray-300 col-span-4 shadow-md rounded-lg p-6">
+        {/* Right Side：Assertion Table */}
+        <div className="border border-gray-300 col-span-12 md:col-span-4 shadow-md rounded-lg p-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold text-gray-600">The Assertions</h3>
             <div className="text-right">
-              <Button size="sm">
+              <Button size="sm" onClick={handleViewDetails}>
                 View Details <ChevronRight className="ml-2" size={16} />
               </Button>
             </div>
@@ -67,6 +102,15 @@ const Dashboard = () => {
           <AssertionTable assertions={assertionsData} />
         </div>
       </div>
+
+      {/* Model Component */}
+      <AssertionsDetailsModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        assertions={assertionsData}
+        maxDifficulty={maxDifficulty}
+        minMargin={minMargin}
+      />
     </div>
   );
 };
