@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import Tree from "../../components/Tree";
 import Dropdown from "./components/dropdown";
@@ -12,8 +13,15 @@ import {
 } from "@/components/ui/card";
 import { Download } from "lucide-react";
 import CandidateListBar from "./components/candidate-list-bar";
+import { demoFromCore } from "./demo";
+import { useState } from "react";
 
 function SvgTest() {
+  const oneWinnerTrees = demoFromCore[0];
+  const { winnerInfo, data } = oneWinnerTrees;
+  const stepSize = data.process.length - 1; // 处理stepSize为0的情况
+  const [selectedStep, setSelectedStep] = useState<number>(1);
+
   return (
     <div>
       <div>page</div>
@@ -35,10 +43,18 @@ function SvgTest() {
             </CardTitle>
           </CardHeader>
           <div className="flex justify-between pl-10">
-            <StepByStep />
+            <StepByStep
+              stepSize={stepSize}
+              setSelectedStep={setSelectedStep}
+              selectedStep={selectedStep}
+            />
             <div className="w-full h-[400px]">
               <CandidateListBar />
-              <Tree data={dataOneTree2} />
+              {/* <Tree data={dataOneTree2} /> */}
+              <Tree
+                data={data.process[selectedStep].before![0]}
+                key={selectedStep}
+              />
             </div>
           </div>
         </Card>
