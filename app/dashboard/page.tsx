@@ -6,6 +6,7 @@ import AssertionsDetailsModal from "./components/AssertionsDetailsModal"; //impo
 import { FaUserFriends, FaTrophy, FaList } from "react-icons/fa"; // Example icons
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { ChevronRight, FilePenLine } from "lucide-react";
 
 //add an interface of Assertion
 interface Assertion {
@@ -61,7 +62,10 @@ const Dashboard: React.FC = () => {
     <div className="p-4">
       <div className="flex justify-end mb-4 mt-[-20px] pr-6">
         <Link href="/upload">
-          <Button size="sm">Change File</Button>
+          <Button size="sm">
+            Change File
+            <FilePenLine className="ml-2" size={16} />
+          </Button>
         </Link>
       </div>
       <div className="grid grid-cols-12 gap-6 p-6">
@@ -88,7 +92,7 @@ const Dashboard: React.FC = () => {
             <h3 className="text-lg font-bold text-gray-600">The Assertions</h3>
             <div className="text-right">
               <Button size="sm" onClick={handleViewDetails}>
-                View Details
+                View Details <ChevronRight className="ml-2" size={16} />
               </Button>
             </div>
           </div>

@@ -30,8 +30,8 @@ const AssertionTable: React.FC<AssertionTableProps> = ({ assertions }) => {
               <td className="px-4 py-2 text-center border-b">
                 {assertion.index}
               </td>
-              <td className="px-4 py-2 text-center border-b">
-                <div className="flex items-center justify-center">
+              <td className="px-4 py-2 text-left border-b">
+                <div className="flex items-center justify-start">
                   <Avatar className="mr-2">
                     <AvatarImage
                       src={assertion.avatarSrc}
