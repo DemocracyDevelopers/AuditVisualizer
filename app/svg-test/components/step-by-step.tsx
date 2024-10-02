@@ -20,7 +20,7 @@ function StepByStep({
         <div
           key={index}
           onClick={() => setSelectedStep(index + 1)}
-          className="rounded-full bg-[#b3b3b3] w-10 h-10 text-center leading-10 mb-2 cursor-pointer z-10 font-bold"
+          className={`rounded-full w-10 h-10 text-center leading-10 mb-2 cursor-pointer z-10 font-bold ${selectedStep === index + 1 ? "bg-[#18a0fb]" : "bg-[#b3b3b3]"}`}
         >
           {index + 1}
         </div>
