@@ -226,7 +226,7 @@ const dataMultiWinner = [
 type Candidate = {
   id: number;
   name: string;
-  avatar: string;
+  avatar?: string;
 };
 const candidateList: Candidate[] = [
   {
