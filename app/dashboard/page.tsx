@@ -8,41 +8,65 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ChevronRight, FilePenLine } from "lucide-react";
 
+import { mockData } from "@/utils/data";
+
 //add an interface of Assertion
 interface Assertion {
   // do we need a unique id here?
   index: number;
-  name: string;
-  avatarSrc: string;
+  name: string; // winner name
+  // avatarSrc: string;
   content: string;
   type: string;
-  difficulty: number; // new attributes
-  margin: number; // new attributes
+  difficulty: number;
+  margin: number;
 }
 
-const assertionsData: Assertion[] = [
-  {
-    index: 1,
-    name: "Chuan",
-    avatarSrc: "/path-to-avatar-image/chuan.png",
-    content: "Chuan NEB Diego",
-    type: "NEB",
-    difficulty: 3.375,
-    margin: 4000,
-  },
-  {
-    index: 2,
-    name: "Alice",
-    avatarSrc: "/path-to-avatar-image/alice.png",
-    content: "Alice > Diego if only {Alice, Bob, Chuan, Diego} remain",
-    type: "NEN",
-    difficulty: 27,
-    margin: 500,
-  },
-  // we can add new assertions here
-  //just using for test
-];
+interface ResultDetails {
+  winner: Candidate;
+  candidateNum: number;
+  assertionNum: number;
+  candidates: Candidate[];
+}
+
+interface Candidate {
+  id: number;
+  name: string;
+}
+
+export interface ApiResponse {
+  resultDetails: ResultDetails;
+  assertions: Assertion[];
+}
+
+// const assertionsData: Assertion[] = [
+//   {
+//     index: 1,
+//     name: "Chuan",
+//     // avatarSrc: "/path-to-avatar-image/chuan.png",
+//     content: "Chuan NEB Diego",
+//     type: "NEB",
+//     difficulty: 3.375,
+//     margin: 4000,
+//   },
+//   {
+//     index: 2,
+//     name: "Alice",
+//     // avatarSrc: "/path-to-avatar-image/alice.png",
+//     content: "Alice > Diego if only {Alice, Bob, Chuan, Diego} remain",
+//     type: "NEN",
+//     difficulty: 27,
+//     margin: 500,
+//   },
+// we can add new assertions here
+//just using for test
+//];
 const Dashboard: React.FC = () => {
+  //mock data test here
+  const { resultDetails, assertions } = mockData;
+  const { candidates, winner, candidateNum, assertionNum } = resultDetails;
+  const assertionsData = assertions;
+
   // add state to manage the modal
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -72,9 +96,13 @@ const Dashboard: React.FC = () => {
         {/* Left Side: Cards and Elimination Tree */}
         <div className="col-span-8 space-y-6">
           <div className="grid grid-cols-3 gap-6">
-            <Card title="Candidate" value="4" icon={<FaUserFriends />} />
-            <Card title="Winner" value="Chuan" icon={<FaTrophy />} />
-            <Card title="Assertion" value="5" icon={<FaList />} />
+            <Card
+              title="Candidate"
+              value={candidateNum}
+              icon={<FaUserFriends />}
+            />
+            <Card title="Winner" value={winner.name} icon={<FaTrophy />} />
+            <Card title="Assertion" value={assertionNum} icon={<FaList />} />
           </div>
 
           {/* Elimination Tree section */}
