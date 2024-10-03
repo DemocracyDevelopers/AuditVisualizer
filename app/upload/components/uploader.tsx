@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { AlertCircle, X, CloudUpload, File, ArrowLeft } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { CloudUpload, File, ArrowLeft } from "lucide-react";
+import CustomAlertDialog from "./alertDialog";
 import UploadProgress from "./progress";
 
 interface UploaderProps {
@@ -20,24 +20,18 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
     false,
     false,
   ]); // 每个阶段的错误状态
+  const [errorTitle, setErrorTitle] = useState(""); // 错误标题
   const [errorMsg, setErrorMsg] = useState(""); // 错误消息
   const allowedFileTypes = [".json", ".txt"];
   const maxFileSize = 100 * 1024 * 1024; // 100MB
 
-  const stopAtPhase = 5;
-
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (showAlert) {
-      timer = setTimeout(() => {
-        setShowAlert(false);
-      }, 2000);
-    }
-    return () => clearTimeout(timer);
-  }, [showAlert]);
+  const stopAtPhase = 3;
 
   // 模拟文件上传进度和阶段出错
   useEffect(() => {
+    let title = "Error Occurred";
+    let msg =
+      "It seems that the file you uploaded contains some mistakes, which means we can not parse your file, please check and try again.";
     let interval: NodeJS.Timeout | null = null;
     if (isUploading && currentPhase <= 3) {
       interval = setInterval(() => {
@@ -53,6 +47,10 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
             });
             setIsUploading(false); // 停止上传状态
             setIsError(true); // 设置错误状态
+            setErrorTitle(title); // 设置错误标题
+            setErrorMsg(msg); // 设置错误消息
+            setShowAlert(true); // 显示错误提示
+
             return prevPhase; // 保持当前阶段不变
           }
           return nextPhase;
@@ -77,12 +75,18 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
     if (file) {
       const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
       if (!allowedFileTypes.includes(`.${fileExtension}`)) {
-        setErrorMsg("Unsupported file type.");
+        setErrorTitle("Unsupported file type");
+        setErrorMsg(
+          "It seems that the file you uploaded is not supported, please check if your file is a raier-rs JSON file.",
+        );
         setShowAlert(true);
         return;
       }
       if (file.size > maxFileSize) {
-        setErrorMsg("File size exceeds the limit.");
+        setErrorTitle("File size exceeds the limit");
+        setErrorMsg(
+          "File size exceeds the allowable limit(100MB). Please upload a smaller file.",
+        );
         setShowAlert(true);
         return;
       }
@@ -106,12 +110,18 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
     if (file) {
       const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
       if (!allowedFileTypes.includes(`.${fileExtension}`)) {
-        setErrorMsg("Unsupported file type.");
+        setErrorTitle("Unsupported file type");
+        setErrorMsg(
+          "It seems that the file you uploaded is not supported, please check if your file is a raier-rs JSON file.",
+        );
         setShowAlert(true);
         return;
       }
       if (file.size > maxFileSize) {
-        setErrorMsg("File size exceeds the limit.");
+        setErrorTitle("File size exceeds the limit");
+        setErrorMsg(
+          "File size exceeds the allowable limit(100MB). Please upload a smaller file.",
+        );
         setShowAlert(true);
         return;
       }
@@ -134,32 +144,19 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
   return (
     <div className={className}>
       {/* 错误信息提示 */}
-      {showAlert && (
-        <div className="fixed top-2 right-2 z-50">
-          <Alert
-            variant="destructive"
-            className="flex justify-between items-center"
-          >
-            <div className="flex items-center">
-              <AlertCircle className="h-4 w-4 mr-2" />
-              <div>
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{errorMsg}</AlertDescription>
-              </div>
-            </div>
-            <button
-              onClick={() => setShowAlert(false)}
-              className="absolute bottom-2 left-2 ml-4 transition transform hover:scale-110 active:scale-90"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </Alert>
-        </div>
-      )}
-
+      <CustomAlertDialog
+        open={showAlert}
+        onClose={() => setShowAlert(false)} // 点击按钮关闭 AlertDialog
+        title={errorTitle}
+        description={errorMsg}
+      />
       {/* 上传进度条显示 */}
-      {isUploading || isError ? (
-        <UploadProgress currentPhase={currentPhase} phaseErrors={phaseErrors} />
+      {(isUploading || isError) && selectedFile ? (
+        <UploadProgress
+          currentPhase={currentPhase}
+          phaseErrors={phaseErrors}
+          fileName={selectedFile.name}
+        />
       ) : uploadComplete && selectedFile ? (
         <>
           {/* 上传完成 */}
@@ -214,7 +211,7 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
                 your files
               </p>
               <p className="text-gray-400 mb-2">or</p>
-              {/* Sample文件 */}
+              {/* Sample文件 TODO */}
               <a href="#" className="text-blue-600">
                 Use a sample file
               </a>
