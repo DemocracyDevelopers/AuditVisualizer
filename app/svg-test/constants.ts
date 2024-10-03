@@ -226,28 +226,28 @@ const dataMultiWinner = [
 type Candidate = {
   id: number;
   name: string;
-  avatar?: string;
+  color?: string;
 };
 const candidateList: Candidate[] = [
   {
     id: 1,
     name: "Alice",
-    avatar: "",
+    color: "",
   },
   {
     id: 2,
     name: "Bob",
-    avatar: "",
+    color: "",
   },
   {
     id: 3,
     name: "Chuan",
-    avatar: "",
+    color: "",
   },
   {
     id: 4,
     name: "Diego",
-    avatar: "",
+    color: "",
   },
 ];
 
