@@ -25,7 +25,7 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
   const allowedFileTypes = [".json", ".txt"];
   const maxFileSize = 100 * 1024 * 1024; // 100MB
 
-  const stopAtPhase = 3;
+  const stopAtPhase = 5;
 
   // 模拟文件上传进度和阶段出错
   useEffect(() => {

@@ -35,7 +35,7 @@ const CustomAlertDialog: React.FC<CustomAlertDialogProps> = ({
   return (
     <div className="fixed top-2 right-2 z-50">
       {/* 设置右上角位置 */}
-      <Card className="shadow-lg border border-gray-200 w-96">
+      <Card className="shadow-lg border border-gray-200 max-w-xl">
         <CardHeader className="flex items-center flex-row">
           <AlertCircle className="text-red-500 h-5 w-5 mr-2" /> {/* 警告图标 */}
           <CardTitle>{title}</CardTitle> {/* 自定义标题 */}
