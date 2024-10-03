@@ -45,6 +45,13 @@ const Dashboard: React.FC = () => {
             .
           </p>
         </div>
+        <div className="text-center text-lg text-gray-600 my-4">
+          Need help? Click{" "}
+          <a href="#" className="text-blue-600 hover:underline">
+            here
+          </a>{" "}
+          for a tutorial.
+        </div>
       </main>
     </div>
   );
