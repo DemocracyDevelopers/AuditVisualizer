@@ -5,7 +5,7 @@
 ## Team Member
 
 | Name        | Roles                               |
-|-------------|-------------------------------------|
+| ----------- | ----------------------------------- |
 | Aaron Lee   | Technical Officer/Client Liaison    |
 | Emily Zhang | Project Manager/Front-end Developer |
 | Yilin Lyu   | Scrum Mater/Front-end Developer     |
@@ -27,6 +27,10 @@
 - zustand
 - jest
 - husky
+- icons
+  - [lucide](https://lucide.dev/icons/)
+  - [mdi](https://pictogrammers.com/library/mdi/)
+  - [iconfont](https://www.iconfont.cn/)
 
 # Environment and Tools
 
