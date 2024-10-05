@@ -55,9 +55,9 @@ const Avatar: React.FC<AvatarProps> = ({ userId, userName, totalUsers }) => {
   const candidateList = useStore((state) => state.candidateList);
 
   useEffect(() => {
-    assignColorsToCandidates(); // 分配颜色给所有候选人
+    assignColorsToCandidates();
     console.log(candidateList);
-  }, [assignColorsToCandidates, candidateList]);
+  }, [assignColorsToCandidates]);
 
   const candidate = candidateList.find((candidate) => candidate.id === userId);
   const backgroundColor = candidate ? candidate.color : "#CCCCCC";
@@ -71,7 +71,7 @@ const Avatar: React.FC<AvatarProps> = ({ userId, userName, totalUsers }) => {
     justifyContent: "center",
     color: "#FFFFFF",
     fontWeight: "bold",
-    backgroundColor: backgroundColor, // 使用 Zustand 中的颜色
+    backgroundColor: backgroundColor,
     fontSize: 14,
     textTransform: "uppercase",
   };
