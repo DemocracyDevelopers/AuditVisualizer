@@ -34,7 +34,7 @@ const Upload: React.FC = () => {
         </p>
         <p className="text-center mt-4 text-gray-500">
           Need help? Click{" "}
-          <Link href="#" className="text-blue-500 hover:underline">
+          <Link href="/tutorial" className="text-blue-500 hover:underline">
             here
           </Link>{" "}
           for a tutorial.
