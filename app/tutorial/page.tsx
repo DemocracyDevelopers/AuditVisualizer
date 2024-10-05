@@ -1,7 +1,8 @@
 // pages/tutorial.tsx
 
 import React from "react";
-import TutorialContent from "./components/TutorialContent"; // Adjust this path according to your project structure
+import TutorialContent from "./components/TutorialContent";
+import FloatingMenu from "./components/FloatingMenu"; // Adjust this path according to your project structure
 
 const Tutorial: React.FC = () => {
   return (
@@ -10,6 +11,9 @@ const Tutorial: React.FC = () => {
       <main className="flex flex-col flex-grow">
         {/* Tutorial Content Component */}
         <TutorialContent />
+
+        {/* Floating Menu */}
+        <FloatingMenu />
 
         {/* Footer Section */}
         <p className="text-sm text-gray-500 text-center mt-8">
