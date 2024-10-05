@@ -2,11 +2,11 @@
 // pages/explain-assertions.tsx
 
 import React, { useState } from "react";
-import ExplainAssertionsComponent from "./components/ExplainAssertionsComponent";
+import { explainAssertions } from "./components/explain_process";
 
 const ExplainAssertionsPage = () => {
   const [inputText, setInputText] = useState("");
-  const [inputData, setInputData] = useState<any | null>(null);
+  const [outputData, setOutputData] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -16,11 +16,20 @@ const ExplainAssertionsPage = () => {
   const handleExplain = () => {
     try {
       const parsedInput = JSON.parse(inputText);
-      setInputData(parsedInput);
-      setError(null);
+
+      // 调用 explainAssertions 方法
+      const result = explainAssertions(parsedInput);
+
+      if (result.success) {
+        setOutputData(result.data);
+        setError(null);
+      } else {
+        setError(result.error_message);
+        setOutputData(null);
+      }
     } catch (e) {
       setError("Invalid JSON input");
-      setInputData(null);
+      setOutputData(null);
     }
   };
 
@@ -37,7 +46,12 @@ const ExplainAssertionsPage = () => {
       <br />
       <button onClick={handleExplain}>Explain Assertions</button>
       {error && <p className="error">{error}</p>}
-      {inputData && <ExplainAssertionsComponent inputData={inputData} />}
+      {outputData && (
+        <div>
+          <h2>Result</h2>
+          <pre>{JSON.stringify(outputData, null, 2)}</pre>
+        </div>
+      )}
     </div>
   );
 };
