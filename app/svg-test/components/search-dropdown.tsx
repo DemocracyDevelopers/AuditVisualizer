@@ -42,13 +42,13 @@ function SearchDropdown() {
                 onMouseDown={() => handleSelect(candidate)}
                 className="cursor-pointer p-2 rounded-sm hover:bg-gray-200 "
               >
-                {candidate.avatar && (
+                {/* {candidate.avatar && (
                   <Image
                     src={candidate.avatar}
                     alt={candidate.name}
                     className="inline-block w-6 h-6 mr-2"
                   />
-                )}
+                )} */}
                 {candidate.name}
               </div>
             ))
