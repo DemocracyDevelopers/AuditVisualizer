@@ -64,77 +64,90 @@ const dataOneTree = {
     },
   ],
 };
-const dataOneTree2 =
-  // name: "root",
-  // children: [
-  {
-    name: "Alice",
-    children: [
-      {
-        name: "Bob",
-        children: [
-          {
-            name: "Chuan",
-            children: [
-              {
-                name: "Diego",
-              },
-            ],
-          },
-          {
-            name: "Diego",
-            children: [
-              {
-                name: "Chuan",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        name: "Chuan",
-        children: [
-          {
-            name: "Bob",
-            children: [
-              {
-                name: "Diego",
-              },
-            ],
-          },
-          {
-            name: "Diego",
-            children: [
-              {
-                name: "Bob",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        name: "Diego",
-        children: [
-          {
-            name: "Bob",
-            children: [
-              {
-                name: "Chuan",
-              },
-            ],
-          },
-          {
-            name: "Chuan",
-            children: [
-              {
-                name: "Bob",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  };
+const dataOneTree2 = {
+  id: 1,
+  name: "Alice",
+  children: [
+    {
+      id: 2,
+      name: "Bob",
+      children: [
+        {
+          id: 3,
+          name: "Chuan",
+          children: [
+            {
+              id: 4,
+              name: "Diego",
+            },
+          ],
+        },
+        {
+          id: 4,
+          name: "Diego",
+          children: [
+            {
+              id: 3,
+              name: "Chuan",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: 3,
+      name: "Chuan",
+      children: [
+        {
+          id: 2,
+          name: "Bob",
+          children: [
+            {
+              id: 4,
+              name: "Diego",
+            },
+          ],
+        },
+        {
+          id: 4,
+          name: "Diego",
+          children: [
+            {
+              id: 2,
+              name: "Bob",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: 4,
+      name: "Diego",
+      children: [
+        {
+          id: 2,
+          name: "Bob",
+          children: [
+            {
+              id: 3,
+              name: "Chuan",
+            },
+          ],
+        },
+        {
+          id: 3,
+          name: "Chuan",
+          children: [
+            {
+              id: 2,
+              name: "Bob",
+            },
+          ],
+        },
+      ],
+    },
+  ],
+};
 
 // step by step
 const dataStepByStep = {
@@ -213,28 +226,28 @@ const dataMultiWinner = [
 type Candidate = {
   id: number;
   name: string;
-  avatar: string;
+  color?: string;
 };
 const candidateList: Candidate[] = [
   {
     id: 1,
     name: "Alice",
-    avatar: "",
+    color: "",
   },
   {
     id: 2,
     name: "Bob",
-    avatar: "",
+    color: "",
   },
   {
     id: 3,
     name: "Chuan",
-    avatar: "",
+    color: "",
   },
   {
     id: 4,
     name: "Diego",
-    avatar: "",
+    color: "",
   },
 ];
 

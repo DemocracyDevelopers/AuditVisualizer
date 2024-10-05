@@ -47,6 +47,9 @@ importers:
       d3:
         specifier: ^7.9.0
         version: 7.9.0
+      embla-carousel-react:
+        specifier: ^8.3.0
+        version: 8.3.0(react@18.3.1)
       lucide:
         specifier: ^0.439.0
         version: 0.439.0
@@ -1760,6 +1763,19 @@ packages:
 
   electron-to-chromium@1.5.29:
     resolution: {integrity: sha512-PF8n2AlIhCKXQ+gTpiJi0VhcHDb69kYX4MtCiivctc2QD3XuNZ/XIOlbGzt7WAjjEev0TtaH6Cu3arZExm5DOw==}
+
+  embla-carousel-react@8.3.0:
+    resolution: {integrity: sha512-P1FlinFDcIvggcErRjNuVqnUR8anyo8vLMIH8Rthgofw7Nj8qTguCa2QjFAbzxAUTQTPNNjNL7yt0BGGinVdFw==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.1 || ^18.0.0
+
+  embla-carousel-reactive-utils@8.3.0:
+    resolution: {integrity: sha512-EYdhhJ302SC4Lmkx8GRsp0sjUhEN4WyFXPOk0kGu9OXZSRMmcBlRgTvHcq8eKJE1bXWBsOi1T83B+BSSVZSmwQ==}
+    peerDependencies:
+      embla-carousel: 8.3.0
+
+  embla-carousel@8.3.0:
+    resolution: {integrity: sha512-Ve8dhI4w28qBqR8J+aMtv7rLK89r1ZA5HocwFz6uMB/i5EiC7bGI7y+AM80yAVUJw3qqaZYK7clmZMUR8kM3UA==}
 
   emittery@0.13.1:
     resolution: {integrity: sha512-DeWwawk6r5yR9jFgnDKYt4sLS0LmHJJi3ZOnb5/JdbYwj3nW+FxQnHIjhBKz8YLC7oRNPVM9NQ47I3CVx34eqQ==}
@@ -5511,6 +5527,18 @@ snapshots:
 
   electron-to-chromium@1.5.29: {}
 
+  embla-carousel-react@8.3.0(react@18.3.1):
+    dependencies:
+      embla-carousel: 8.3.0
+      embla-carousel-reactive-utils: 8.3.0(embla-carousel@8.3.0)
+      react: 18.3.1
+
+  embla-carousel-reactive-utils@8.3.0(embla-carousel@8.3.0):
+    dependencies:
+      embla-carousel: 8.3.0
+
+  embla-carousel@8.3.0: {}
+
   emittery@0.13.1: {}
 
   emoji-regex@10.4.0: {}
@@ -5708,6 +5736,7 @@ snapshots:
       eslint-import-resolver-typescript: 3.6.3(@typescript-eslint/parser@7.2.0(eslint@8.57.1)(typescript@5.6.2))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.30.0(eslint@8.57.1))(eslint@8.57.1)
     transitivePeerDependencies:
       - supports-color
+
 
   eslint-plugin-import@2.30.0(@typescript-eslint/parser@7.2.0(eslint@8.57.1)(typescript@5.6.2))(eslint-import-resolver-typescript@3.6.3)(eslint@8.57.1):
     dependencies:
