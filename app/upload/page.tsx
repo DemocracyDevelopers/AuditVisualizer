@@ -1,24 +1,9 @@
 "use client";
-
-import Image from "next/image";
 import Uploader from "./components/uploader";
 import React, { useEffect } from "react";
 import Link from "next/link";
 
 const Upload: React.FC = () => {
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("https://httpbin.org/get");
-        const data = await response.json();
-        console.log(data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    fetchData();
-  }, []);
-
   return (
     <div className="flex flex-col h-screen bg-white ">
       {/* Main content */}

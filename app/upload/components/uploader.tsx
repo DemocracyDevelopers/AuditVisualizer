@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { AlertCircle, X, CloudUpload } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import Link from "next/link";
 
 interface UploaderProps {
   className?: string; // Optional className prop
@@ -96,9 +97,9 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
             your files
           </p>
           <p className="text-gray-400 mb-2">or</p>
-          <a href="/sample" className="text-blue-600">
+          <Link href="/sample" className="text-blue-600">
             Use a sample file
-          </a>
+          </Link>
 
           <input
             type="file"
