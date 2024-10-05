@@ -96,7 +96,7 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
             your files
           </p>
           <p className="text-gray-400 mb-2">or</p>
-          <a href="#" className="text-blue-600">
+          <a href="/sample" className="text-blue-600">
             Use a sample file
           </a>
 
