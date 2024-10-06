@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { Candidate, candidateList } from "../constants";
+import { Candidate, candidateList } from "./constants";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 

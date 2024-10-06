@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react"; // added useState
+import { useState } from "react"; // added useState
 import Card from "./components/card";
 import AssertionTable from "./components/assertionTable";
 import AssertionsDetailsModal from "./components/AssertionsDetailsModal"; //import new Modal
@@ -9,6 +9,7 @@ import Link from "next/link";
 import { ChevronRight, FilePenLine } from "lucide-react";
 
 import { mockData } from "@/utils/data";
+import EliminationTree from "./components/elimination-tree";
 
 //add an interface of Assertion
 interface Assertion {
@@ -106,12 +107,7 @@ const Dashboard: React.FC = () => {
           </div>
 
           {/* Elimination Tree section */}
-          <div className="border border-gray-300 rounded-lg p-6 h-96">
-            <h3 className="text-gray-600 text-lg font-medium">
-              Elimination Tree
-            </h3>
-            <p className="text-gray-400 text-sm">to be updated</p>
-          </div>
+          <EliminationTree />
         </div>
 
         {/* Right Side：Assertion Table */}

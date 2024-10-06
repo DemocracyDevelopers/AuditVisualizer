@@ -21,7 +21,7 @@ export default function RootLayout({
           {/* Header part */}
           <header className="flex items-center py-2">
             <Image src="/Logo.png" alt="Logo" width={80} height={80} />
-            <h1 className="text-3xl font-bold ml-4">AuditVisualiser</h1>
+            <h1 className="text-3xl font-bold ml-4">AuditVisualizer</h1>
           </header>
           {/* Main content */}
           <main className="flex flex-col flex-grow bg-white">{children}</main>

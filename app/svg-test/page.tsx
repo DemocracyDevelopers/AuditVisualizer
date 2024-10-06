@@ -1,8 +1,8 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import Tree from "../../components/Tree";
-import Dropdown from "./components/dropdown";
-import StepByStep from "./components/step-by-step";
+import Dropdown from "../dashboard/components/elimination-tree/dropdown";
+import StepByStep from "../dashboard/components/elimination-tree/step-by-step";
 import {
   Card,
   CardContent,
@@ -11,8 +11,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Download } from "lucide-react";
-import CandidateListBar from "./components/candidate-list-bar";
-import { demoFromCore } from "./demo";
+import CandidateListBar from "../dashboard/components/elimination-tree/candidate-list-bar";
+import { demoFromCore } from "../dashboard/components/elimination-tree/demo";
 import { useMemo, useState } from "react";
 
 function SvgTest() {

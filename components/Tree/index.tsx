@@ -3,55 +3,53 @@ import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import { Switch } from "@/components/ui/switch";
 import { toggleChildren, TreeNode } from "./helper";
-
-// Define the JSON data type
+import { Button } from "../ui/button";
+import {
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Minus,
+  Plus,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 interface TreeProps {
   data: TreeNode;
+  nextComponent: React.ReactNode;
 }
 
-export default function Tree({ data }: TreeProps) {
-  const [zoomEnabled, setZoomEnabled] = useState<boolean>(false); // State for zoom enable/disable
+export default function Tree({ data, nextComponent }: TreeProps) {
+  const [zoomEnabled, setZoomEnabled] = useState<boolean>(true);
   const svgRef = useRef<SVGSVGElement | null>(null);
-  const gRef = useRef<SVGGElement | null>(null); // Ref for the group element
-  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
-  const [treeData, setTreeData] = useState(data); // State for the tree data
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (svgRef.current) {
-        const parent = svgRef.current.parentElement;
-        if (parent) {
-          setDimensions({
-            width: parent.clientWidth, // Use parent's width
-            height: parent.clientHeight, // Use parent's height
-          });
-        }
-      }
-    };
-
-    // Set dimensions initially
-    handleResize();
-    // Add resize event listener
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+  const gRef = useRef<SVGGElement | null>(null);
+  const zoomBehaviorRef = useRef<d3.ZoomBehavior<
+    SVGSVGElement,
+    unknown
+  > | null>(null); // Ref to store zoom behavior
+  const [dimensions, setDimensions] = useState({ width: 400, height: 400 });
+  const [treeData, setTreeData] = useState(data);
+  const [currentZoom, setCurrentZoom] = useState<number>(1);
 
   useEffect(() => {
     if (svgRef.current) {
       const svgElement = d3.select(svgRef.current);
-      svgElement.selectAll("*").remove(); // Clear previous contents
+      svgElement.selectAll("*").remove();
 
       const { width, height } = dimensions;
       const margin = { top: 20, right: 20, bottom: 20, left: 20 };
 
-      const treeLayout = d3.tree<TreeNode>().size([
-        height - margin.top - margin.bottom - 10, // 横向高度!!!
-        width - margin.left - margin.right - 150, // 纵向高度!!!
-      ]);
+      const treeLayout = d3
+        .tree<TreeNode>()
+        .size([
+          height - margin.top - margin.bottom - 10,
+          width - margin.left - margin.right - 10,
+        ]);
 
       const root = d3.hierarchy(treeData);
       const treeDataLayout = treeLayout(root);
@@ -62,7 +60,7 @@ export default function Tree({ data }: TreeProps) {
       const g = svgElement
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
-      gRef.current = g.node(); // Save group element ref
+      gRef.current = g.node();
 
       // Draw links
       g.selectAll("line")
@@ -75,33 +73,33 @@ export default function Tree({ data }: TreeProps) {
         .attr("y2", (d) => (d.target as d3.HierarchyPointNode<TreeNode>).y)
         .attr("stroke", "gray");
 
-      //  创建组以便绑定事件
+      // Create groups for each node
       const groups = g
         .selectAll("g")
         .data(nodes)
         .enter()
         .append("g")
         .attr("transform", (d) => `translate(${d.x},${d.y})`)
-        .classed("cursor-pointer", true) // 添加 Tailwind 的 cursor-pointer 类
+        .classed("cursor-pointer", true)
         .on("click", (event, d) => {
-          toggleChildren(d.data); // Toggle children on click
-          setTreeData({ ...treeData }); // Re-render tree with updated data
+          toggleChildren(d.data);
+          setTreeData({ ...treeData });
         });
 
-      // 添加圆形
+      // Add circles
       groups
         .append("circle")
-        .attr("r", 18) // 圆的半径
-        .attr("fill", "white") // 设置为空心
-        .attr("stroke", "black") // 圆的边框颜色
-        .attr("stroke-width", 2); // 边框宽度
+        .attr("r", 18)
+        .attr("fill", "white")
+        .attr("stroke", "black")
+        .attr("stroke-width", 2);
 
-      // 添加文本
+      // Add text
       groups
         .append("text")
-        .attr("y", 3) // 让文本在圆的中央对齐
+        .attr("y", 3)
         .attr("text-anchor", "middle")
-        .attr("font-size", "10px") // 字体大小
+        .attr("font-size", "10px")
         .text((d) => d.data.name);
 
       // 添加折叠节点数量的圆形
@@ -111,9 +109,8 @@ export default function Tree({ data }: TreeProps) {
         .attr("cy", 40) // 圆心y坐标
         .attr("r", 12) // 半径
         .attr("fill", "#e77d00") // 设置填充色为 #e77d00
-        .attr("stroke-width", 1); // 设置圆形边框的宽度
+        .attr("stroke-width", 1); // 设置圆形边框的宽度为 1
 
-      // 添加折叠节点数量
       groups
         .filter((d) => !!d.data.collapsedCount)
         .append("text")
@@ -122,27 +119,47 @@ export default function Tree({ data }: TreeProps) {
         .attr("class", "text-lg text-black")
         .text((d) => (d.data.collapsedCount ? `${d.data.collapsedCount}` : ""));
 
-      // Create zoom behavior
+      // Add zoom behavior
       const zoom = d3
         .zoom<SVGSVGElement, unknown>()
-        .scaleExtent([0.5, 2])
+        .scaleExtent([0.25, 1.5])
         .on("zoom", (event) => {
           if (zoomEnabled) {
             d3.select(gRef.current).attr(
               "transform",
               event.transform.toString(),
             );
+            setCurrentZoom(event.transform.k);
           }
         });
 
       svgElement.call(zoom);
+      zoomBehaviorRef.current = zoom; // Save zoom behavior reference
 
-      // Cleanup function to prevent memory leaks
       return () => {
         svgElement.on(".zoom", null);
       };
     }
   }, [treeData, zoomEnabled, dimensions]);
+
+  const handleZoomChange = (scaleFactor: number) => {
+    if (zoomBehaviorRef.current && svgRef.current) {
+      const svgElement = d3.select(svgRef.current);
+      const { width, height } = dimensions;
+
+      const transform = d3.zoomIdentity
+        .translate(width / 2, height / 2)
+        .scale(scaleFactor)
+        .translate(-width / 2, -height / 2);
+
+      svgElement
+        .transition()
+        .duration(500)
+        .call(zoomBehaviorRef.current.transform, transform);
+
+      setCurrentZoom(scaleFactor);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -154,13 +171,52 @@ export default function Tree({ data }: TreeProps) {
         viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
         preserveAspectRatio="xMidYMid meet"
       />
-      <div className="flex items-center h-8 mt-2">
-        <span>Enable Zoom</span>
-        <Switch
-          className="ml-2"
-          checked={zoomEnabled}
-          onCheckedChange={setZoomEnabled}
-        />
+      <div className="flex justify-between">
+        <div></div>
+        <div className="flex items-center">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => handleZoomChange(currentZoom - 0.1)}
+          >
+            <Minus className="h-4 w-4" />
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                {Math.round(currentZoom * 100)}%
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => handleZoomChange(0.25)}>
+                25%
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleZoomChange(0.5)}>
+                50%
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleZoomChange(0.75)}>
+                75%
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleZoomChange(1)}>
+                100%
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleZoomChange(1.5)}>
+                150%
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => handleZoomChange(currentZoom + 0.1)}
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        </div>
+        {nextComponent}
+        {/* <Button variant="ghost">
+          Next <ArrowRight className="ml-2 h-4 w-4" />
+        </Button> */}
       </div>
     </div>
   );
