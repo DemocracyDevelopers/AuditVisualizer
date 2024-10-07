@@ -290,13 +290,24 @@ const markCutNodes = (beforeTrees: any[], afterTrees: any[]) => {
   }
 };
 
-// Main function to process inputData and return the outputData
-export function explainAssertions(inputData: any): any {
-  // Validate input data
+// Main function to process inputText and return the outputData
+export function explainAssertions(inputText: string): any {
+  // 在此处解析 JSON
+  let inputData;
+  try {
+    inputData = JSON.parse(inputText);
+  } catch (e) {
+    return {
+      success: false,
+      error_message: "Invalid JSON input",
+    };
+  }
+
+  // 验证输入数据
   const validationResult = validateInputData(inputData);
 
   if (validationResult) {
-    // There is an error
+    // 存在错误
     return {
       success: false,
       error_message: validationResult.error_message,
@@ -305,7 +316,7 @@ export function explainAssertions(inputData: any): any {
   }
 
   try {
-    // If validation passes, call explain function
+    // 如果验证通过，调用 explain 函数
     const multiWinnerData = explain(
       inputData.solution.Ok.assertions.map((a: any) => a.assertion),
       inputData.metadata.candidates,
@@ -314,7 +325,7 @@ export function explainAssertions(inputData: any): any {
       inputData.solution.Ok.winner,
     );
 
-    // Now process multiWinnerData to mark 'cut' nodes
+    // 处理 multiWinnerData 以标记 'cut' 节点
     if (multiWinnerData && Array.isArray(multiWinnerData)) {
       for (let i = 0; i < multiWinnerData.length; i++) {
         const winnerData = multiWinnerData[i];
@@ -330,13 +341,13 @@ export function explainAssertions(inputData: any): any {
       }
     }
 
-    // Return the output data
+    // 返回输出数据
     return {
       success: true,
       data: multiWinnerData,
     };
   } catch (error) {
-    // Handle any unexpected errors
+    // 处理任何意外错误
     let errorMessage = "An unexpected error occurred.";
     if (error instanceof Error) {
       errorMessage = error.message;

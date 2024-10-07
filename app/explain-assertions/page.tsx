@@ -14,21 +14,14 @@ const ExplainAssertionsPage = () => {
   };
 
   const handleExplain = () => {
-    try {
-      const parsedInput = JSON.parse(inputText);
+    // 直接将输入文本传递给 explainAssertions 方法
+    const result = explainAssertions(inputText);
 
-      // 调用 explainAssertions 方法
-      const result = explainAssertions(parsedInput);
-
-      if (result.success) {
-        setOutputData(result.data);
-        setError(null);
-      } else {
-        setError(result.error_message);
-        setOutputData(null);
-      }
-    } catch (e) {
-      setError("Invalid JSON input");
+    if (result.success) {
+      setOutputData(result.data);
+      setError(null);
+    } else {
+      setError(result.error_message);
       setOutputData(null);
     }
   };
