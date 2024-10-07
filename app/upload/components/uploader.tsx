@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { CloudUpload, File, ArrowLeft } from "lucide-react";
 import CustomAlertDialog from "./alertDialog";
 import UploadProgress from "./progress";
+import { explainAssertions } from "../../../utils/explainAssertions";
 
 interface UploaderProps {
   className?: string;
@@ -25,50 +26,126 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
   const allowedFileTypes = [".json", ".txt"];
   const maxFileSize = 100 * 1024 * 1024; // 100MB
 
-  const stopAtPhase = 5;
+  // 模拟进度条显示，根据解析结果设置状态
+  const simulateProgress = (
+    state: number,
+    success: boolean,
+    errorMsg: string,
+  ) => {
+    setIsUploading(true); // 开始模拟上传
+    let phase = 0;
 
-  // 模拟文件上传进度和阶段出错
-  useEffect(() => {
-    let title = "Error Occurred";
-    let msg =
-      "It seems that the file you uploaded contains some mistakes, which means we can not parse your file, please check and try again.";
-    let interval: NodeJS.Timeout | null = null;
-    if (isUploading && currentPhase <= 3) {
-      interval = setInterval(() => {
-        setCurrentPhase((prevPhase) => {
-          const nextPhase = prevPhase + 1; // 模拟阶段进度 +1
+    const interval = setInterval(() => {
+      phase += 1;
+      setCurrentPhase(phase);
 
-          // 停止阶段
-          if (nextPhase === stopAtPhase) {
-            setPhaseErrors((errors) => {
-              const updatedErrors = [...errors];
-              updatedErrors[prevPhase] = true; // 标记当前阶段出错
-              return updatedErrors;
-            });
-            setIsUploading(false); // 停止上传状态
-            setIsError(true); // 设置错误状态
-            setErrorTitle(title); // 设置错误标题
-            setErrorMsg(msg); // 设置错误消息
-            setShowAlert(true); // 显示错误提示
-
-            return prevPhase; // 保持当前阶段不变
-          }
-          return nextPhase;
+      if (!success) {
+        setIsUploading(false); // 停止上传状态
+        setIsError(true); // 设置错误状态
+        setErrorTitle("Parsing Error");
+        setErrorMsg(errorMsg); // 设置错误消息
+        setShowAlert(true);
+        setPhaseErrors((errors) => {
+          const updatedErrors = [...errors];
+          updatedErrors[phase - 1] = true; // 标记当前阶段出错
+          return updatedErrors;
         });
-      }, 1000);
-    }
+        clearInterval(interval); // 停止模拟
+      }
 
-    // 当阶段到达 3 时，设置上传完成
-    if (currentPhase > 3) {
-      setIsUploading(false); // 停止上传状态
-      setUploadComplete(true); // 设置上传完成
-      clearInterval(interval!);
-    }
+      if (phase >= state) {
+        clearInterval(interval); // 达到目标阶段，停止模拟
+        if (success) {
+          setIsUploading(false);
+          setUploadComplete(true);
+        }
+      }
+    }, 1000);
+  };
 
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isUploading, currentPhase, stopAtPhase]);
+  // const stopAtPhase = 5;
+
+  // // 模拟文件上传进度和阶段出错
+  // useEffect(() => {
+  //   let title = "Error Occurred";
+  //   let msg =
+  //     "It seems that the file you uploaded contains some mistakes, which means we can not parse your file, please check and try again.";
+  //   let interval: NodeJS.Timeout | null = null;
+  //   if (isUploading && currentPhase <= 3) {
+  //     interval = setInterval(() => {
+  //       setCurrentPhase((prevPhase) => {
+  //         const nextPhase = prevPhase + 1; // 模拟阶段进度 +1
+
+  //         // 停止阶段
+  //         if (nextPhase === stopAtPhase) {
+  //           setPhaseErrors((errors) => {
+  //             const updatedErrors = [...errors];
+  //             updatedErrors[prevPhase] = true; // 标记当前阶段出错
+  //             return updatedErrors;
+  //           });
+  //           setIsUploading(false); // 停止上传状态
+  //           setIsError(true); // 设置错误状态
+  //           setErrorTitle(title); // 设置错误标题
+  //           setErrorMsg(msg); // 设置错误消息
+  //           setShowAlert(true); // 显示错误提示
+
+  //           return prevPhase; // 保持当前阶段不变
+  //         }
+  //         return nextPhase;
+  //       });
+  //     }, 1000);
+  //   }
+
+  // 当阶段到达 3 时，设置上传完成
+  //   if (currentPhase > 3) {
+  //     setIsUploading(false); // 停止上传状态
+  //     setUploadComplete(true); // 设置上传完成
+  //     clearInterval(interval!);
+  //   }
+
+  //   return () => {
+  //     if (interval) clearInterval(interval);
+  //   };
+  // }, [isUploading, currentPhase, stopAtPhase]);
+
+  // 解析文件并控制进度条
+  useEffect(() => {
+    if (selectedFile) {
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        try {
+          const result = e.target?.result;
+          if (typeof result === "string") {
+            const jsonData = JSON.parse(result);
+
+            // 调用核心库中的 explainAssertions 函数解析 JSON 数据
+            const response = explainAssertions(jsonData);
+
+            if (response.success) {
+              setGlobalData(jsonData); // 成功解析，将 JSON 数据存储到全局状态中
+              // 根据返回的 state 模拟进度条
+              simulateProgress(response.state, true, "");
+            } else {
+              // 如果解析失败，根据 response.state 设置失败阶段
+              simulateProgress(response.state, false, response.error_message);
+            }
+          }
+        } catch (error) {
+          // 如果解析出错，显示错误消息
+          setIsError(true);
+          setIsUploading(false);
+          setErrorTitle("File Error");
+          setErrorMsg(
+            "Failed to parse the uploaded file. Please check the format.",
+          );
+          setShowAlert(true);
+        }
+      };
+
+      reader.readAsText(selectedFile);
+    }
+  }, [selectedFile, setGlobalData]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
