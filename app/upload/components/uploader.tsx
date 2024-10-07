@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { CloudUpload, File, ArrowLeft } from "lucide-react";
 import CustomAlertDialog from "./alertDialog";
 import UploadProgress from "./progress";
-import { explainAssertions } from "../../../utils/explainAssertions";
+import useMultiWinnerDataStore from "../../../store/MultiWinnerData";
+import { explainAssertions } from "../../explain-assertions/components/explain_process";
+import { useRouter } from "next/navigation";
 
 interface UploaderProps {
   className?: string;
@@ -25,43 +27,65 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
   const [errorMsg, setErrorMsg] = useState(""); // 错误消息
   const allowedFileTypes = [".json", ".txt"];
   const maxFileSize = 100 * 1024 * 1024; // 100MB
+  const router = useRouter();
 
-  // 模拟进度条显示，根据解析结果设置状态
-  const simulateProgress = (
-    state: number,
-    success: boolean,
-    errorMsg: string,
-  ) => {
-    setIsUploading(true); // 开始模拟上传
-    let phase = 0;
+  const { setMultiWinner, clearMultiWinner } = useMultiWinnerDataStore(); // 使用全局状态
 
-    const interval = setInterval(() => {
-      phase += 1;
-      setCurrentPhase(phase);
+  const simulateProgress = useCallback(
+    (state: number, success: boolean, errorMsg: string) => {
+      // 模拟进度条显示，根据解析结果设置状态
+      setIsUploading(true); // 开始模拟上传
+      let phase = 0;
 
-      if (!success) {
-        setIsUploading(false); // 停止上传状态
-        setIsError(true); // 设置错误状态
-        setErrorTitle("Parsing Error");
-        setErrorMsg(errorMsg); // 设置错误消息
-        setShowAlert(true);
-        setPhaseErrors((errors) => {
-          const updatedErrors = [...errors];
-          updatedErrors[phase - 1] = true; // 标记当前阶段出错
-          return updatedErrors;
-        });
-        clearInterval(interval); // 停止模拟
-      }
+      const interval = setInterval(() => {
+        phase += 1;
+        setCurrentPhase(phase);
 
-      if (phase >= state) {
-        clearInterval(interval); // 达到目标阶段，停止模拟
-        if (success) {
-          setIsUploading(false);
-          setUploadComplete(true);
+        console.log("Current phase: ", phase);
+        console.log("State: ", state);
+        if (!success) {
+          setIsUploading(false); // 停止上传状态
+          setIsError(true); // 设置错误状态
+          switch (state) {
+            case 0:
+              setErrorTitle("Data Parsing Error");
+              break;
+            case 1:
+              setErrorTitle("Cross Check Error");
+              break;
+            case 2:
+              setErrorTitle("Result Generation Error");
+              break;
+            case 3:
+              setErrorTitle("Finish Up Error");
+              break;
+            default:
+              setErrorTitle("Error Occurred");
+              break;
+          }
+          setErrorMsg(errorMsg); // 设置错误消息
+          setShowAlert(true);
+          setPhaseErrors((errors) => {
+            const updatedErrors = [...errors];
+            updatedErrors[phase - 1] = true; // 标记当前阶段出错
+            return updatedErrors;
+          });
+          clearInterval(interval); // 停止模拟
         }
-      }
-    }, 1000);
-  };
+
+        if (phase >= 4) {
+          clearInterval(interval); // 达到目标阶段，停止模拟
+          if (success) {
+            setIsUploading(false);
+            setUploadComplete(true);
+            console.log("Upload complete");
+            console.log("Complete: ", uploadComplete);
+          }
+        }
+      }, 1000);
+    },
+    [uploadComplete],
+  );
 
   // const stopAtPhase = 5;
 
@@ -123,7 +147,7 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
             const response = explainAssertions(jsonData);
 
             if (response.success) {
-              setGlobalData(jsonData); // 成功解析，将 JSON 数据存储到全局状态中
+              setMultiWinner(response.data); // 成功解析，将 JSON 数据存储到全局状态中
               // 根据返回的 state 模拟进度条
               simulateProgress(response.state, true, "");
             } else {
@@ -145,7 +169,7 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
 
       reader.readAsText(selectedFile);
     }
-  }, [selectedFile, setGlobalData]);
+  }, [selectedFile, setMultiWinner, simulateProgress]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -168,6 +192,7 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
         return;
       }
       setSelectedFile(file);
+      clearMultiWinner(); // 清空全局状态中的 JSON 数据
       setUploadComplete(false); // 重置上传完成状态
       setIsError(false); // 重置错误状态
       setIsUploading(true); // 开始上传
@@ -203,6 +228,7 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
         return;
       }
       setSelectedFile(file);
+      clearMultiWinner(); // 清空全局状态中的 JSON 数据
       setUploadComplete(false); // 重置上传完成状态
       setIsError(false); // 重置错误状态
       setIsUploading(true); // 开始上传
@@ -213,6 +239,7 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
 
   const handleReset = () => {
     setSelectedFile(null); // 清空选中的文件
+    clearMultiWinner(); // 清空全局状态中的 JSON 数据
     setUploadComplete(false); // 重置上传完成状态
     setIsError(false); // 重置错误状态
     setCurrentPhase(0); // 重置上传进度
@@ -250,7 +277,8 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
                 Your file has been added successfully!
               </p>
               <button
-                onClick={handleReset}
+                type="button"
+                onClick={() => router.push("/dashboard")} // 跳转到解析页面
                 className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition"
               >
                 Start Explaining
