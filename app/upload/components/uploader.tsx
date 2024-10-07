@@ -33,13 +33,17 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
 
   const simulateProgress = useCallback(
     (state: number, success: boolean, errorMsg: string) => {
+      console.log("Simulating progress...");
+      console.log("State: ", state);
+      console.log("Success: ", success);
+      console.log("Error message: ", errorMsg);
       // 模拟进度条显示，根据解析结果设置状态
       setIsUploading(true); // 开始模拟上传
       let phase = 0;
 
       const interval = setInterval(() => {
-        phase += 1;
         setCurrentPhase(phase);
+        phase += 1;
 
         console.log("Current phase: ", phase);
         console.log("State: ", state);
@@ -132,38 +136,29 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
   //   };
   // }, [isUploading, currentPhase, stopAtPhase]);
 
-  // 解析文件并控制进度条
   useEffect(() => {
     if (selectedFile) {
       const reader = new FileReader();
 
       reader.onload = (e) => {
-        try {
-          const result = e.target?.result;
-          if (typeof result === "string") {
-            const jsonData = JSON.parse(result);
+        // 获取文件内容
+        const result = e.target?.result;
 
-            // 调用核心库中的 explainAssertions 函数解析 JSON 数据
-            const response = explainAssertions(jsonData);
-
-            if (response.success) {
-              setMultiWinner(response.data); // 成功解析，将 JSON 数据存储到全局状态中
-              // 根据返回的 state 模拟进度条
-              simulateProgress(response.state, true, "");
-            } else {
-              // 如果解析失败，根据 response.state 设置失败阶段
-              simulateProgress(response.state, false, response.error_message);
-            }
+        if (typeof result === "string") {
+          console.log("File content: ", result);
+          // 调用核心库中的 explainAssertions 函数进行解析和校验
+          const response = explainAssertions(result); // 直接将文件内容传递给核心库
+          console.log("Response: ", response);
+          // 根据核心库返回的 response 进行处理
+          if (response.success) {
+            // 成功解析并校验，将数据存储到全局状态中
+            setMultiWinner(response.data);
+            // 根据返回的 state 模拟进度条
+            simulateProgress(response.state, true, "");
+          } else {
+            // 如果解析或校验失败，调用 simulateProgress 并显示错误消息
+            simulateProgress(response.state, false, response.error_message);
           }
-        } catch (error) {
-          // 如果解析出错，显示错误消息
-          setIsError(true);
-          setIsUploading(false);
-          setErrorTitle("File Error");
-          setErrorMsg(
-            "Failed to parse the uploaded file. Please check the format.",
-          );
-          setShowAlert(true);
         }
       };
 
