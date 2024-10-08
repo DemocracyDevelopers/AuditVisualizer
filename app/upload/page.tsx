@@ -21,10 +21,6 @@ const Dashboard: React.FC = () => {
   return (
     <div className="flex flex-col h-screen">
       <main className="flex flex-col bg-gray-100 p-8 h-screen">
-        <div className="flex items-center mb-6">
-          <Image src="/Logo.png" alt="Logo" width={80} height={80} />
-          <h1 className="text-3xl font-bold">AuditVisualiser</h1>
-        </div>
         <div className="bg-white shadow-md rounded-lg p-6 flex flex-col flex-grow">
           <h2 className="text-3xl font-bold text-left">
             Show the effect of assertions
