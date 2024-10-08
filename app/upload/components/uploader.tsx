@@ -33,11 +33,6 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
 
   const simulateProgress = useCallback(
     (state: number, success: boolean, errorMsg: string) => {
-      console.log("Simulating progress...");
-      console.log("State: ", state);
-      console.log("Success: ", success);
-      console.log("Error message: ", errorMsg);
-
       // 设置初始状态
       setIsUploading(true);
       setCurrentPhase(0);
@@ -57,7 +52,6 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
               clearInterval(interval!);
               setIsUploading(false);
               setUploadComplete(true);
-              console.log("Upload complete");
             }
             return nextPhase;
           });
@@ -66,7 +60,6 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
         // 如果 success 为 false，逐个阶段处理，直到达到传递过来的 state 阶段
         interval = setInterval(() => {
           setCurrentPhase((prevPhase) => {
-            console.log("Current phase: ", prevPhase);
             const nextPhase = prevPhase + 1;
 
             // 检查是否达到传递过来的失败阶段 state
@@ -124,10 +117,8 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
         const result = e.target?.result;
 
         if (typeof result === "string") {
-          console.log("File content: ", result);
           // 调用核心库中的 explainAssertions 函数进行解析和校验
           const response = explainAssertions(result); // 直接将文件内容传递给核心库
-          console.log("Response: ", response);
           // 根据核心库返回的 response 进行处理
           if (response.success) {
             // 成功解析并校验，将数据存储到全局状态中
