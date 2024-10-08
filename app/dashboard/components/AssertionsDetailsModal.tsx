@@ -1,11 +1,10 @@
 import React, { useEffect } from "react";
-import { FaCircle } from "react-icons/fa";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 
+// 更新 Assertion 接口，添加 candidateId 字段
 interface Assertion {
   index: number;
-  name: string;
-  //avatarSrc: string;
+  winner: number;
   content: string;
   type: string;
   difficulty: number;
@@ -45,6 +44,7 @@ const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
           className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
           aria-label="Close"
         >
+          {/* SVG 图标 */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6"
@@ -97,13 +97,8 @@ const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
                   <td className="px-4 py-2 border-b">{assertion.index}</td>
                   <td className="px-4 py-2 text-left border-b">
                     <div className="flex items-center justify-start">
-                      <Avatar className="mr-2">
-                        <AvatarImage
-                          //src={assertion.avatarSrc}
-                          alt={assertion.name}
-                        />
-                        <AvatarFallback>{assertion.name[0]}</AvatarFallback>
-                      </Avatar>
+                      {/* 使用 Avatar 组件，传入 candidateId */}
+                      <Avatar candidateId={assertion.winner} className="mr-2" />
                       <span>{assertion.content}</span>
                     </div>
                   </td>
