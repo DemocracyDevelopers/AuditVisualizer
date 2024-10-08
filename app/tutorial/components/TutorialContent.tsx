@@ -1,9 +1,7 @@
-// components/TutorialContent.tsx
-
-import React from "react";
 import Link from "next/link";
+import { FC } from "react";
 
-const TutorialContent: React.FC = () => {
+const TutorialContent: FC = () => {
   return (
     <div className="flex flex-col h-screen w-screen bg-gray-100">
       {/* Main content */}
@@ -15,9 +13,9 @@ const TutorialContent: React.FC = () => {
         <div className="mb-8">
           <h3 className="text-2xl font-semibold mb-4">Welcome</h3>
           <p className="text-lg text-gray-700">
-            Welcome to the Audit Visualiser! By the time you've completed this
-            tutorial, you'll be at least somewhat comfortable with the
-            fundamental principles of the AuditVisualiser and how to go about
+            Welcome to the Audit Visualizer! By the time you&apos;ve completed
+            this tutorial, you&apos;ll be at least somewhat comfortable with the
+            fundamental principles of the AuditVisualizer and how to go about
             using it.
           </p>
         </div>

@@ -1,5 +1,3 @@
-// dashboard/components/Avatar.tsx
-
 import React, { useEffect } from "react";
 import { AvatarColor } from "@/utils/avatarColor";
 import create from "zustand";
@@ -56,28 +54,15 @@ const Avatar: React.FC<AvatarProps> = ({ userId, userName, totalUsers }) => {
 
   useEffect(() => {
     assignColorsToCandidates();
-    console.log(candidateList);
   }, [assignColorsToCandidates]);
 
   const candidate = candidateList.find((candidate) => candidate.id === userId);
   const backgroundColor = candidate ? candidate.color : "#CCCCCC";
 
-  const styles: React.CSSProperties = {
-    width: avatarSize,
-    height: avatarSize,
-    borderRadius: "50%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    color: "#FFFFFF",
-    fontWeight: "bold",
-    backgroundColor: backgroundColor,
-    fontSize: 14,
-    textTransform: "uppercase",
-  };
-
   return (
-    <div style={styles}>
+    <div
+      className={`w-[${avatarSize}] h-[${avatarSize}] rounded-full flex items-center justify-center text-white font-bold bg-[${backgroundColor}] text-[14px] uppercase`}
+    >
       {isWithinColorLimit
         ? null
         : // first five

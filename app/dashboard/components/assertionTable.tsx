@@ -1,5 +1,5 @@
-import React from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { FC } from "react";
 
 interface Assertion {
   index: number;
@@ -13,7 +13,7 @@ interface AssertionTableProps {
   assertions: Assertion[];
 }
 
-const AssertionTable: React.FC<AssertionTableProps> = ({ assertions }) => {
+const AssertionTable: FC<AssertionTableProps> = ({ assertions }) => {
   return (
     <div>
       <table className="min-w-full table-auto">
