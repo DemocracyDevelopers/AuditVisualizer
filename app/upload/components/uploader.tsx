@@ -6,7 +6,6 @@ import useMultiWinnerDataStore from "../../../store/MultiWinnerData";
 import { explainAssertions } from "../../explain-assertions/components/explain_process";
 import { useRouter } from "next/navigation";
 import { AvatarColor } from "@/utils/avatarColor";
-import { clear } from "console";
 
 interface UploaderProps {
   className?: string;
@@ -142,6 +141,7 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
                 color: avatarColor.getColor(index),
               }),
             );
+
             setCandidateList(candidateList);
 
             // 将候选人列表转换为字典，以便更快地查找名字
@@ -203,9 +203,6 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
                 };
               },
             );
-
-            // 输出生成的 assertionList
-            console.log(assertionList);
             setAssertionList(assertionList);
 
             // 根据返回的 state 模拟进度条
