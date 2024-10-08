@@ -5,6 +5,8 @@ import UploadProgress from "./progress";
 import useMultiWinnerDataStore from "../../../store/MultiWinnerData";
 import { explainAssertions } from "../../explain-assertions/components/explain_process";
 import { useRouter } from "next/navigation";
+import { AvatarColor } from "@/utils/avatarColor";
+import { clear } from "console";
 
 interface UploaderProps {
   className?: string;
@@ -29,7 +31,16 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
   const maxFileSize = 100 * 1024 * 1024; // 100MB
   const router = useRouter();
 
-  const { setMultiWinner, clearMultiWinner } = useMultiWinnerDataStore(); // 使用全局状态
+  const {
+    setMultiWinner,
+    clearMultiWinner,
+    setCandidateList,
+    clearCandidateList,
+    setAssertionList,
+    clearAssertionList,
+  } = useMultiWinnerDataStore(); // 使用全局状态
+
+  const avatarColor = new AvatarColor();
 
   const simulateProgress = useCallback(
     (state: number, success: boolean, errorMsg: string) => {
@@ -123,6 +134,80 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
           if (response.success) {
             // 成功解析并校验，将数据存储到全局状态中
             setMultiWinner(response.data);
+            const jsonData = JSON.parse(result);
+            const candidateList = jsonData.metadata.candidates.map(
+              (name: string, index: number) => ({
+                id: index,
+                name: name,
+                color: avatarColor.getColor(index),
+              }),
+            );
+            setCandidateList(candidateList);
+
+            // 将候选人列表转换为字典，以便更快地查找名字
+            const candidateMap = candidateList.reduce(
+              (
+                acc: { [key: number]: string },
+                candidate: { id: number; name: string; color: string },
+              ) => {
+                acc[candidate.id] = candidate.name;
+                return acc;
+              },
+              {} as { [key: number]: string },
+            );
+
+            // 从 jsonData 中提取 assertions
+            const assertions = jsonData.solution.Ok.assertions;
+
+            // 根据 assertions 生成 assertionList
+            const assertionList = assertions.map(
+              (
+                assertionObj: {
+                  assertion: {
+                    type: string;
+                    winner: number;
+                    loser: number;
+                    continuing: number[];
+                  };
+                  difficulty: number;
+                  margin: number;
+                },
+                index: number,
+              ) => {
+                const { assertion, difficulty, margin } = assertionObj;
+                const { type, winner, loser, continuing } = assertion;
+
+                // 获取 winner 和 loser 的名字
+                const winnerName = candidateMap[winner];
+                const loserName = candidateMap[loser];
+
+                // 根据不同类型生成 content 字段
+                let content = "";
+                if (type === "NEN") {
+                  const continuingNames = continuing
+                    .map((id) => candidateMap[id])
+                    .join(", ");
+                  content = `${winnerName} > ${loserName} if only {${continuingNames}} remain`;
+                } else if (type === "NEB") {
+                  content = `${winnerName} NEB ${loserName}`;
+                }
+
+                // 返回 assertionList 的每一项
+                return {
+                  index: index + 1, // index 从 1 开始
+                  winner: winnerName, // 将 winner 转化为名字
+                  content, // 生成的内容
+                  type, // 保持 type 不变
+                  difficulty, // 保持 difficulty 不变
+                  margin, // 保持 margin 不变
+                };
+              },
+            );
+
+            // 输出生成的 assertionList
+            console.log(assertionList);
+            setAssertionList(assertionList);
+
             // 根据返回的 state 模拟进度条
             simulateProgress(response.state, true, "");
           } else {
@@ -158,6 +243,8 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
       }
       setSelectedFile(file);
       clearMultiWinner(); // 清空全局状态中的 JSON 数据
+      clearCandidateList(); // 清空全局状态中的候选人列表
+      clearAssertionList(); // 清空全局状态中的断言列表
       setUploadComplete(false); // 重置上传完成状态
       setIsError(false); // 重置错误状态
       setIsUploading(true); // 开始上传
@@ -194,6 +281,8 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
       }
       setSelectedFile(file);
       clearMultiWinner(); // 清空全局状态中的 JSON 数据
+      clearCandidateList(); // 清空全局状态中的候选人列表
+      clearAssertionList(); // 清空全局状态中的断言列表
       setUploadComplete(false); // 重置上传完成状态
       setIsError(false); // 重置错误状态
       setIsUploading(true); // 开始上传
@@ -205,6 +294,8 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
   const handleReset = () => {
     setSelectedFile(null); // 清空选中的文件
     clearMultiWinner(); // 清空全局状态中的 JSON 数据
+    clearCandidateList(); // 清空全局状态中的候选人列表
+    clearAssertionList(); // 清空全局状态中的断言列表
     setUploadComplete(false); // 重置上传完成状态
     setIsError(false); // 重置错误状态
     setCurrentPhase(0); // 重置上传进度
