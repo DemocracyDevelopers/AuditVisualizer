@@ -1,87 +1,28 @@
-// dashboard/components/Avatar.tsx
-
 import React, { useEffect } from "react";
+import { useStore } from "@/store/resultDetailStore"; // 引入 zustand store
 import { AvatarColor } from "@/utils/avatarColor";
-import create from "zustand";
 
-interface AvatarProps {
-  userId: number;
-  userName: string;
-  totalUsers: number;
-}
-interface Candidate {
-  id: number;
-  name: string;
-  color: string;
-}
-
-const useStore = create<{
-  candidateList: Candidate[];
-  assignColorsToCandidates: () => void;
-}>((set) => ({
-  candidateList: [
-    {
-      id: 0,
-      name: "Candidate 1",
-      color: "",
-    },
-    {
-      id: 1,
-      name: "Candidate 2",
-      color: "",
-    },
-  ],
-
-  assignColorsToCandidates: () => {
-    const avatarColor = new AvatarColor();
-    set((state) => ({
-      candidateList: state.candidateList.map((candidate) => ({
-        ...candidate,
-        color: avatarColor.getColor(candidate.id),
-      })),
-    }));
-  },
-}));
-
-const avatarColor = new AvatarColor();
-
-const Avatar: React.FC<AvatarProps> = ({ userId, userName, totalUsers }) => {
-  const isWithinColorLimit = userId < 16; //
-  const avatarSize = 40; // avatar size
-
-  const assignColorsToCandidates = useStore(
-    (state) => state.assignColorsToCandidates,
-  );
-  const candidateList = useStore((state) => state.candidateList);
+const Avatar = () => {
+  const { candidateList, updateCandidateColor } = useStore();
+  const avatarColor = new AvatarColor();
 
   useEffect(() => {
-    assignColorsToCandidates();
-    console.log(candidateList);
-  }, [assignColorsToCandidates]);
-
-  const candidate = candidateList.find((candidate) => candidate.id === userId);
-  const backgroundColor = candidate ? candidate.color : "#CCCCCC";
-
-  const styles: React.CSSProperties = {
-    width: avatarSize,
-    height: avatarSize,
-    borderRadius: "50%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    color: "#FFFFFF",
-    fontWeight: "bold",
-    backgroundColor: backgroundColor,
-    fontSize: 14,
-    textTransform: "uppercase",
-  };
+    candidateList.forEach((candidate, index) => {
+      if (!candidate.color) {
+        // 如果 color 为空，则分配颜色
+        const color = avatarColor.getColor(index);
+        updateCandidateColor(candidate.id, color); // 更新颜色
+      }
+    });
+  }, [candidateList.length, avatarColor, updateCandidateColor]); // 依赖项为 candidateList.length 以避免不必要的重渲染
 
   return (
-    <div style={styles}>
-      {isWithinColorLimit
-        ? null
-        : // first five
-          userName.substring(0, 5)}
+    <div>
+      {candidateList.map((candidate) => (
+        <div key={candidate.id} style={{ backgroundColor: candidate.color }}>
+          {candidate.name}
+        </div>
+      ))}
     </div>
   );
 };

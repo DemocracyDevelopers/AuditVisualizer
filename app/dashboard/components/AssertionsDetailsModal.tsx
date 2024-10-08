@@ -35,16 +35,6 @@ const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
     }
   }, [isOpen]);
 
-  const getIconColor = (name: string) => {
-    switch (name) {
-      case "Chuan":
-        return "text-red-500";
-      case "Alice":
-        return "text-purple-500";
-      default:
-        return "text-grey-500";
-    }
-  };
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">

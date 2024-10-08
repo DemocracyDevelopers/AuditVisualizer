@@ -1,78 +1,42 @@
 "use client";
-import React, { useState } from "react"; // added useState
+import React, { useState } from "react";
 import Card from "./components/card";
 import AssertionTable from "./components/assertionTable";
-import AssertionsDetailsModal from "./components/AssertionsDetailsModal"; //import new Modal
-import { FaUserFriends, FaTrophy, FaList } from "react-icons/fa"; // Example icons
+import AssertionsDetailsModal from "./components/AssertionsDetailsModal";
+import { FaUserFriends, FaTrophy, FaList } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ChevronRight, FilePenLine } from "lucide-react";
+import { useStore } from "@/store/resultDetailStore"; // 引入 zustand store
 
-import { mockData } from "@/utils/data";
-
-//add an interface of Assertion
-interface Assertion {
-  // do we need a unique id here?
-  index: number;
-  name: string; // winner name
-  // avatarSrc: string;
-  content: string;
-  type: string;
-  difficulty: number;
-  margin: number;
-}
-
-interface ResultDetails {
-  winner: Candidate;
-  candidateNum: number;
-  assertionNum: number;
-  candidates: Candidate[];
-}
-
-interface Candidate {
-  id: number;
-  name: string;
-}
-
-export interface ApiResponse {
-  resultDetails: ResultDetails;
-  assertions: Assertion[];
-}
-
-// const assertionsData: Assertion[] = [
-//   {
-//     index: 1,
-//     name: "Chuan",
-//     // avatarSrc: "/path-to-avatar-image/chuan.png",
-//     content: "Chuan NEB Diego",
-//     type: "NEB",
-//     difficulty: 3.375,
-//     margin: 4000,
-//   },
-//   {
-//     index: 2,
-//     name: "Alice",
-//     // avatarSrc: "/path-to-avatar-image/alice.png",
-//     content: "Alice > Diego if only {Alice, Bob, Chuan, Diego} remain",
-//     type: "NEN",
-//     difficulty: 27,
-//     margin: 500,
-//   },
-// we can add new assertions here
-//just using for test
-//];
 const Dashboard: React.FC = () => {
-  //mock data test here
-  const { resultDetails, assertions } = mockData;
-  const { candidates, winner, candidateNum, assertionNum } = resultDetails;
-  const assertionsData = assertions;
+  const { candidateList, assertionList } = useStore();
 
-  // add state to manage the modal
+  // 获取带有 name 字段的 assertionList
+  const assertionsWithNames = assertionList.map((assertion) => ({
+    ...assertion,
+    name:
+      candidateList.find((candidate) => candidate.id === assertion.winner)
+        ?.name || "Unknown",
+  }));
+
+  // 获取候选人的数量
+  const candidateNum = candidateList.length;
+
+  // 获取胜利者的信息
+  const winner = candidateList.find(
+    (candidate) => candidate.id === assertionList[0].winner,
+  ) || { name: "Unknown" };
+
+  // 获取断言的数量
+  const assertionNum = assertionList.length;
+
+  // 计算最大难度和最小差距
+  const maxDifficulty = Math.max(...assertionList.map((a) => a.difficulty));
+  const minMargin = Math.min(...assertionList.map((a) => a.margin));
+
+  // Modal 状态
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  //calculate the max difficulty and min margin
-  const maxDifficulty = Math.max(...assertionsData.map((a) => a.difficulty));
-  const minMargin = Math.min(...assertionsData.map((a) => a.margin));
 
   const handleViewDetails = () => {
     setIsModalOpen(true);
@@ -93,7 +57,7 @@ const Dashboard: React.FC = () => {
         </Link>
       </div>
       <div className="grid grid-cols-12 gap-6 p-6">
-        {/* Left Side: Cards and Elimination Tree */}
+        {/* 左侧: Cards 和 Elimination Tree */}
         <div className="col-span-8 space-y-6">
           <div className="grid grid-cols-3 gap-6">
             <Card
@@ -105,7 +69,7 @@ const Dashboard: React.FC = () => {
             <Card title="Assertion" value={assertionNum} icon={<FaList />} />
           </div>
 
-          {/* Elimination Tree section */}
+          {/* Elimination Tree 区域 */}
           <div className="border border-gray-300 rounded-lg p-6 h-96">
             <h3 className="text-gray-600 text-lg font-medium">
               Elimination Tree
@@ -114,7 +78,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Side：Assertion Table */}
+        {/* 右侧：Assertion 表格 */}
         <div className="border border-gray-300 col-span-12 md:col-span-4 shadow-md rounded-lg p-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold text-gray-600">The Assertions</h3>
@@ -127,15 +91,15 @@ const Dashboard: React.FC = () => {
           <p className="text-sm text-gray-500 mb-4">
             Parse from your uploaded file
           </p>
-          <AssertionTable assertions={assertionsData} />
+          <AssertionTable assertions={assertionsWithNames} />
         </div>
       </div>
 
-      {/* Model Component */}
+      {/* Modal 组件 */}
       <AssertionsDetailsModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        assertions={assertionsData}
+        assertions={assertionsWithNames}
         maxDifficulty={maxDifficulty}
         minMargin={minMargin}
       />
