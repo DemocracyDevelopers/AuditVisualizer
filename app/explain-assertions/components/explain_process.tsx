@@ -299,6 +299,7 @@ export function explainAssertions(inputText: string): any {
   } catch (e) {
     return {
       success: false,
+      state: 0,
       error_message: "Invalid JSON input",
     };
   }
