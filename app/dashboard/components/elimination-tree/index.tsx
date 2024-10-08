@@ -2,7 +2,7 @@
 import CandidateListBar from "@/app/dashboard/components/elimination-tree/candidate-list-bar";
 import Dropdown from "@/app/dashboard/components/elimination-tree/dropdown";
 import StepByStep from "@/app/dashboard/components/elimination-tree/step-by-step";
-import { demoFromCore } from "@/app/dashboard/components/elimination-tree/demo";
+// import { demoFromCore } from "@/app/dashboard/components/elimination-tree/demo";
 import Tree from "@/components/Tree";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -31,10 +31,10 @@ function EliminationTree() {
 
   // Memoize the possible winner list from demoFromCore
   const possibleWinnerList = useMemo(() => {
-    return Array.isArray(demoFromCore)
-      ? demoFromCore.map((cur) => cur.winnerInfo)
+    return Array.isArray(multiWinner)
+      ? multiWinner.map((cur) => cur.winnerInfo)
       : []; // Default to an empty array if demoFromCore is not an array
-  }, [demoFromCore]); // Ensure this value does not change between renders
+  }, [multiWinner]); // Ensure this value does not change between renders
 
   const oneWinnerTrees = useMemo(() => {
     return multiWinner
