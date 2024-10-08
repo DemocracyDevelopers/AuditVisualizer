@@ -37,104 +37,83 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
       console.log("State: ", state);
       console.log("Success: ", success);
       console.log("Error message: ", errorMsg);
-      // 模拟进度条显示，根据解析结果设置状态
-      setIsUploading(true); // 开始模拟上传
+
+      // 设置初始状态
+      setIsUploading(true);
+      setCurrentPhase(0);
+      setPhaseErrors([false, false, false, false]); // 初始化阶段错误状态
+
       let phase = 0;
+      let interval: NodeJS.Timeout | null = null;
 
-      const interval = setInterval(() => {
-        setCurrentPhase(phase);
-        phase += 1;
+      // 如果 success 为 true，直接跳到最后阶段
+      if (success) {
+        interval = setInterval(() => {
+          setCurrentPhase((prevPhase) => {
+            const nextPhase = prevPhase + 1;
 
-        console.log("Current phase: ", phase);
-        console.log("State: ", state);
-        if (!success) {
-          setIsUploading(false); // 停止上传状态
-          setIsError(true); // 设置错误状态
-          switch (state) {
-            case 0:
-              setErrorTitle("Data Parsing Error");
-              break;
-            case 1:
-              setErrorTitle("Cross Check Error");
-              break;
-            case 2:
-              setErrorTitle("Result Generation Error");
-              break;
-            case 3:
-              setErrorTitle("Finish Up Error");
-              break;
-            default:
-              setErrorTitle("Error Occurred");
-              break;
-          }
-          setErrorMsg(errorMsg); // 设置错误消息
-          setShowAlert(true);
-          setPhaseErrors((errors) => {
-            const updatedErrors = [...errors];
-            updatedErrors[phase - 1] = true; // 标记当前阶段出错
-            return updatedErrors;
+            // 完成所有阶段
+            if (nextPhase > 3) {
+              clearInterval(interval!);
+              setIsUploading(false);
+              setUploadComplete(true);
+              console.log("Upload complete");
+            }
+            return nextPhase;
           });
-          clearInterval(interval); // 停止模拟
-        }
+        }, 1000);
+      } else {
+        // 如果 success 为 false，逐个阶段处理，直到达到传递过来的 state 阶段
+        interval = setInterval(() => {
+          setCurrentPhase((prevPhase) => {
+            console.log("Current phase: ", prevPhase);
+            const nextPhase = prevPhase + 1;
 
-        if (phase >= 4) {
-          clearInterval(interval); // 达到目标阶段，停止模拟
-          if (success) {
-            setIsUploading(false);
-            setUploadComplete(true);
-            console.log("Upload complete");
-            console.log("Complete: ", uploadComplete);
-          }
-        }
-      }, 1000);
+            // 检查是否达到传递过来的失败阶段 state
+            if (prevPhase === state) {
+              setPhaseErrors((errors) => {
+                const updatedErrors = [...errors];
+                updatedErrors[prevPhase] = true; // 标记当前阶段出错
+                return updatedErrors;
+              });
+              setIsUploading(false);
+              setIsError(true);
+              setErrorTitle("Error Occurred"); // 设置错误标题
+              setErrorMsg(errorMsg); // 设置错误消息
+              setShowAlert(true); // 显示错误提示
+
+              clearInterval(interval!); // 停止 interval
+              return prevPhase; // 保持当前阶段不变
+            }
+
+            // 如果阶段达到 3（即最后阶段），标记为上传完成
+            if (nextPhase > 3) {
+              clearInterval(interval!);
+              setIsUploading(false);
+              setUploadComplete(true);
+              return prevPhase; // 保持当前阶段不变
+            }
+
+            return nextPhase; // 继续增加阶段
+          });
+        }, 1000);
+      }
+
+      // 清理 interval
+      return () => {
+        if (interval) clearInterval(interval);
+      };
     },
-    [uploadComplete],
+    [
+      setCurrentPhase,
+      setIsUploading,
+      setUploadComplete,
+      setIsError,
+      setErrorTitle,
+      setErrorMsg,
+      setShowAlert,
+    ],
   );
-
-  // const stopAtPhase = 5;
-
-  // // 模拟文件上传进度和阶段出错
-  // useEffect(() => {
-  //   let title = "Error Occurred";
-  //   let msg =
-  //     "It seems that the file you uploaded contains some mistakes, which means we can not parse your file, please check and try again.";
-  //   let interval: NodeJS.Timeout | null = null;
-  //   if (isUploading && currentPhase <= 3) {
-  //     interval = setInterval(() => {
-  //       setCurrentPhase((prevPhase) => {
-  //         const nextPhase = prevPhase + 1; // 模拟阶段进度 +1
-
-  //         // 停止阶段
-  //         if (nextPhase === stopAtPhase) {
-  //           setPhaseErrors((errors) => {
-  //             const updatedErrors = [...errors];
-  //             updatedErrors[prevPhase] = true; // 标记当前阶段出错
-  //             return updatedErrors;
-  //           });
-  //           setIsUploading(false); // 停止上传状态
-  //           setIsError(true); // 设置错误状态
-  //           setErrorTitle(title); // 设置错误标题
-  //           setErrorMsg(msg); // 设置错误消息
-  //           setShowAlert(true); // 显示错误提示
-
-  //           return prevPhase; // 保持当前阶段不变
-  //         }
-  //         return nextPhase;
-  //       });
-  //     }, 1000);
-  //   }
-
-  // 当阶段到达 3 时，设置上传完成
-  //   if (currentPhase > 3) {
-  //     setIsUploading(false); // 停止上传状态
-  //     setUploadComplete(true); // 设置上传完成
-  //     clearInterval(interval!);
-  //   }
-
-  //   return () => {
-  //     if (interval) clearInterval(interval);
-  //   };
-  // }, [isUploading, currentPhase, stopAtPhase]);
 
   useEffect(() => {
     if (selectedFile) {
