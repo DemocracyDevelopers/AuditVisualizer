@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import Uploader from "./components/uploader";
 import React, { useEffect } from "react";
 
