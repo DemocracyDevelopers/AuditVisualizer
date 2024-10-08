@@ -990,7 +990,7 @@ function buildEliminationTree(
   }
 
   // Return the tree for the winner
-  return Object.values(trees);
+  return Object.values(trees)[0];
 }
 
 /**
