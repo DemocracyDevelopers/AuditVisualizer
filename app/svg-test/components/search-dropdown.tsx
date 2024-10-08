@@ -32,31 +32,31 @@ function SearchDropdown() {
         onBlur={() => setIsOpen(false)}
       />
       {/* 虽然没用,但是得有这个才能正常触发popover */}
-      {isOpen && (
-        <Card className="z-10 absolute w-full p-1 mt-2 gap-2">
-          {filteredList.length > 0 ? (
-            filteredList.map((candidate) => (
-              <div
-                key={candidate.id}
-                // onClick 在 onBlur 之后,onMouseDown 在 onBlur 之前. 这是可能的Bug原因
-                onMouseDown={() => handleSelect(candidate)}
-                className="cursor-pointer p-2 rounded-sm hover:bg-gray-200 "
-              >
-                {candidate.avatar && (
-                  <Image
-                    src={candidate.avatar}
-                    alt={candidate.name}
-                    className="inline-block w-6 h-6 mr-2"
-                  />
-                )}
-                {candidate.name}
-              </div>
-            ))
-          ) : (
-            <div className="p-2">No candidates found</div>
-          )}
-        </Card>
-      )}
+      {/*{isOpen && (*/}
+      {/*  <Card className="z-10 absolute w-full p-1 mt-2 gap-2">*/}
+      {/*    {filteredList.length > 0 ? (*/}
+      {/*      filteredList.map((candidate) => (*/}
+      {/*        <div*/}
+      {/*          key={candidate.id}*/}
+      {/*          // onClick 在 onBlur 之后,onMouseDown 在 onBlur 之前. 这是可能的Bug原因*/}
+      {/*          onMouseDown={() => handleSelect(candidate)}*/}
+      {/*          className="cursor-pointer p-2 rounded-sm hover:bg-gray-200 "*/}
+      {/*        >*/}
+      {/*          {candidate.avatar && (*/}
+      {/*            <Image*/}
+      {/*              src={candidate.avatar}*/}
+      {/*              alt={candidate.name}*/}
+      {/*              className="inline-block w-6 h-6 mr-2"*/}
+      {/*            />*/}
+      {/*          )}*/}
+      {/*          {candidate.name}*/}
+      {/*        </div>*/}
+      {/*      ))*/}
+      {/*    ) : (*/}
+      {/*      <div className="p-2">No candidates found</div>*/}
+      {/*    )}*/}
+      {/*  </Card>*/}
+      {/*)}*/}
     </div>
   );
 }
