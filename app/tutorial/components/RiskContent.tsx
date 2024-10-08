@@ -86,7 +86,7 @@ const RiskContent: React.FC = () => {
                   The sampled ballots are compared to their corresponding CVRs.
                   Discrepancies can either overstate (advantage the reported
                   winner) or understate (advantage the reported loser) the
-                  winner's margin.
+                  winner&apos;s margin.
                 </li>
                 <li>
                   For example, if the CVR records a vote for the reported
