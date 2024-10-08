@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
-import { FaCircle } from "react-icons/fa";
+import { Avatar } from "@/components/ui/avatar";
 
+// 更新 Assertion 接口，添加 candidateId 字段
 interface Assertion {
   index: number;
-  name: string;
-  avatarSrc: string;
+  winner: number;
   content: string;
   type: string;
   difficulty: number;
@@ -34,16 +34,6 @@ const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
     }
   }, [isOpen]);
 
-  const getIconColor = (name: string) => {
-    switch (name) {
-      case "Chuan":
-        return "text-red-500";
-      case "Alice":
-        return "text-purple-500";
-      default:
-        return "text-grey-500";
-    }
-  };
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
@@ -54,6 +44,7 @@ const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
           className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
           aria-label="Close"
         >
+          {/* SVG 图标 */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6"
@@ -72,11 +63,9 @@ const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
 
         <h2 className="text-2xl font-bold mb-4">Assertions Details</h2>
         <div className="mb-4">
-          <p className="text-gray-700">
+          <p className="text-gray-700 font-bold">
             <span className="font-semibold">Maximum Difficulty:</span>{" "}
-            {maxDifficulty}
-          </p>
-          <p className="text-gray-700">
+            {maxDifficulty}{" "}
             <span className="font-semibold">Minimum Margin:</span> {minMargin}
           </p>
         </div>
@@ -106,11 +95,12 @@ const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
               {assertions.map((assertion) => (
                 <tr key={assertion.index}>
                   <td className="px-4 py-2 border-b">{assertion.index}</td>
-                  <td className="px-4 py-2 border-b flex items-center">
-                    <FaCircle
-                      className={`mr-2 ${getIconColor(assertion.name)}`}
-                    />
-                    <span>{assertion.content}</span>
+                  <td className="px-4 py-2 text-left border-b">
+                    <div className="flex items-center justify-start">
+                      {/* 使用 Avatar 组件，传入 candidateId */}
+                      <Avatar candidateId={assertion.winner} className="mr-2" />
+                      <span>{assertion.content}</span>
+                    </div>
                   </td>
                   <td className="px-4 py-2 border-b">{assertion.type}</td>
                   <td className="px-4 py-2 border-b">{assertion.difficulty}</td>
@@ -119,15 +109,6 @@ const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
               ))}
             </tbody>
           </table>
-        </div>
-
-        <div className="mt-6 flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Close
-          </button>
         </div>
       </div>
     </div>

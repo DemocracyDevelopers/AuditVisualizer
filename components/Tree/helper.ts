@@ -1,6 +1,7 @@
 // treeHelpers.ts
 
 interface TreeNode {
+  id: number;
   name: string;
   children?: TreeNode[];
   _children?: TreeNode[]; // Hidden children when collapsed
