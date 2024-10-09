@@ -2,8 +2,13 @@
 import Image from "next/image";
 import Uploader from "./components/uploader";
 import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const Dashboard: React.FC = () => {
+  const router = useRouter();
+  const jumpToTutorial = () => {
+    router.push("/tutorial");
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -20,10 +25,6 @@ const Dashboard: React.FC = () => {
   return (
     <div className="flex flex-col h-screen">
       <main className="flex flex-col bg-gray-100 p-8 h-screen">
-        <div className="flex items-center mb-6">
-          <Image src="/Logo.png" alt="Logo" width={80} height={80} />
-          <h1 className="text-3xl font-bold">AuditVisualiser</h1>
-        </div>
         <div className="bg-white shadow-md rounded-lg p-6 flex flex-col flex-grow">
           <h2 className="text-3xl font-bold text-left">
             Show the effect of assertions
@@ -46,9 +47,12 @@ const Dashboard: React.FC = () => {
         </div>
         <div className="text-center text-lg text-gray-600 my-4">
           Need help? Click{" "}
-          <a href="#" className="text-blue-600 hover:underline">
+          <span
+            onClick={jumpToTutorial}
+            className="text-blue-600 hover:underline"
+          >
             here
-          </a>{" "}
+          </span>{" "}
           for a tutorial.
         </div>
       </main>
