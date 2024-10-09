@@ -10,10 +10,12 @@ import { ChevronRight, FilePenLine } from "lucide-react";
 
 import EliminationTree from "./components/elimination-tree";
 import AvatarAssignColor from "./components/AvatarAssignColor"; // 引入 Avatar 组件
-import useMultiWinnerDataStore from "@/store/MultiWinnerData"; // 引入 zustand store
+import useMultiWinnerDataStore from "@/store/MultiWinnerData";
+import multiWinnerData from "@/store/MultiWinnerData"; // 引入 zustand store
 
 const Dashboard: React.FC = () => {
-  const { candidateList, assertionList } = useMultiWinnerDataStore();
+  const { candidateList, assertionList, winnerInfo } =
+    useMultiWinnerDataStore();
 
   // 将所有 Hooks 移到顶层
   const [isAvatarReady, setIsAvatarReady] = useState(false);
@@ -53,16 +55,16 @@ const Dashboard: React.FC = () => {
   // 获取候选人的数量
   const candidateNum = candidateList.length;
 
-  // 获取胜利者的信息
-  const winner =
-    assertionList.length > 0
-      ? candidateList.find(
-          (candidate) => candidate.id === assertionList[0].winner,
-        ) || {
-          id: -1,
-          name: "Unknown",
-        }
-      : { id: -1, name: "Unknown" };
+  // // 获取胜利者的信息
+  // const winner =
+  //   assertionList.length > 0
+  //     ? candidateList.find(
+  //         (candidate) => candidate.id === assertionList[0].winner,
+  //       ) || {
+  //         id: -1,
+  //         name: "Unknown",
+  //       }
+  //     : { id: -1, name: "Unknown" };
 
   // 获取断言的数量
   const assertionNum = assertionList.length;
@@ -94,7 +96,11 @@ const Dashboard: React.FC = () => {
               value={candidateNum}
               icon={<FaUserFriends />}
             />
-            <Card title="Winner" value={winner.name} icon={<FaTrophy />} />
+            <Card
+              title="Winner"
+              value={winnerInfo ? winnerInfo.name : "Unknown"} // 渲染 winnerInfo 的 name 字段
+              icon={<FaTrophy />}
+            />
             <Card title="Assertion" value={assertionNum} icon={<FaList />} />
           </div>
 
