@@ -17,19 +17,22 @@ const sampleFiles: SampleFile[] = [
     name: "NEB Assertion",
     description: "NEB assertions example",
     imageUrl: "/sample-images/img.png",
-    fileUrl: "/sample-jsons/a_guide_to_RAIRE_eg_NEB_assertions.json",
+    // fileUrl: "/sample-jsons/a_guide_to_RAIRE_eg_NEB_assertions.json",
+    fileUrl: "/sample-jsons/City of Coffs Harbour Mayoral.json",
   },
   {
     name: "One candidate dominates example",
     description: "One candidate dominates example",
     imageUrl: "/sample-images/img.png",
-    fileUrl: "/sample-jsons/a_guide_to_RAIRE_eg_one_candidate_dominates.json",
+    // fileUrl: "/sample-jsons/a_guide_to_RAIRE_eg_one_candidate_dominates.json",
+    fileUrl: "/sample-jsons/Singleton Mayoral.json",
   },
   {
     name: "Two leading candidates example",
     description: "Two leading candidates example ",
     imageUrl: "/sample-images/img.png",
-    fileUrl: "/sample-jsons/a_guide_to_RAIRE_eg_two_leading_candidates.json",
+    // fileUrl: "/sample-jsons/a_guide_to_RAIRE_eg_two_leading_candidates.json",
+    fileUrl: "/sample-jsons/test.json",
   },
 ];
 
@@ -58,6 +61,7 @@ const SampleSelector = () => {
         if (typeof result === "string") {
           // 解析文件内容并调用核心库进行校验和解析
           const response = explainAssertions(result);
+          console.log("response", response);
           if (response.success) {
             // 成功解析，将数据存储到全局状态中
             const jsonData = JSON.parse(result);

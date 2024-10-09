@@ -3,8 +3,13 @@
 import Image from "next/image";
 import Uploader from "./components/uploader";
 import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const Dashboard: React.FC = () => {
+  const router = useRouter();
+  const jumpToTutorial = () => {
+    router.push("/tutorial");
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -43,9 +48,12 @@ const Dashboard: React.FC = () => {
         </div>
         <div className="text-center text-lg text-gray-600 my-4">
           Need help? Click{" "}
-          <a href="#" className="text-blue-600 hover:underline">
+          <span
+            onClick={jumpToTutorial}
+            className="text-blue-600 hover:underline"
+          >
             here
-          </a>{" "}
+          </span>{" "}
           for a tutorial.
         </div>
       </main>
