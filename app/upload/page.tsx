@@ -24,7 +24,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen">
-      <main className="flex flex-col bg-gray-100 p-8 h-screen">
+      <main className="flex flex-col bg--white p-8 h-screen">
         <div className="bg-white shadow-md rounded-lg p-6 flex flex-col flex-grow">
           <h2 className="text-3xl font-bold text-left">
             Show the effect of assertions
@@ -47,12 +47,12 @@ const Dashboard: React.FC = () => {
         </div>
         <div className="text-center text-lg text-gray-600 my-4">
           Need help? Click{" "}
-          <span
+          <button
             onClick={jumpToTutorial}
             className="text-blue-600 hover:underline"
           >
             here
-          </span>{" "}
+          </button>{" "}
           for a tutorial.
         </div>
       </main>
