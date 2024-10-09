@@ -37,6 +37,8 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
     clearCandidateList,
     setAssertionList,
     clearAssertionList,
+    setWinnerInfo,
+    clearWinnerInfo,
   } = useMultiWinnerDataStore(); // 使用全局状态
 
   const avatarColor = new AvatarColor();
@@ -205,6 +207,10 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
             );
             setAssertionList(assertionList);
 
+            const winnerId = jsonData.solution.Ok.winner;
+            const winnerName = jsonData.metadata.candidates[winnerId];
+            setWinnerInfo({ id: winnerId, name: winnerName });
+
             // 根据返回的 state 模拟进度条
             simulateProgress(response.state, true, "");
           } else {
@@ -239,6 +245,7 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
         return;
       }
       setSelectedFile(file);
+      clearWinnerInfo();
       clearMultiWinner(); // 清空全局状态中的 JSON 数据
       clearCandidateList(); // 清空全局状态中的候选人列表
       clearAssertionList(); // 清空全局状态中的断言列表
