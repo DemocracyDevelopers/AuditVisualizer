@@ -7,6 +7,8 @@ import { FaUserFriends, FaTrophy, FaList } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ChevronRight, FilePenLine } from "lucide-react";
+
+import EliminationTree from "./components/elimination-tree";
 import AvatarAssignColor from "./components/AvatarAssignColor"; // 引入 Avatar 组件
 import useMultiWinnerDataStore from "@/store/MultiWinnerData"; // 引入 zustand store
 
@@ -96,13 +98,8 @@ const Dashboard: React.FC = () => {
             <Card title="Assertion" value={assertionNum} icon={<FaList />} />
           </div>
 
-          {/* Elimination Tree 区域 */}
-          <div className="border border-gray-300 rounded-lg p-6 h-96">
-            <h3 className="text-gray-600 text-lg font-medium">
-              Elimination Tree
-            </h3>
-            <p className="text-gray-400 text-sm">to be updated</p>
-          </div>
+          {/* Elimination Tree section */}
+          <EliminationTree />
         </div>
 
         {/* 右侧区域：Assertion 表格 */}

@@ -1,3 +1,4 @@
+//AvatarAssignColor.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import useMultiWinnerDataStore from "@/store/MultiWinnerData";
 import { AvatarColor } from "@/utils/avatarColor";
