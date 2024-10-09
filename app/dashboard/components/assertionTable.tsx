@@ -1,12 +1,12 @@
 import React from "react";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 
 interface Assertion {
   index: number;
   content: string;
   type: string;
-  avatarSrc?: string;
-  name: string;
+  winner: number; // 候选人的 ID
+  name: string; // 候选人名字
 }
 
 interface AssertionTableProps {
@@ -32,13 +32,7 @@ const AssertionTable: React.FC<AssertionTableProps> = ({ assertions }) => {
               </td>
               <td className="px-4 py-2 text-left border-b">
                 <div className="flex items-center justify-start">
-                  <Avatar className="mr-2">
-                    <AvatarImage
-                      src={assertion.avatarSrc}
-                      alt={assertion.name}
-                    />
-                    <AvatarFallback>{assertion.name[0]}</AvatarFallback>
-                  </Avatar>
+                  <Avatar candidateId={assertion.winner} className="mr-2" />
                   <span>{assertion.content}</span>
                 </div>
               </td>

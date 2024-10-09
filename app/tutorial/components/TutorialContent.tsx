@@ -15,8 +15,8 @@ const TutorialContent: React.FC = () => {
         <div className="mb-8">
           <h3 className="text-2xl font-semibold mb-4">Welcome</h3>
           <p className="text-lg text-gray-700">
-            Welcome to the Audit Visualiser! By the time you've completed this
-            tutorial, you'll be at least somewhat comfortable with the
+            Welcome to the Audit Visualiser! By the time you&apos;ve completed
+            this tutorial, you&apos;ll be at least somewhat comfortable with the
             fundamental principles of the AuditVisualiser and how to go about
             using it.
           </p>

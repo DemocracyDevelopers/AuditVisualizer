@@ -2,10 +2,11 @@
 
 import React from "react";
 import SampleSelector from "./components/sampleSelector";
-import Uploader from "@/app/upload/components/uploader";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const Sample = () => {
+  const router = useRouter();
   return (
     <div className="flex flex-col h-screen ">
       {/* Main content */}
@@ -24,7 +25,7 @@ const Sample = () => {
         <div className="mt-8">
           <button
             className="text-blue-500 hover:underline"
-            onClick={() => window.history.back()}
+            onClick={() => router.back()}
           >
             ← Back
           </button>
