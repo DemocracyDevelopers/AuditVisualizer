@@ -1,9 +1,27 @@
 // stores/useGlobalJsonStore.ts
+import { TreeNode } from "@/components/Tree/helper";
 import { create } from "zustand";
-import { devtools } from "zustand/middleware";
+import { devtools, persist } from "zustand/middleware";
 
 interface MultiWinnerData {
-  multiWinner: any | null; // 用于存储 JSON 数据
+  multiWinner:
+    | {
+        winnerInfo: {
+          id: number;
+          name: string;
+        };
+        data: {
+          type: string;
+          process: Array<{
+            step: number;
+            trees?: TreeNode | null;
+            assertion?: string;
+            before?: TreeNode | null;
+            after?: TreeNode | null;
+          }>;
+        };
+      }[]
+    | null; // 用于存储 JSON 数据
   setMultiWinner: (data: any) => void; // 设置 JSON 数据
   clearMultiWinner: () => void; // 清空 JSON 数据
   candidateList: any[];
@@ -16,17 +34,23 @@ interface MultiWinnerData {
 
 const useMultiWinnerDataStore = create<MultiWinnerData>()(
   devtools(
-    (set) => ({
-      multiWinner: null, // 初始状态为空
-      setMultiWinner: (data) => set({ multiWinner: data }), // 设置 JSON 数据
-      clearMultiWinner: () => set({ multiWinner: null }), // 清空 JSON 数据
-      candidateList: [],
-      setCandidateList: (data) => set({ candidateList: data }),
-      clearCandidateList: () => set({ candidateList: [] }),
-      assertionList: [],
-      setAssertionList: (data) => set({ assertionList: data }),
-      clearAssertionList: () => set({ assertionList: [] }),
-    }),
+    // 存入localStorage, 让刷新页面不会丢失数据
+    persist(
+      (set) => ({
+        multiWinner: null, // 初始状态为空
+        setMultiWinner: (data) => set({ multiWinner: data }), // 设置 JSON 数据
+        clearMultiWinner: () => set({ multiWinner: null }), // 清空 JSON 数据
+        candidateList: [],
+        setCandidateList: (data) => set({ candidateList: data }),
+        clearCandidateList: () => set({ candidateList: [] }),
+        assertionList: [],
+        setAssertionList: (data) => set({ assertionList: data }),
+        clearAssertionList: () => set({ assertionList: [] }),
+      }),
+      {
+        name: "multiWinner-store",
+      },
+    ),
     { name: "multiWinner-store" },
   ),
 );
