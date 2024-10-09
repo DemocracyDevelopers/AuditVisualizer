@@ -64,8 +64,8 @@ const SampleSelector = () => {
           console.log("response", response);
           if (response.success) {
             // 成功解析，将数据存储到全局状态中
+            setMultiWinner(response.data);
             const jsonData = JSON.parse(result);
-            setMultiWinner(jsonData);
 
             // 处理候选人列表
             const candidateList = jsonData.metadata.candidates.map(
