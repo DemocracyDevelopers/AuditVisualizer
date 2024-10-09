@@ -99,7 +99,7 @@ function EliminationTree() {
         <div className="w-full h-96">
           <Tree
             data={data.process[selectedStep].before!}
-            key={selectedStep}
+            key={`${selectedWinnerId}-${selectedStep}`}
             nextComponent={NextComponent}
           />
         </div>

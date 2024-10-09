@@ -29,7 +29,7 @@ function CandidateListBar({
           </div>
         ))}
       </div>
-      <SearchDropdown />
+      <SearchDropdown candidateList={candidateList} />
     </div>
   );
 }

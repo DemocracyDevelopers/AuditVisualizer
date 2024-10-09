@@ -23,16 +23,15 @@ interface TreeProps {
   data: TreeNode;
   nextComponent: React.ReactNode;
 }
+const dimensions = { width: 400, height: 400 };
 
 export default function Tree({ data, nextComponent }: TreeProps) {
-  const [zoomEnabled, setZoomEnabled] = useState<boolean>(true);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const gRef = useRef<SVGGElement | null>(null);
   const zoomBehaviorRef = useRef<d3.ZoomBehavior<
     SVGSVGElement,
     unknown
   > | null>(null); // Ref to store zoom behavior
-  const [dimensions, setDimensions] = useState({ width: 400, height: 400 });
   const [treeData, setTreeData] = useState(data);
   const [currentZoom, setCurrentZoom] = useState<number>(1);
 
@@ -154,13 +153,8 @@ export default function Tree({ data, nextComponent }: TreeProps) {
         .zoom<SVGSVGElement, unknown>()
         .scaleExtent([0.25, 1.5])
         .on("zoom", (event) => {
-          if (zoomEnabled) {
-            d3.select(gRef.current).attr(
-              "transform",
-              event.transform.toString(),
-            );
-            setCurrentZoom(event.transform.k);
-          }
+          d3.select(gRef.current).attr("transform", event.transform.toString());
+          setCurrentZoom(event.transform.k);
         });
 
       svgElement.call(zoom);
@@ -170,7 +164,7 @@ export default function Tree({ data, nextComponent }: TreeProps) {
         svgElement.on(".zoom", null);
       };
     }
-  }, [treeData, zoomEnabled, dimensions]);
+  }, [treeData]);
 
   const handleZoomChange = (scaleFactor: number) => {
     if (zoomBehaviorRef.current && svgRef.current) {
