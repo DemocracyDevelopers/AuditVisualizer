@@ -76,6 +76,33 @@ export default function Tree({ data, nextComponent }: TreeProps) {
           d.source.data.cut || d.target.data.cut ? "#d4d4d4" : "#e9bc39",
         ) // Set stroke to black if cut is true
         .attr("stroke-width", 3);
+
+      // 暂时先用X
+      g.selectAll("text.cut-marker")
+        .data(links)
+        .enter()
+        .filter((d: any) => d.source.data.cut || d.target.data.cut) // Only add 'X' for cut links
+        .append("text")
+        .attr("class", "cut-marker")
+        .attr(
+          "x",
+          (d) =>
+            ((d.source as d3.HierarchyPointNode<TreeNode>).x +
+              (d.target as d3.HierarchyPointNode<TreeNode>).x) /
+            2,
+        )
+        .attr(
+          "y",
+          (d) =>
+            ((d.source as d3.HierarchyPointNode<TreeNode>).y +
+              (d.target as d3.HierarchyPointNode<TreeNode>).y) /
+            2,
+        )
+        .attr("text-anchor", "middle")
+        .attr("font-size", "14px")
+        .attr("fill", "red")
+        .text("X");
+
       // Create groups for each node
       const groups = g
         .selectAll("g")
