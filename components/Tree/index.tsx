@@ -129,7 +129,27 @@ export default function Tree({ data, nextComponent }: TreeProps) {
         .attr("y", 3)
         .attr("text-anchor", "middle")
         .attr("font-size", "10px")
-        .text((d) => d.data.name);
+        // .text((d) => d.data.name);
+        .text(function (d) {
+          const maxWidth = 35; // 最大宽度
+          let text = d.data.name;
+          const ellipsis = "...";
+
+          // 创建临时的text元素来测量宽度
+          let textElement = d3.select(this).text(text);
+
+          // 检查 textElement.node() 是否为 null
+          // 如果宽度超过最大宽度，进行截断
+          while (
+            textElement.node()!.getComputedTextLength() > maxWidth &&
+            text.length > 0
+          ) {
+            text = text.slice(0, -1); // 每次去掉一个字符
+            textElement.text(text + ellipsis); // 加上省略号
+          }
+
+          return textElement.text();
+        });
 
       // 添加折叠节点数量的圆形
       groups
