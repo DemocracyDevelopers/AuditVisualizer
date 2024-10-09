@@ -71,7 +71,10 @@ export default function Tree({ data, nextComponent }: TreeProps) {
         .attr("y1", (d) => (d.source as d3.HierarchyPointNode<TreeNode>).y)
         .attr("x2", (d) => (d.target as d3.HierarchyPointNode<TreeNode>).x)
         .attr("y2", (d) => (d.target as d3.HierarchyPointNode<TreeNode>).y)
-        .attr("stroke", "#e9bc39")
+        // .attr("stroke", "#e9bc39")
+        .attr("stroke", (d) =>
+          d.source.data.cut || d.target.data.cut ? "#d4d4d4" : "#e9bc39",
+        ) // Set stroke to black if cut is true
         .attr("stroke-width", 3);
       // Create groups for each node
       const groups = g
