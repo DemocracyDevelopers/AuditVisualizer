@@ -148,25 +148,6 @@ const validateInputData = (
       };
     }
 
-    // Check if assertionObj.difficulty exists and is a valid number
-    if (
-      typeof assertionObj.difficulty !== "number" ||
-      assertionObj.difficulty < 0
-    ) {
-      return {
-        error_message: `Invalid or missing 'difficulty' in assertion at index ${index}`,
-        state: 0,
-      };
-    }
-
-    // Check if assertionObj.margin exists and is a valid number
-    if (typeof assertionObj.margin !== "number" || assertionObj.margin < 0) {
-      return {
-        error_message: `Invalid or missing 'margin' in assertion at index ${index}`,
-        state: 0,
-      };
-    }
-
     // For assertions of type 'NEN', check if the continuing array is valid
     if (assertion.type === "NEN") {
       if (!Array.isArray(assertion.continuing)) {
@@ -224,7 +205,7 @@ const validateInputData = (
 };
 
 // Function to mark cut nodes in the 'before' tree by comparing with 'after' tree
-const markCutNodes = (beforeTrees: any[], afterTrees: any[]) => {
+const markCutNodes = (beforeTree: any, afterTree: any | null) => {
   // Helper function to get all paths from a tree
   const getPaths = (node: any, path: number[] = []): Set<string> => {
     const paths = new Set<string>();
@@ -242,17 +223,24 @@ const markCutNodes = (beforeTrees: any[], afterTrees: any[]) => {
     return paths;
   };
 
-  // Get all paths from afterTrees
-  const afterPaths = new Set<string>();
-  for (let i = 0; i < afterTrees.length; i++) {
-    const tree = afterTrees[i];
-    const paths = getPaths(tree);
-    paths.forEach((p) => {
-      afterPaths.add(p);
-    });
+  // If afterTree is null, mark all nodes in beforeTree as 'cut'
+  if (!afterTree) {
+    const markAllCuts = (node: any) => {
+      node.cut = true;
+      if (node.children) {
+        for (let i = 0; i < node.children.length; i++) {
+          markAllCuts(node.children[i]);
+        }
+      }
+    };
+    markAllCuts(beforeTree);
+    return;
   }
 
-  // Function to mark cuts in beforeTrees
+  // Get all paths from afterTree
+  const afterPaths = getPaths(afterTree);
+
+  // Function to mark cuts in beforeTree
   const markCuts = (node: any, path: number[] = []): boolean => {
     const currentPath = [...path, node.id];
     const pathStr = currentPath.join("-");
@@ -283,16 +271,13 @@ const markCutNodes = (beforeTrees: any[], afterTrees: any[]) => {
     return true;
   };
 
-  // Mark cuts in beforeTrees
-  for (let i = 0; i < beforeTrees.length; i++) {
-    const tree = beforeTrees[i];
-    markCuts(tree);
-  }
+  // Mark cuts in beforeTree
+  markCuts(beforeTree);
 };
 
 // Main function to process inputText and return the outputData
 export function explainAssertions(inputText: string): any {
-  // 在此处解析 JSON
+  // Parse the JSON input
   let inputData;
   try {
     inputData = JSON.parse(inputText);
@@ -304,11 +289,11 @@ export function explainAssertions(inputText: string): any {
     };
   }
 
-  // 验证输入数据
+  // Validate the input data
   const validationResult = validateInputData(inputData);
 
   if (validationResult) {
-    // 存在错误
+    // There is an error
     return {
       success: false,
       error_message: validationResult.error_message,
@@ -317,7 +302,7 @@ export function explainAssertions(inputText: string): any {
   }
 
   try {
-    // 如果验证通过，调用 explain 函数
+    // If validation passes, call the explain function
     const multiWinnerData = explain(
       inputData.solution.Ok.assertions.map((a: any) => a.assertion),
       inputData.metadata.candidates,
@@ -326,7 +311,7 @@ export function explainAssertions(inputText: string): any {
       inputData.solution.Ok.winner,
     );
 
-    // 处理 multiWinnerData 以标记 'cut' 节点
+    // Process multiWinnerData to mark 'cut' nodes
     if (multiWinnerData && Array.isArray(multiWinnerData)) {
       for (let i = 0; i < multiWinnerData.length; i++) {
         const winnerData = multiWinnerData[i];
@@ -334,21 +319,26 @@ export function explainAssertions(inputText: string): any {
         if (process && Array.isArray(process)) {
           for (let j = 0; j < process.length; j++) {
             const step = process[j];
-            if (step.before && step.after) {
-              markCutNodes(step.before, step.after);
+            if (step.before) {
+              // If 'after' exists, pass it; otherwise, pass null
+              const afterTree = step.after || null;
+              markCutNodes(step.before, afterTree);
+            } else if (step.trees) {
+              // For step 0, possibly only 'trees' property
+              markCutNodes(step.trees, step.trees);
             }
           }
         }
       }
     }
 
-    // 返回输出数据
+    // Return the output data
     return {
       success: true,
       data: multiWinnerData,
     };
   } catch (error) {
-    // 处理任何意外错误
+    // Handle any unexpected errors
     let errorMessage = "An unexpected error occurred.";
     if (error instanceof Error) {
       errorMessage = error.message;
