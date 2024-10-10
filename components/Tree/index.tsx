@@ -22,10 +22,15 @@ import {
 interface TreeProps {
   data: TreeNode;
   nextComponent: React.ReactNode;
+  backComponent: React.ReactNode;
 }
 const dimensions = { width: 400, height: 400 };
 
-export default function Tree({ data, nextComponent }: TreeProps) {
+export default function Tree({
+  data,
+  nextComponent,
+  backComponent,
+}: TreeProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const gRef = useRef<SVGGElement | null>(null);
   const zoomBehaviorRef = useRef<d3.ZoomBehavior<
@@ -216,7 +221,7 @@ export default function Tree({ data, nextComponent }: TreeProps) {
         preserveAspectRatio="xMidYMid meet"
       />
       <div className="flex justify-between">
-        <div></div>
+        {backComponent}
         <div className="flex items-center">
           <Button
             variant="outline"
@@ -258,9 +263,6 @@ export default function Tree({ data, nextComponent }: TreeProps) {
           </Button>
         </div>
         {nextComponent}
-        {/* <Button variant="ghost">
-          Next <ArrowRight className="ml-2 h-4 w-4" />
-        </Button> */}
       </div>
     </div>
   );
