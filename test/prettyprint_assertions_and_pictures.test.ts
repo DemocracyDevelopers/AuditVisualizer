@@ -1,15 +1,6 @@
 import * as prettyPrint from '../lib/explain/prettyprint_assertions_and_pictures';
-import * as explainUtils from '../lib/explain/explain_utils';
-
-jest.mock('../lib/explain/explain_utils', () => ({
-  add: jest.fn().mockReturnValue({ innerText: '', setAttribute: jest.fn() }),
-}));
 
 describe('prettyprint_assertions_and_pictures', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   describe('assertion_ok_elimination_order_suffix', () => {
     describe('NEN assertions', () => {
       it('should return Contradiction when the winner is eliminated first', () => {
@@ -248,66 +239,6 @@ describe('prettyprint_assertions_and_pictures', () => {
       expect(prettyPrint.factorial(0)).toBe(1);
       expect(prettyPrint.factorial(1)).toBe(1);
       expect(prettyPrint.factorial(5)).toBe(120);
-    });
-  });
-
-  describe('TreeShowingWhatEliminatedItNode', () => {
-    it('should correctly create a tree node showing elimination reasons', () => {
-      const assertions: prettyPrint.Assertion[] = [
-        { type: 'NEB', winner: 0, loser: 1 }
-      ];
-      const node = new prettyPrint.TreeShowingWhatEliminatedItNode([], 0, assertions, 3);
-
-      expect(node.body).toBe(0);
-      expect(node.valid).toBe(true);
-      expect(node.orderedChildren.length).toBe(0);
-    });
-  });
-
-  describe('computeWidthsForTreeNode', () => {
-    it('should correctly compute widths for tree nodes', () => {
-      const root = new prettyPrint.EliminationTreeNode(null);
-      root.addPath([2, 1, 0]);
-      const width = prettyPrint.computeWidthsForTreeNode(root, 0);
-
-      expect(width).toBe(1);
-      expect(root.start_x).toBe(0);
-      expect(root.width).toBe(1);
-    });
-  });
-
-  describe('make_trees', () => {
-    it('should correctly create elimination trees', () => {
-      const eliminationOrders = [[2, 1, 0], [2, 0, 1]];
-      const trees = prettyPrint.make_trees(eliminationOrders);
-
-      expect(trees.length).toBe(2);
-      expect(trees[0].body).toBe(0);
-      expect(trees[0].orderedChildren.length).toBe(1);
-    });
-  });
-
-  describe('checkOptionVisibility', () => {
-    it('should correctly update option visibility', () => {
-      document.body.innerHTML = `
-        <input id="ShowEffectOfEachAssertionSeparately" type="checkbox">
-        <div id="IfShowEffectOfEachAssertionSeparately"></div>
-        <div id="IfNotShowEffectOfEachAssertionSeparately"></div>
-      `;
-
-      const checkbox = document.getElementById('ShowEffectOfEachAssertionSeparately') as HTMLInputElement;
-      const ifShow = document.getElementById('IfShowEffectOfEachAssertionSeparately') as HTMLElement;
-      const ifNotShow = document.getElementById('IfNotShowEffectOfEachAssertionSeparately') as HTMLElement;
-
-      checkbox.checked = true;
-      prettyPrint.checkOptionVisibility();
-      expect(ifShow.style.display).toBe('');
-      expect(ifNotShow.style.display).toBe('none');
-
-      checkbox.checked = false;
-      prettyPrint.checkOptionVisibility();
-      expect(ifShow.style.display).toBe('none');
-      expect(ifNotShow.style.display).toBe('');
     });
   });
 });

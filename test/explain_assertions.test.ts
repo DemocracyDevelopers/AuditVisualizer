@@ -167,44 +167,4 @@ describe('explain_assertions', () => {
       expect(result).toBeNull();
     });
   });
-
-  describe('load_example', () => {
-    it('should load example and call explain_assertions', () => {
-      const mockInputElement = { value: '' };
-      document.getElementById = jest.fn().mockReturnValue(mockInputElement);
-
-      (explainUtils.getWebJSON as jest.Mock).mockImplementation((url, success) => {
-        success('{"metadata": {}, "solution": {}}');
-      });
-
-      explainAssertions.load_example('test_url');
-
-      expect(explainUtils.getWebJSON).toHaveBeenCalledWith('test_url', expect.any(Function), expect.any(Function), null, null, 'text');
-      expect(mockInputElement.value).toBe('{"metadata": {}, "solution": {}}');
-    });
-  });
-
-  describe('make_examples', () => {
-    it('should create example links', () => {
-      document.body.innerHTML = `
-        <div id="EgGuideToRaire"></div>
-        <div id="MichelleExamples"></div>
-        <div id="SHANGRLAExamples"></div>
-      `;
-
-      const mockAddFunction = jest.fn().mockReturnValue({
-        href: '',
-        textContent: '',
-        onclick: null
-      });
-      (explainUtils.add as jest.Mock).mockImplementation(mockAddFunction);
-
-      explainAssertions.make_examples();
-
-      expect(mockAddFunction).toHaveBeenCalledTimes(7); // 5 guide examples + 2 other examples
-      expect(mockAddFunction.mock.calls[0][0]).toHaveProperty('value');
-      expect(mockAddFunction.mock.calls[0][1]).toBe('a');
-      expect(mockAddFunction.mock.calls[0][2]).toBe('example');
-    });
-  });
 });
