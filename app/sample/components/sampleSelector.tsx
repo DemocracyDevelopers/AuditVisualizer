@@ -37,13 +37,27 @@ const sampleFiles: SampleFile[] = [
 ];
 
 const SampleSelector = () => {
-  const { setMultiWinner, setCandidateList, setAssertionList } =
-    useMultiWinnerDataStore(); // 使用全局状态
+  const {
+    setMultiWinner,
+    setCandidateList,
+    setAssertionList,
+    setWinnerInfo,
+    clearAssertionList,
+    clearCandidateList,
+    clearMultiWinner,
+    clearWinnerInfo,
+  } = useMultiWinnerDataStore(); // 使用全局状态
+
   const avatarColor = new AvatarColor();
   const router = useRouter();
 
   const handleSampleClick = async (fileUrl: string) => {
     try {
+      clearMultiWinner();
+      clearCandidateList();
+      clearAssertionList();
+      clearWinnerInfo();
+
       // 使用 fetch 获取样例文件
       const response = await fetch(fileUrl);
       if (!response.ok) {
@@ -127,7 +141,7 @@ const SampleSelector = () => {
                 // 返回 assertionList 的每一项
                 return {
                   index: index + 1, // index 从 1 开始
-                  winner: winnerName, // 将 winner 转化为名字
+                  winner: winner, // 将 winner 转化为名字
                   content, // 生成的内容
                   type, // 保持 type 不变
                   difficulty, // 保持 difficulty 不变
@@ -140,6 +154,11 @@ const SampleSelector = () => {
             console.log(
               "Successfully processed and stored the sample file data",
             );
+
+            const winnerId = jsonData.solution.Ok.winner;
+            const winnerName = jsonData.metadata.candidates[winnerId];
+            setWinnerInfo({ id: winnerId, name: winnerName });
+
             router.push("/dashboard");
           } else {
             console.error("Failed to explain assertions", response.error);
