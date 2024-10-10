@@ -3,7 +3,6 @@ import * as explainUtils from '../lib/explain/explain_utils';
 
 jest.mock('../lib/explain/explain_utils', () => ({
   add: jest.fn().mockReturnValue({ innerText: '', setAttribute: jest.fn() }),
-  addSVG: jest.fn().mockReturnValue({ setAttribute: jest.fn() }),
 }));
 
 describe('prettyprint_assertions_and_pictures', () => {
@@ -252,22 +251,6 @@ describe('prettyprint_assertions_and_pictures', () => {
     });
   });
 
-  // Commented out problematic tests
-  /*
-  describe('EliminationTreeNode', () => {
-    it('should correctly create and manipulate elimination tree nodes', () => {
-      const root = new prettyPrint.EliminationTreeNode(null);
-      root.addPath([2, 1, 0]);
-      root.validPath([2, 1, 0]);
-
-      expect(root.orderedChildren.length).toBe(1);
-      expect(root.orderedChildren[0].body).toBe(2);
-      expect(root.valid).toBe(true);
-      expect(root.orderedChildren[0].orderedChildren[0].body).toBe(1);
-    });
-  });
-  */
-
   describe('TreeShowingWhatEliminatedItNode', () => {
     it('should correctly create a tree node showing elimination reasons', () => {
       const assertions: prettyPrint.Assertion[] = [
@@ -303,99 +286,6 @@ describe('prettyprint_assertions_and_pictures', () => {
       expect(trees[0].orderedChildren.length).toBe(1);
     });
   });
-
-  // Commented out problematic tests
-  /*
-  describe('drawWinnerOrLoserSymbol', () => {
-    it('should correctly draw winner or loser symbol', () => {
-      const svg = { appendChild: jest.fn() };
-      prettyPrint.drawWinnerOrLoserSymbol(svg as any, 10, 10, 'winner', 5);
-
-      expect(explainUtils.addSVG).toHaveBeenCalledWith(svg, "polygon", "winner");
-    });
-  });
-
-  describe('draw_svg_tree', () => {
-    it('should correctly draw SVG tree', () => {
-      const div = document.createElement('div');
-      const tree = new prettyPrint.EliminationTreeNode(0);
-      tree.addPath([1, 2]);
-      prettyPrint.draw_svg_tree(div, tree, ['A', 'B', 'C'], 'test', {}, null);
-
-      expect(explainUtils.add).toHaveBeenCalled();
-      expect(explainUtils.addSVG).toHaveBeenCalled();
-    });
-  });
-
-  describe('describe_raire_result', () => {
-    it('should correctly describe RAIRE result', () => {
-      const outputDiv = document.createElement('div');
-      const explanationDiv = document.createElement('div');
-      const data = {
-        solution: {
-          Ok: {
-            assertions: [
-              { assertion: { type: 'NEB', winner: 0, loser: 1 } }
-            ],
-            winner: 0,
-            num_candidates: 3
-          }
-        },
-        metadata: {
-          candidates: ['A', 'B', 'C']
-        }
-      };
-
-      prettyPrint.describe_raire_result(outputDiv, explanationDiv, data);
-
-      expect(explainUtils.add).toHaveBeenCalledWith(outputDiv, "h3", "Assertions");
-    });
-
-    it('should handle error cases', () => {
-      const outputDiv = document.createElement('div');
-      const explanationDiv = document.createElement('div');
-      const errorData = {
-        solution: {
-          Err: 'InvalidCandidateNumber'
-        }
-      };
-
-      prettyPrint.describe_raire_result(outputDiv, explanationDiv, errorData);
-
-      expect(explainUtils.add).toHaveBeenCalledWith(outputDiv, "p", "error");
-    });
-  });
-
-  describe('output_elimination_orders', () => {
-    it('should correctly output elimination orders', () => {
-      const div = document.createElement('div');
-      const eliminationOrders = [[0, 1, 2], [1, 2, 0]];
-      const candidateNames = ['A', 'B', 'C'];
-      const title = 'Test Elimination Orders';
-
-      prettyPrint.output_elimination_orders(div, eliminationOrders, candidateNames, title);
-
-      expect(explainUtils.add).toHaveBeenCalledWith(expect.anything(), "h5");
-      expect(explainUtils.add).toHaveBeenCalledWith(expect.anything(), "ol");
-    });
-  });
-
-  describe('assertion_description_with_triangles', () => {
-    it('should correctly describe assertion with triangles', () => {
-      const where = document.createElement('div');
-      const assertion: prettyPrint.Assertion = {
-        type: 'NEB',
-        winner: 0,
-        loser: 1
-      };
-      const candidateNames = ['A', 'B', 'C'];
-
-      prettyPrint.assertion_description_with_triangles(where, assertion, candidateNames);
-
-      expect(explainUtils.add).toHaveBeenCalled();
-    });
-  });
-  */
 
   describe('checkOptionVisibility', () => {
     it('should correctly update option visibility', () => {
