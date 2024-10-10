@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { CloudUpload, File, ArrowLeft } from "lucide-react";
+import { CloudUpload, File, ArrowLeft, Link } from "lucide-react";
 import CustomAlertDialog from "./alertDialog";
 import UploadProgress from "./progress";
 import useMultiWinnerDataStore from "../../../store/MultiWinnerData";
@@ -37,6 +37,8 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
     clearCandidateList,
     setAssertionList,
     clearAssertionList,
+    setWinnerInfo,
+    clearWinnerInfo,
   } = useMultiWinnerDataStore(); // 使用全局状态
 
   const avatarColor = new AvatarColor();
@@ -195,7 +197,7 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
                 // 返回 assertionList 的每一项
                 return {
                   index: index + 1, // index 从 1 开始
-                  winner: winnerName, // 将 winner 转化为名字
+                  winner: winner, // 将 winner 转化为名字
                   content, // 生成的内容
                   type, // 保持 type 不变
                   difficulty, // 保持 difficulty 不变
@@ -204,6 +206,10 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
               },
             );
             setAssertionList(assertionList);
+
+            const winnerId = jsonData.solution.Ok.winner;
+            const winnerName = jsonData.metadata.candidates[winnerId];
+            setWinnerInfo({ id: winnerId, name: winnerName });
 
             // 根据返回的 state 模拟进度条
             simulateProgress(response.state, true, "");
@@ -239,6 +245,7 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
         return;
       }
       setSelectedFile(file);
+      clearWinnerInfo();
       clearMultiWinner(); // 清空全局状态中的 JSON 数据
       clearCandidateList(); // 清空全局状态中的候选人列表
       clearAssertionList(); // 清空全局状态中的断言列表
@@ -286,6 +293,10 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
       setShowAlert(false);
       setCurrentPhase(0); // 重置上传进度
     }
+  };
+
+  const handleBrowseClick = () => {
+    document.getElementById("file-input")?.click(); // 触发文件上传的点击事件
   };
 
   const handleReset = () => {
@@ -365,19 +376,28 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
               {/* 设置 CloudUpload 图标大小 */}
               <p className="text-gray-600">
                 Drag or{" "}
-                <span className="text-blue-600 cursor-pointer">Browse</span>{" "}
+                <span
+                  className="text-blue-600 cursor-pointer hover:underline"
+                  onClick={handleBrowseClick}
+                >
+                  Browse
+                </span>{" "}
                 your files
               </p>
               <p className="text-gray-400 mb-2">or</p>
-              {/* Sample文件 TODO */}
-              <a href="#" className="text-blue-600">
+              <button
+                onClick={() => router.push("/sample")} // 跳转到Sample页面
+                className="text-blue-600 hover:underline"
+              >
                 Use a sample file
-              </a>
+              </button>
               <input
+                id="file-input"
                 type="file"
                 accept="application/json, text/plain"
                 onChange={handleFileChange}
                 className="top-0 left-0 w-full h-full opacity-0 cursor-pointer absolute"
+                style={{ display: "none" }} // 隐藏上传文件的输入框
               />
               <p className="text-sm text-gray-400 mt-4 absolute bottom-2 left-2">
                 Supported files: .json, .txt | Upload limit: 100MB

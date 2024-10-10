@@ -24,7 +24,7 @@ const Sample = () => {
         </div>
         <div className="mt-8">
           <button
-            className="text-blue-500 hover:underline"
+            className="text-black-500 hover:underline"
             onClick={() => router.back()}
           >
             ← Back
@@ -33,18 +33,18 @@ const Sample = () => {
 
         <p className="text-sm text-gray-500 text-center mt-4">
           By sharing your files or using our service, you agree to our{" "}
-          <a href="#" className="text-blue-500">
+          <Link href="#" className="underline hover:text-gray-800">
             Terms of Service
-          </a>{" "}
+          </Link>{" "}
           and{" "}
-          <a href="#" className="text-blue-500">
+          <Link href="#" className="underline hover:text-gray-800">
             Privacy Policy
-          </a>
+          </Link>
           .
         </p>
-        <p className="text-center mt-4 text-gray-500">
+        <p className="text-center text-lg text-gray-600 my-4">
           Need help? Click{" "}
-          <Link href="#" className="text-blue-500 hover:underline">
+          <Link href="/tutorial" className="text-blue-600 hover:underline">
             here
           </Link>{" "}
           for a tutorial.
