@@ -23,16 +23,15 @@ interface TreeProps {
   data: TreeNode;
   nextComponent: React.ReactNode;
 }
+const dimensions = { width: 400, height: 400 };
 
 export default function Tree({ data, nextComponent }: TreeProps) {
-  const [zoomEnabled, setZoomEnabled] = useState<boolean>(true);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const gRef = useRef<SVGGElement | null>(null);
   const zoomBehaviorRef = useRef<d3.ZoomBehavior<
     SVGSVGElement,
     unknown
   > | null>(null); // Ref to store zoom behavior
-  const [dimensions, setDimensions] = useState({ width: 400, height: 400 });
   const [treeData, setTreeData] = useState(data);
   const [currentZoom, setCurrentZoom] = useState<number>(1);
 
@@ -130,7 +129,27 @@ export default function Tree({ data, nextComponent }: TreeProps) {
         .attr("y", 3)
         .attr("text-anchor", "middle")
         .attr("font-size", "10px")
-        .text((d) => d.data.name);
+        // .text((d) => d.data.name);
+        .text(function (d) {
+          const maxWidth = 35; // 最大宽度
+          let text = d.data.name;
+          const ellipsis = "...";
+
+          // 创建临时的text元素来测量宽度
+          let textElement = d3.select(this).text(text);
+
+          // 检查 textElement.node() 是否为 null
+          // 如果宽度超过最大宽度，进行截断
+          while (
+            textElement.node()!.getComputedTextLength() > maxWidth &&
+            text.length > 0
+          ) {
+            text = text.slice(0, -1); // 每次去掉一个字符
+            textElement.text(text + ellipsis); // 加上省略号
+          }
+
+          return textElement.text();
+        });
 
       // 添加折叠节点数量的圆形
       groups
@@ -154,13 +173,8 @@ export default function Tree({ data, nextComponent }: TreeProps) {
         .zoom<SVGSVGElement, unknown>()
         .scaleExtent([0.25, 1.5])
         .on("zoom", (event) => {
-          if (zoomEnabled) {
-            d3.select(gRef.current).attr(
-              "transform",
-              event.transform.toString(),
-            );
-            setCurrentZoom(event.transform.k);
-          }
+          d3.select(gRef.current).attr("transform", event.transform.toString());
+          setCurrentZoom(event.transform.k);
         });
 
       svgElement.call(zoom);
@@ -170,7 +184,7 @@ export default function Tree({ data, nextComponent }: TreeProps) {
         svgElement.on(".zoom", null);
       };
     }
-  }, [treeData, zoomEnabled, dimensions]);
+  }, [treeData]);
 
   const handleZoomChange = (scaleFactor: number) => {
     if (zoomBehaviorRef.current && svgRef.current) {

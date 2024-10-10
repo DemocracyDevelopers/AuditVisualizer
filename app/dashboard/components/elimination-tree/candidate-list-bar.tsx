@@ -1,5 +1,11 @@
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 import { Candidate } from "./constants";
 import SearchDropdown from "./search-dropdown";
+import { TooltipTrigger } from "@radix-ui/react-tooltip";
 
 type CandidateListBarProps = {
   selectedWinnerId: number;
@@ -19,17 +25,21 @@ function CandidateListBar({
       <div className="flex">
         {candidateList.map((candidate) => (
           <div key={candidate.id} className="flex flex-col items-center w-12">
-            <div
-              // onClick={() => setSelectedWinnerId(candidate.id)}
-              onClick={() => handleSelectWinner(candidate.id)}
-              className="w-10 h-10 rounded-full cursor-pointer flex items-center justify-center border-2 border-black text-xs"
-            >
-              {candidate.name}
-            </div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger
+                  onClick={() => handleSelectWinner(candidate.id)}
+                  className="leading-9 w-10 h-10 rounded-full cursor-pointer text-center border-2 border-black text-xs overflow-hidden whitespace-nowrap text-ellipsis"
+                >
+                  {candidate.name}
+                </TooltipTrigger>
+                <TooltipContent>{candidate.name}</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         ))}
       </div>
-      <SearchDropdown />
+      <SearchDropdown candidateList={candidateList} />
     </div>
   );
 }
