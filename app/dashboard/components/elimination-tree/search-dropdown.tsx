@@ -2,11 +2,11 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { Candidate, candidateList } from "./constants";
+import { Candidate } from "./constants";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 
-function SearchDropdown() {
+function SearchDropdown({ candidateList }: { candidateList: Candidate[] }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(
     null,

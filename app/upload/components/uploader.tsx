@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { CloudUpload, File, ArrowLeft } from "lucide-react";
+import { CloudUpload, File, ArrowLeft, Link } from "lucide-react";
 import CustomAlertDialog from "./alertDialog";
 import UploadProgress from "./progress";
 import useMultiWinnerDataStore from "../../../store/MultiWinnerData";
@@ -295,6 +295,10 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
     }
   };
 
+  const handleBrowseClick = () => {
+    document.getElementById("file-input")?.click(); // 触发文件上传的点击事件
+  };
+
   const handleReset = () => {
     setSelectedFile(null); // 清空选中的文件
     clearMultiWinner(); // 清空全局状态中的 JSON 数据
@@ -372,19 +376,28 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
               {/* 设置 CloudUpload 图标大小 */}
               <p className="text-gray-600">
                 Drag or{" "}
-                <span className="text-blue-600 cursor-pointer">Browse</span>{" "}
+                <span
+                  className="text-blue-600 cursor-pointer hover:underline"
+                  onClick={handleBrowseClick}
+                >
+                  Browse
+                </span>{" "}
                 your files
               </p>
               <p className="text-gray-400 mb-2">or</p>
-              {/* Sample文件 TODO */}
-              <a href="#" className="text-blue-600">
+              <button
+                onClick={() => router.push("/sample")} // 跳转到Sample页面
+                className="text-blue-600 hover:underline"
+              >
                 Use a sample file
-              </a>
+              </button>
               <input
+                id="file-input"
                 type="file"
                 accept="application/json, text/plain"
                 onChange={handleFileChange}
                 className="top-0 left-0 w-full h-full opacity-0 cursor-pointer absolute"
+                style={{ display: "none" }} // 隐藏上传文件的输入框
               />
               <p className="text-sm text-gray-400 mt-4 absolute bottom-2 left-2">
                 Supported files: .json, .txt | Upload limit: 100MB

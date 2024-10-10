@@ -3,6 +3,7 @@
 interface TreeNode {
   id: number;
   name: string;
+  cut?: boolean; // Cut children
   children?: TreeNode[];
   _children?: TreeNode[]; // Hidden children when collapsed
   collapsedCount?: number; // Count of collapsed children

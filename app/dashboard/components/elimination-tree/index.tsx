@@ -6,7 +6,7 @@ import StepByStep from "@/app/dashboard/components/elimination-tree/step-by-step
 import Tree from "@/components/Tree";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import useMultiWinnerDataStore from "@/store/MultiWinnerData";
 
 function EliminationTree() {
@@ -55,21 +55,27 @@ function EliminationTree() {
   const { winnerInfo, data } = oneWinnerTrees;
   const stepSize = data.process.length - 1; // Handle stepSize for 0 case
 
-  const handleNext = () => {
-    if (selectedStep < stepSize) {
-      setSelectedStep((prevStep) => prevStep + 1);
-    }
-  };
-
   const isNextDisabled = selectedStep >= stepSize;
 
   const NextComponent = (
     <Button
       variant="ghost"
-      onClick={handleNext}
+      onClick={() => setSelectedStep((prevStep) => prevStep + 1)}
       disabled={isNextDisabled} // Disable button based on condition
     >
       Next <ArrowRight className="ml-2 h-4 w-4" />
+    </Button>
+  );
+
+  const isBackDisabled = selectedStep <= 1;
+
+  const BackComponent = (
+    <Button
+      variant="ghost"
+      onClick={() => setSelectedStep((prevStep) => prevStep - 1)}
+      disabled={isBackDisabled} // Disable button based on condition
+    >
+      <ArrowLeft className="mr-2 h-4 w-4" /> Back
     </Button>
   );
 
@@ -99,8 +105,9 @@ function EliminationTree() {
         <div className="w-full h-96">
           <Tree
             data={data.process[selectedStep].before!}
-            key={selectedStep}
+            key={`${selectedWinnerId}-${selectedStep}`}
             nextComponent={NextComponent}
+            backComponent={BackComponent}
           />
         </div>
       </div>

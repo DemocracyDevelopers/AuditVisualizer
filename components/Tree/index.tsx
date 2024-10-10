@@ -22,17 +22,21 @@ import {
 interface TreeProps {
   data: TreeNode;
   nextComponent: React.ReactNode;
+  backComponent: React.ReactNode;
 }
+const dimensions = { width: 400, height: 400 };
 
-export default function Tree({ data, nextComponent }: TreeProps) {
-  const [zoomEnabled, setZoomEnabled] = useState<boolean>(true);
+export default function Tree({
+  data,
+  nextComponent,
+  backComponent,
+}: TreeProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const gRef = useRef<SVGGElement | null>(null);
   const zoomBehaviorRef = useRef<d3.ZoomBehavior<
     SVGSVGElement,
     unknown
   > | null>(null); // Ref to store zoom behavior
-  const [dimensions, setDimensions] = useState({ width: 400, height: 400 });
   const [treeData, setTreeData] = useState(data);
   const [currentZoom, setCurrentZoom] = useState<number>(1);
 
@@ -71,8 +75,38 @@ export default function Tree({ data, nextComponent }: TreeProps) {
         .attr("y1", (d) => (d.source as d3.HierarchyPointNode<TreeNode>).y)
         .attr("x2", (d) => (d.target as d3.HierarchyPointNode<TreeNode>).x)
         .attr("y2", (d) => (d.target as d3.HierarchyPointNode<TreeNode>).y)
-        .attr("stroke", "#e9bc39")
+        // .attr("stroke", "#e9bc39")
+        .attr("stroke", (d) =>
+          d.source.data.cut || d.target.data.cut ? "#d4d4d4" : "#e9bc39",
+        ) // Set stroke to black if cut is true
         .attr("stroke-width", 3);
+
+      // 暂时先用X
+      g.selectAll("text.cut-marker")
+        .data(links)
+        .enter()
+        .filter((d: any) => d.source.data.cut || d.target.data.cut) // Only add 'X' for cut links
+        .append("text")
+        .attr("class", "cut-marker")
+        .attr(
+          "x",
+          (d) =>
+            ((d.source as d3.HierarchyPointNode<TreeNode>).x +
+              (d.target as d3.HierarchyPointNode<TreeNode>).x) /
+            2,
+        )
+        .attr(
+          "y",
+          (d) =>
+            ((d.source as d3.HierarchyPointNode<TreeNode>).y +
+              (d.target as d3.HierarchyPointNode<TreeNode>).y) /
+            2,
+        )
+        .attr("text-anchor", "middle")
+        .attr("font-size", "14px")
+        .attr("fill", "red")
+        .text("X");
+
       // Create groups for each node
       const groups = g
         .selectAll("g")
@@ -100,7 +134,27 @@ export default function Tree({ data, nextComponent }: TreeProps) {
         .attr("y", 3)
         .attr("text-anchor", "middle")
         .attr("font-size", "10px")
-        .text((d) => d.data.name);
+        // .text((d) => d.data.name);
+        .text(function (d) {
+          const maxWidth = 35; // 最大宽度
+          let text = d.data.name;
+          const ellipsis = "...";
+
+          // 创建临时的text元素来测量宽度
+          let textElement = d3.select(this).text(text);
+
+          // 检查 textElement.node() 是否为 null
+          // 如果宽度超过最大宽度，进行截断
+          while (
+            textElement.node()!.getComputedTextLength() > maxWidth &&
+            text.length > 0
+          ) {
+            text = text.slice(0, -1); // 每次去掉一个字符
+            textElement.text(text + ellipsis); // 加上省略号
+          }
+
+          return textElement.text();
+        });
 
       // 添加折叠节点数量的圆形
       groups
@@ -124,13 +178,8 @@ export default function Tree({ data, nextComponent }: TreeProps) {
         .zoom<SVGSVGElement, unknown>()
         .scaleExtent([0.25, 1.5])
         .on("zoom", (event) => {
-          if (zoomEnabled) {
-            d3.select(gRef.current).attr(
-              "transform",
-              event.transform.toString(),
-            );
-            setCurrentZoom(event.transform.k);
-          }
+          d3.select(gRef.current).attr("transform", event.transform.toString());
+          setCurrentZoom(event.transform.k);
         });
 
       svgElement.call(zoom);
@@ -140,7 +189,7 @@ export default function Tree({ data, nextComponent }: TreeProps) {
         svgElement.on(".zoom", null);
       };
     }
-  }, [treeData, zoomEnabled, dimensions]);
+  }, [treeData]);
 
   const handleZoomChange = (scaleFactor: number) => {
     if (zoomBehaviorRef.current && svgRef.current) {
@@ -172,7 +221,7 @@ export default function Tree({ data, nextComponent }: TreeProps) {
         preserveAspectRatio="xMidYMid meet"
       />
       <div className="flex justify-between">
-        <div></div>
+        {backComponent}
         <div className="flex items-center">
           <Button
             variant="outline"
@@ -214,9 +263,6 @@ export default function Tree({ data, nextComponent }: TreeProps) {
           </Button>
         </div>
         {nextComponent}
-        {/* <Button variant="ghost">
-          Next <ArrowRight className="ml-2 h-4 w-4" />
-        </Button> */}
       </div>
     </div>
   );
