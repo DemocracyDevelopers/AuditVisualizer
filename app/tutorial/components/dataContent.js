@@ -2,31 +2,25 @@
 
 export const contentData = [
   {
+    title: "Getting Started",
     path: "/tutorial",
-    contents: ["Getting Started", "Welcome", "What's Here", "Ready?"],
+    subItems: ["Welcome", "What's Here", "Ready?"],
   },
   {
+    title: "Introduction: IRV RAs with RAIRE",
     path: "/tutorial/introduction",
-    contents: [
-      "Introduction: IRV RAs with RAIRE",
-      "Overview",
-      "Understanding IRV",
-    ],
+    subItems: ["The Audit Process from Beginning to End"],
   },
   {
+    title: "IRV elections and Visualizing Outcomes",
     path: "/tutorial/outcomes",
-    contents: [
-      "IRV elections and Visualizing Outcomes",
-      "How IRV Counts Work",
-      "Example",
-    ],
+    subItems: ["How IRV Counts Work"],
   },
   {
+    title: "Assertions for IRV winners",
     path: "/tutorial/assertion",
-    contents: [
-      "Introduction",
+    subItems: [
       "Not Eliminated Before (NEB) Assertions",
-      "Example",
       "Not Eliminated Next (NEN) Assertions",
       "Simple assertions sometimes work",
       "One candidate dominates",
@@ -35,22 +29,17 @@ export const contentData = [
     ],
   },
   {
+    title: "Risk Limiting Audits",
     path: "/tutorial/risk",
-    contents: [
-      "Introduction",
+    subItems: [
       "What is an RLA?",
       "Main Steps in Conducting an RLA",
       "Understanding Margin and Difficulty in RLAs",
-      "Example",
     ],
   },
   {
+    title: "Using assertions to audit IRV outcomes",
     path: "/tutorial/usingassertion",
-    contents: [
-      "Introduction",
-      "NEB Assertions",
-      "NEN Assertions",
-      "Assertion scoring summary",
-    ],
+    subItems: ["NEB Assertions", "NEN Assertions", "Assertion scoring summary"],
   },
 ];

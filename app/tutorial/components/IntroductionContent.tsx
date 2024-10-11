@@ -49,7 +49,10 @@ const IntroductionContent: React.FC<IntroductionContentProps> = ({
       </div>
 
       {/* Section: The Audit Process */}
-      <div className="mb-8" data-content="Audit Process">
+      <div
+        className="mb-8"
+        data-content="The Audit Process from Beginning to End"
+      >
         <h3 className="text-2xl font-bold mb-4">
           The Audit Process from Beginning to End:
         </h3>
