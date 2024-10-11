@@ -1,22 +1,31 @@
-// tutorial/risk-limiting-audits/page.tsx
+// tutorial/risk/page.tsx
 
-import React from "react";
-import RiskContent from "../components/RiskContent"; // Adjust the import path if needed
-import FloatingMenu from "../components/FloatingMenu"; // Import FloatingMenu component
+"use client";
+
+import React, { useState } from "react";
+import RiskContent from "../components/RiskContent";
+import SidebarWithSearch from "../components/SidebarWithSearch";
 
 const RiskPage: React.FC = () => {
-  return (
-    <div className="flex flex-col h-screen bg-gray-100">
-      {/* Main content */}
-      <main className="flex flex-col flex-grow">
-        {/* Risk Content Component */}
-        <RiskContent />
+  const [sidebarWidth, setSidebarWidth] = useState(256);
+  const [collapsed, setCollapsed] = useState(false);
 
-        {/* Floating Menu */}
-        <FloatingMenu />
+  return (
+    <div className="flex bg-white">
+      {/* Sidebar */}
+      <SidebarWithSearch
+        sidebarWidth={sidebarWidth}
+        setSidebarWidth={setSidebarWidth}
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
+      />
+
+      {/* Main content area */}
+      <main className="flex-grow overflow-y-auto">
+        <RiskContent sidebarWidth={sidebarWidth} collapsed={collapsed} />
 
         {/* Footer Section */}
-        <p className="text-sm text-gray-500 text-center mt-8">
+        <div className="p-4 text-sm text-gray-500 text-center border-t mt-8">
           By sharing your files or using our service, you agree to our{" "}
           <a href="#" className="text-blue-500 hover:underline">
             Terms of Service
@@ -26,7 +35,7 @@ const RiskPage: React.FC = () => {
             Privacy Policy
           </a>
           .
-        </p>
+        </div>
       </main>
     </div>
   );
