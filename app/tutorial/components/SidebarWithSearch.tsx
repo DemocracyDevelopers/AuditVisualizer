@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { contentData } from "./dataContent"; // 导入内容数据
 
 // 定义页面列表
 const pages = [
@@ -41,22 +42,54 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
   setCollapsed,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState<
+    { content: string; path: string }[]
+  >([]);
   const pathname = usePathname();
-  const [sidebarHeight, setSidebarHeight] = useState("90vh"); // 初始化高度
+  const router = useRouter();
+  const [sidebarHeight, setSidebarHeight] = useState("90vh");
 
   const handleSearch = () => {
     if (!searchTerm) return;
-    const element = document.querySelector(`[data-content*="${searchTerm}"]`);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+
+    // 模糊搜索匹配结果
+    const results: { content: string; path: string }[] = [];
+
+    // 遍历 contentData 查找匹配的内容
+    contentData.forEach((page) => {
+      page.contents.forEach((content) => {
+        // 模糊匹配输入的搜索词
+        if (content.toLowerCase().includes(searchTerm.toLowerCase())) {
+          results.push({ content, path: page.path });
+        }
+      });
+    });
+
+    // 去除重复的结果
+    const uniqueResults = results.filter(
+      (result, index, self) =>
+        index === self.findIndex((r) => r.content === result.content),
+    );
+
+    setSearchResults(uniqueResults);
+  };
+
+  // 处理点击搜索结果
+  const handleResultClick = (path: string, content: string) => {
+    setSearchResults([]);
+    setSearchTerm("");
+    router.push(path); // 导航到页面
+    setTimeout(() => {
+      const element = document.querySelector(`[data-content*="${content}"]`);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 300); // 等待页面加载后滚动
   };
 
   // 监听滚动事件并调整 Sidebar 高度
   const handleScroll = () => {
     const scrollTop = window.scrollY;
-    // 当滚动到页面底部时，Sidebar 高度为 100vh，否则按滚动距离逐渐增加
-    // const newHeight = Math.min(100, 70 + (scrollTop / 10)) + "vh";
     const newHeight = Math.max(85, Math.min(100, 85 + scrollTop / 10)) + "vh";
     setSidebarHeight(newHeight);
   };
@@ -76,7 +109,7 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
 
   const handleMouseMove = (e: MouseEvent) => {
     if (!collapsed) {
-      const newWidth = Math.min(Math.max(e.clientX, 100), 400); // Min width: 100px, Max width: 400px
+      const newWidth = Math.min(Math.max(e.clientX, 100), 400);
       setSidebarWidth(newWidth);
     }
   };
@@ -101,47 +134,60 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
         style={{ width: collapsed ? "0px" : `${sidebarWidth}px` }}
       >
         {!collapsed && (
-          <>
-            {/*/!* Top horizontal line *!/*/}
-            {/*<div className="w-full h-2 bg-gray-300"></div>*/}
+          <div className="p-4">
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                handleSearch();
+              }}
+              className="w-full p-2 border rounded-md"
+            />
+            <button
+              onClick={handleSearch}
+              className="w-full mt-2 bg-blue-500 text-white p-2 rounded-md"
+            >
+              Search
+            </button>
 
-            <div className="p-4">
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full p-2 border rounded-md"
-              />
-              <button
-                onClick={handleSearch}
-                className="w-full mt-2 bg-blue-500 text-white p-2 rounded-md"
-              >
-                Search
-              </button>
-
-              {/* Add spacing between the Search button and the Table of Content */}
-              <div className="mt-6"></div>
-
-              <h4 className="text-xl font-bold mb-4">Table of Content</h4>
-              <ul className="space-y-2">
-                {pages.map((page) => (
-                  <li key={page.id}>
-                    <Link
-                      href={page.path}
-                      className={`block ${
-                        pathname === page.path
-                          ? "text-blue-600 font-semibold"
-                          : "text-gray-700"
-                      } hover:underline`}
-                    >
-                      {page.name}
-                    </Link>
+            {/* 搜索结果显示 */}
+            {searchResults.length > 0 && (
+              <ul className="mt-4 bg-gray-100 p-2 rounded-md max-h-60 overflow-y-auto">
+                {searchResults.map((result, index) => (
+                  <li
+                    key={index}
+                    className="text-blue-500 hover:underline cursor-pointer"
+                    onClick={() =>
+                      handleResultClick(result.path, result.content)
+                    }
+                  >
+                    {result.content}
                   </li>
                 ))}
               </ul>
-            </div>
-          </>
+            )}
+
+            <div className="mt-6"></div>
+            <h4 className="text-xl font-bold mb-4">Table of Content</h4>
+            <ul className="space-y-2">
+              {pages.map((page) => (
+                <li key={page.id}>
+                  <Link
+                    href={page.path}
+                    className={`block ${
+                      pathname === page.path
+                        ? "text-blue-600 font-semibold"
+                        : "text-gray-700"
+                    } hover:underline`}
+                  >
+                    {page.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
 
