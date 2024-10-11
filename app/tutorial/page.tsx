@@ -1,22 +1,29 @@
 // pages/tutorial.tsx
 
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import TutorialContent from "./components/TutorialContent";
-import FloatingMenu from "./components/FloatingMenu"; // Adjust this path according to your project structure
+import SidebarWithSearch from "./components/SidebarWithSearch";
 
 const Tutorial: React.FC = () => {
+  const [sidebarWidth, setSidebarWidth] = useState(256);
+  const [collapsed, setCollapsed] = useState(false);
+
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
-      {/* Main content */}
-      <main className="flex flex-col flex-grow">
-        {/* Tutorial Content Component */}
-        <TutorialContent />
+    <div className="flex bg-white">
+      {/* Sidebar */}
+      <SidebarWithSearch
+        sidebarWidth={sidebarWidth}
+        setSidebarWidth={setSidebarWidth}
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
+      />
 
-        {/* Floating Menu */}
-        <FloatingMenu />
-
-        {/* Footer Section */}
-        <p className="text-sm text-gray-500 text-center mt-8">
+      {/* Main content area */}
+      <main className="flex-grow overflow-y-auto">
+        <TutorialContent sidebarWidth={sidebarWidth} collapsed={collapsed} />
+        <div className="p-4 text-sm text-gray-500 text-center border-t mt-8">
           By sharing your files or using our service, you agree to our{" "}
           <a href="#" className="text-blue-500 hover:underline">
             Terms of Service
@@ -26,7 +33,7 @@ const Tutorial: React.FC = () => {
             Privacy Policy
           </a>
           .
-        </p>
+        </div>
       </main>
     </div>
   );

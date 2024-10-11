@@ -1,22 +1,30 @@
 // tutorial/outcomes/page.tsx
+"use client";
 
-import React from "react";
+import React, { useState } from "react";
 import OutcomesContent from "../components/OutcomesContent"; // Adjust the import path as needed
-import FloatingMenu from "../components/FloatingMenu"; // Import the FloatingMenu component
+import SidebarWithSearch from "../components/SidebarWithSearch"; // Import the SidebarWithSearch component
 
 const OutcomesPage: React.FC = () => {
-  return (
-    <div className="flex flex-col h-screen bg-gray-100">
-      {/* Main content */}
-      <main className="flex flex-col flex-grow">
-        {/* Outcomes Content Component */}
-        <OutcomesContent />
+  const [sidebarWidth, setSidebarWidth] = useState(256);
+  const [collapsed, setCollapsed] = useState(false);
 
-        {/* Floating Menu */}
-        <FloatingMenu />
+  return (
+    <div className="flex bg-white">
+      {/* Sidebar */}
+      <SidebarWithSearch
+        sidebarWidth={sidebarWidth}
+        setSidebarWidth={setSidebarWidth}
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
+      />
+
+      {/* Main content */}
+      <main className="flex-grow overflow-y-auto">
+        <OutcomesContent sidebarWidth={sidebarWidth} collapsed={collapsed} />
 
         {/* Footer Section */}
-        <p className="text-sm text-gray-500 text-center mt-8">
+        <p className="p-4 text-sm text-gray-500 text-center border-t mt-8">
           By sharing your files or using our service, you agree to our{" "}
           <a href="#" className="text-blue-500 hover:underline">
             Terms of Service
