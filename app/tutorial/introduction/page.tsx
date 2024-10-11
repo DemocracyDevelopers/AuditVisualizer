@@ -1,22 +1,32 @@
-// tutorial/introduction/page.tsx
+"use client";
 
-import React from "react";
-import IntroductionContent from "../components/IntroductionContent"; // Adjust the import path as needed
-import FloatingMenu from "../components/FloatingMenu"; // Import the FloatingMenu component
+import React, { useState } from "react";
+import IntroductionContent from "../components/IntroductionContent";
+import SidebarWithSearch from "../components/SidebarWithSearch";
 
 const IntroductionPage: React.FC = () => {
-  return (
-    <div className="flex flex-col h-screen bg-gray-100">
-      {/* Main content */}
-      <main className="flex flex-col flex-grow">
-        {/* Introduction Content Component */}
-        <IntroductionContent />
+  const [sidebarWidth, setSidebarWidth] = useState(256); // initial sidebar width in pixels
+  const [collapsed, setCollapsed] = useState(false);
 
-        {/* Floating Menu */}
-        <FloatingMenu />
+  return (
+    <div className="flex bg-white">
+      {/* Sidebar */}
+      <SidebarWithSearch
+        sidebarWidth={sidebarWidth}
+        setSidebarWidth={setSidebarWidth}
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
+      />
+
+      {/* Main content area */}
+      <main className="flex-grow overflow-y-auto">
+        <IntroductionContent
+          sidebarWidth={sidebarWidth}
+          collapsed={collapsed}
+        />
 
         {/* Footer Section */}
-        <p className="text-sm text-gray-500 text-center mt-8">
+        <div className="p-4 text-sm text-gray-500 text-center border-t mt-8">
           By sharing your files or using our service, you agree to our{" "}
           <a href="#" className="text-blue-500 hover:underline">
             Terms of Service
@@ -26,7 +36,7 @@ const IntroductionPage: React.FC = () => {
             Privacy Policy
           </a>
           .
-        </p>
+        </div>
       </main>
     </div>
   );
