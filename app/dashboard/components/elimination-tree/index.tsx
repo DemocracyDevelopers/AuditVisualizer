@@ -136,13 +136,13 @@ function EliminationTree() {
         </div>
         <div className="w-48 flex flex-col gap-4">
           <div>
-            <div className="font-bold">Assertion: </div>
+            <div className="font-bold">Applied Assertion: </div>
             <div>{data.process[selectedStep].assertion}</div>
           </div>
 
           <div>
             <Button onClick={handleRevertAssertion}>
-              Applied Assertion
+              Revert Assertion
               <Undo2 className="ml-2 h-4 w-4" />
             </Button>
           </div>
