@@ -1,11 +1,17 @@
 "use client";
-
 import Image from "next/image";
 import Uploader from "./components/uploader";
 import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import TermsAndPrivacy from "@/app/upload/components/terms-and-privacy";
+import TutorialLink from "@/app/upload/components/tutorial-link";
 
-const Upload: React.FC = () => {
+const Dashboard: React.FC = () => {
+  const router = useRouter();
+  const jumpToTutorial = () => {
+    router.push("/tutorial");
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -20,43 +26,22 @@ const Upload: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen bg-white ">
-      {/* Main content */}
-      <main className="flex flex-col flex-grow p-8">
-        <div className=" mb-4">
-          <h2 className="text-3xl font-bold mb-2">
+    <div className="flex flex-col h-screen">
+      <main className="flex flex-col bg--white p-8 h-screen">
+        <div className="border border-gray-300 shadow-md rounded-lg p-6 flex flex-col flex-grow">
+          <h2 className="text-3xl font-bold text-left">
             Show the effect of assertions
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-500 text-left">
             Evaluate any audit result that is formatted as a JSON file.
           </p>
-        </div>
-        <div className="border border-gray-300 shadow-md rounded-lg p-6 flex flex-col flex-grow">
-          {/* Using Uploader component */}
           <Uploader className="flex flex-col flex-grow text-left p-4" />
+          <TermsAndPrivacy />
         </div>
-
-        <p className="text-sm text-gray-500 text-center mt-4">
-          By sharing your files or using our service, you agree to our{" "}
-          <a href="#" className="text-blue-500">
-            Terms of Service
-          </a>{" "}
-          and{" "}
-          <a href="#" className="text-blue-500">
-            Privacy Policy
-          </a>
-          .
-        </p>
-        <p className="text-center mt-4 text-gray-500">
-          Need help? Click{" "}
-          <Link href="#" className="text-blue-500 hover:underline">
-            here
-          </Link>{" "}
-          for a tutorial.
-        </p>
+        <TutorialLink linkText="here" linkHref="/tutorial" />
       </main>
     </div>
   );
 };
 
-export default Upload;
+export default Dashboard;
