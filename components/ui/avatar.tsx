@@ -120,7 +120,7 @@ const AvatarFallback = React.forwardRef<
       ref={ref}
       title={name} // 悬停时显示完整名字
       className={cn(
-        "flex h-full w-full items-center justify-center rounded-full text-white font-bold",
+        "flex h-full w-full items-center justify-center rounded-full text-white text-xs font-bold ",
         className,
       )}
       style={{ backgroundColor: color !== "OVERFLOW" ? color : "gray" }}
