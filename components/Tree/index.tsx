@@ -23,6 +23,8 @@ interface TreeProps {
   data: TreeNode;
   nextComponent: React.ReactNode;
   backComponent: React.ReactNode;
+  resetHiddenNodes: boolean;
+  onResetComplete: () => void;
 }
 const dimensions = { width: 400, height: 400 };
 
@@ -30,6 +32,8 @@ export default function Tree({
   data,
   nextComponent,
   backComponent,
+  resetHiddenNodes,
+  onResetComplete,
 }: TreeProps) {
   // TODO: 应该在这个文件里面操作cut的操作,这样每次通过key就重新渲染,重置操作了
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -40,6 +44,20 @@ export default function Tree({
   > | null>(null); // Ref to store zoom behavior
   const [treeData, setTreeData] = useState(data);
   const [currentZoom, setCurrentZoom] = useState<number>(1);
+
+  useEffect(() => {
+    if (resetHiddenNodes) {
+      const resetNodes = (node: TreeNode) => {
+        node.hide = false;
+        if (node.children) {
+          node.children.forEach(resetNodes);
+        }
+      };
+      resetNodes(treeData);
+      setTreeData({ ...treeData });
+      onResetComplete();
+    }
+  }, [resetHiddenNodes, treeData, onResetComplete]);
 
   function markNodeAndChildrenAsHidden(node: TreeNode) {
     node.hide = true; // 设置当前节点为hide
