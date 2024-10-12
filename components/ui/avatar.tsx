@@ -53,7 +53,7 @@
 import * as React from "react";
 import * as AvatarPrimitive from "@radix-ui/react-avatar";
 import { cn } from "@/lib/utils";
-import useMultiWinnerDataStore from "@/store/MultiWinnerData"; // 引入 zustand store
+import useMultiWinnerDataStore from "@/store/multi-winner-data"; // 引入 zustand store
 
 // 定义 AvatarProps 接口，明确指定 candidateId 的类型
 interface AvatarProps

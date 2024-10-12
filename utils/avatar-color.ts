@@ -1,4 +1,4 @@
-// utils/avatarColor.ts
+// utils/avatar-color.ts
 
 export class AvatarColor {
   private colors: string[] = [

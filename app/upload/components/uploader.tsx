@@ -2,10 +2,10 @@ import React, { useState, useEffect, useCallback } from "react";
 import { CloudUpload, File, ArrowLeft, Link } from "lucide-react";
 import CustomAlertDialog from "./alert-dialog";
 import UploadProgress from "./progress";
-import useMultiWinnerDataStore from "../../../store/MultiWinnerData";
+import useMultiWinnerDataStore from "../../../store/multi-winner-data";
 import { explainAssertions } from "../../explain-assertions/components/explain-process";
 import { useRouter } from "next/navigation";
-import { AvatarColor } from "@/utils/avatarColor";
+import { AvatarColor } from "@/utils/avatar-color";
 
 interface UploaderProps {
   className?: string;
