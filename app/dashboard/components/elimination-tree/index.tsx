@@ -7,7 +7,7 @@ import Tree from "../../../../components/tree";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import useMultiWinnerDataStore from "@/store/MultiWinnerData";
+import useMultiWinnerDataStore from "@/store/multi-winner-data";
 import TooltipWithIcon from "@/app/dashboard/components/Information-icon-text";
 
 function EliminationTree() {

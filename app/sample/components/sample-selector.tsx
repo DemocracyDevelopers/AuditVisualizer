@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
-import useMultiWinnerDataStore from "../../../store/MultiWinnerData";
-import { AvatarColor } from "@/utils/avatarColor";
+import useMultiWinnerDataStore from "../../../store/multi-winner-data";
+import { AvatarColor } from "@/utils/avatar-color";
 import { explainAssertions } from "../../explain-assertions/components/explain-process";
 import { useRouter } from "next/navigation";
 
@@ -18,7 +18,7 @@ const sampleFiles: SampleFile[] = [
     description: "NEB assertions example",
     imageUrl: "/sample-images/img.png",
     // fileUrl: "/sample-jsons/a_guide_to_RAIRE_eg_NEB_assertions.json",
-    fileUrl: "/sample-jsons/City of Coffs Harbour Mayoral.json",
+    fileUrl: "/sample-jsons/a_guide_to_RAIRE_eg_NEB_assertions.json",
   },
   {
     name: "One candidate dominates example",
