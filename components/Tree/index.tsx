@@ -31,6 +31,7 @@ export default function Tree({
   nextComponent,
   backComponent,
 }: TreeProps) {
+  // TODO: 应该在这个文件里面操作cut的操作,这样每次通过key就重新渲染,重置操作了
   const svgRef = useRef<SVGSVGElement | null>(null);
   const gRef = useRef<SVGGElement | null>(null);
   const zoomBehaviorRef = useRef<d3.ZoomBehavior<
@@ -85,7 +86,10 @@ export default function Tree({
       g.selectAll("text.cut-marker")
         .data(links)
         .enter()
-        .filter((d: any) => d.source.data.cut || d.target.data.cut) // Only add 'X' for cut links
+        .filter(
+          (d: d3.HierarchyLink<TreeNode>) =>
+            !!(d.source.data.cut || d.target.data.cut),
+        ) // Only add 'X' for cut links
         .append("text")
         .attr("class", "cut-marker")
         .attr(

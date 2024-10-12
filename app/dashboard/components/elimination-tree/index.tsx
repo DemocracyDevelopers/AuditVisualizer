@@ -110,6 +110,10 @@ function EliminationTree() {
             backComponent={BackComponent}
           />
         </div>
+        <div className="w-48">
+          <div className="font-bold">Assertion: </div>
+          <div>{data.process[selectedStep].assertion}</div>
+        </div>
       </div>
     </div>
   );
