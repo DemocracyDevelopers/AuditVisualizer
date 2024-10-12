@@ -11,14 +11,18 @@
             "type": "NEB",
             "winner": 0,
             "loser": 3
-          }
+          },
+          "difficulty": 2.0,
+          "margin": 1000
         },
         {
           "assertion": {
             "type": "NEB",
             "winner": 0,
             "loser": 2
-          }
+          },
+          "difficulty": 4.5,
+          "margin": 2000
         },
         {
           "assertion": {
@@ -26,9 +30,13 @@
             "winner": 0,
             "loser": 1,
             "continuing": [0, 1]
-          }
+          },
+          "difficulty": 6.0,
+          "margin": 800
         }
       ],
+      "difficulty": 600,
+      "margin": 800,
       "winner": 0,
       "num_candidates": 4
     }

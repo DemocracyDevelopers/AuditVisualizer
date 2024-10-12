@@ -1,4 +1,10 @@
 import { useState } from "react";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 import { FaInfoCircle } from "react-icons/fa";
 import Link from "next/link";
 
@@ -15,42 +21,37 @@ const TooltipWithIcon: React.FC<TooltipWithIconProps> = ({
   linkHref,
   description,
 }) => {
-  const [isTooltipVisible, setTooltipVisible] = useState(false);
-
   return (
-    <span
-      className="ml-2 relative"
-      onMouseEnter={() => setTooltipVisible(true)}
-      onMouseLeave={() => setTooltipVisible(true)} // Keep tooltip open
-    >
-      {/* Information Icon */}
-      <FaInfoCircle className="text-black cursor-pointer" size={18} />
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className="ml-2 relative">
+            {/* Information Icon */}
+            <FaInfoCircle className="text-black cursor-pointer" size={18} />
+          </span>
+        </TooltipTrigger>
 
-      {/* Tooltip Box */}
-      {isTooltipVisible && (
-        <div className="absolute bg-white text-black text-sm rounded-lg shadow-lg py-3 px-5 left-full ml-2 w-64">
+        <TooltipContent
+          side="right"
+          align="center"
+          className="bg-white text-black rounded-lg shadow-lg p-4 w-64"
+        >
           <div className="font-bold mb-2">{title}</div>
           <div className="font-normal">
             {description}{" "}
             <Link
-              href="/tutorial"
+              href={linkHref}
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-500 hover:underline"
             >
-              Tutorial
+              {linkText}
             </Link>
             .
           </div>
-          <button
-            className="mt-4 text-gray-500 hover:text-gray-700"
-            onClick={() => setTooltipVisible(false)}
-          >
-            Hide
-          </button>
-        </div>
-      )}
-    </span>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 

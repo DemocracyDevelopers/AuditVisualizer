@@ -10,8 +10,8 @@ import { ChevronRight, FilePenLine } from "lucide-react";
 
 import EliminationTree from "./components/elimination-tree";
 import AvatarAssignColor from "./components/avatar-assign-color"; // 引入 Avatar 组件
-import useMultiWinnerDataStore from "@/store/MultiWinnerData";
-import multiWinnerData from "@/store/MultiWinnerData"; // 引入 zustand store
+import useMultiWinnerDataStore from "@/store/multi-winner-data";
+import multiWinnerData from "@/store/multi-winner-data"; // 引入 zustand store
 
 const Dashboard: React.FC = () => {
   const { candidateList, assertionList, winnerInfo } =

@@ -12,7 +12,8 @@
             "winner": 2,
             "loser": 3
           },
-          "difficulty": 5.0
+          "difficulty": 5.0,
+          "margin": 3000
         },
         {
           "assertion": {
@@ -21,7 +22,8 @@
             "loser": 0,
             "continuing": [0, 2]
           },
-          "difficulty": 9.0
+          "difficulty": 9.0,
+          "margin": 1000
         },
         {
           "assertion": {
@@ -30,7 +32,8 @@
             "loser": 1,
             "continuing": [0, 1, 2]
           },
-          "difficulty": 5.0
+          "difficulty": 5.0,
+          "margin": 5000
         },
         {
           "assertion": {
@@ -39,7 +42,8 @@
             "loser": 3,
             "continuing": [0, 1, 2, 3]
           },
-          "difficulty": 2.25
+          "difficulty": 2.25,
+          "margin": 400
         },
         {
           "assertion": {
@@ -48,10 +52,12 @@
             "loser": 1,
             "continuing": [0, 1, 2]
           },
-          "difficulty": 3.75
+          "difficulty": 3.75,
+          "margin": 600
         }
       ],
       "difficulty": 9.0,
+      "margin": 400,
       "winner": 2,
       "num_candidates": 4
     }

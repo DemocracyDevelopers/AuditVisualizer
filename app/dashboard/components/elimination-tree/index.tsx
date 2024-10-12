@@ -7,8 +7,8 @@ import Tree from "../../../../components/tree";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Undo2 } from "lucide-react";
-import useMultiWinnerDataStore from "@/store/MultiWinnerData";
 import TooltipWithIcon from "@/app/dashboard/components/Information-icon-text";
+import useMultiWinnerDataStore from "@/store/multi-winner-data";
 
 function EliminationTree() {
   const { multiWinner } = useMultiWinnerDataStore();
@@ -104,7 +104,7 @@ function EliminationTree() {
           />
         </div>
 
-        {/* <Dropdown /> */}
+        {/*<Dropdown />*/}
       </div>
       <div>
         <CandidateListBar
