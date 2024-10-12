@@ -9,7 +9,7 @@ import { TooltipTrigger } from "@radix-ui/react-tooltip";
 import { useState } from "react";
 
 type CandidateListBarProps = {
-  selectedWinnerId: number;
+  selectedWinnerId: number | null;
   handleSelectWinner: (id: number) => void;
   useAvatar: boolean;
   candidateList: Candidate[];
@@ -21,12 +21,8 @@ function CandidateListBar({
   useAvatar,
   candidateList,
 }: CandidateListBarProps) {
-  const [selectedCandidateId, setSelectedCandidateId] = useState<number | null>(
-    null,
-  );
-
   const handleCandidateSelect = (candidateId: number) => {
-    setSelectedCandidateId(candidateId);
+    // setSelectedCandidateId(candidateId);
     handleSelectWinner(candidateId); // Call to display the tree or other action
   };
   return (
@@ -46,7 +42,7 @@ function CandidateListBar({
                 <TooltipTrigger
                   onClick={() => handleCandidateSelect(candidate.id)}
                   className={`leading-9 w-10 h-10 rounded-full cursor-pointer text-center border-2 text-xs overflow-hidden whitespace-nowrap text-ellipsis ${
-                    selectedCandidateId === candidate.id
+                    selectedWinnerId === candidate.id
                       ? "border-blue-500" // Outer blue circle when selected
                       : "border-black"
                   }`}
