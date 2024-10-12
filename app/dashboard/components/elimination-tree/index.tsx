@@ -104,7 +104,7 @@ function EliminationTree() {
           />
         </div>
 
-        <Dropdown />
+        {/*<Dropdown />*/}
       </div>
       <div>
         <CandidateListBar
