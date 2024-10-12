@@ -1,9 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import useMultiWinnerDataStore from "../../../store/multi-winner-data";
 import { AvatarColor } from "@/utils/avatar-color";
 import { explainAssertions } from "../../explain-assertions/components/explain-process";
 import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 type SampleFile = {
   name: string;
@@ -24,15 +33,15 @@ const sampleFiles: SampleFile[] = [
     name: "One candidate dominates example",
     description: "One candidate dominates example",
     imageUrl: "/sample-images/img.png",
-    // fileUrl: "/sample-jsons/a_guide_to_RAIRE_eg_one_candidate_dominates.json",
-    fileUrl: "/sample-jsons/Singleton Mayoral.json",
+    fileUrl: "/sample-jsons/a_guide_to_RAIRE_eg_one_candidate_dominates.json",
+    // fileUrl: "/sample-jsons/Singleton Mayoral.json",
   },
   {
     name: "Two leading candidates example",
     description: "Two leading candidates example ",
     imageUrl: "/sample-images/img.png",
-    // fileUrl: "/sample-jsons/a_guide_to_RAIRE_eg_two_leading_candidates.json",
-    fileUrl: "/sample-jsons/test.json",
+    fileUrl: "/sample-jsons/a_guide_to_RAIRE_eg_two_leading_candidates.json",
+    // fileUrl: "/sample-jsons/test.json",
   },
 ];
 
@@ -50,16 +59,18 @@ const SampleSelector = () => {
 
   const avatarColor = new AvatarColor();
   const router = useRouter();
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [selectedSample, setSelectedSample] = useState<SampleFile | null>(null);
 
-  const handleSampleClick = async (fileUrl: string) => {
+  const handleSampleClick = async (sample: SampleFile) => {
     try {
+      setSelectedSample(sample); // Start loading
       clearMultiWinner();
       clearCandidateList();
       clearAssertionList();
       clearWinnerInfo();
 
-      // 使用 fetch 获取样例文件
-      const response = await fetch(fileUrl);
+      const response = await fetch(sample.fileUrl);
       if (!response.ok) {
         throw new Error("Failed to fetch the sample file");
       }
@@ -158,8 +169,6 @@ const SampleSelector = () => {
             const winnerId = jsonData.solution.Ok.winner;
             const winnerName = jsonData.metadata.candidates[winnerId];
             setWinnerInfo({ id: winnerId, name: winnerName });
-
-            router.push("/dashboard");
           } else {
             console.error("Failed to explain assertions", response.error);
           }
@@ -173,6 +182,13 @@ const SampleSelector = () => {
     }
   };
 
+  const handleProceedToDashboard = () => {
+    setIsConfirming(true); // Start loading
+    setTimeout(() => {
+      setIsConfirming(false);
+      router.push("/dashboard");
+    }, 2000); // 2-second delay before redirecting
+  };
   return (
     <div>
       <h2 className="text-2xl font-bold mb-2">Choose a sample file</h2>
@@ -186,12 +202,9 @@ const SampleSelector = () => {
           <div
             key={sample.name}
             className="cursor-pointer text-center"
-            onClick={() => handleSampleClick(sample.fileUrl)}
+            onClick={() => handleSampleClick(sample)}
           >
-            {/* Display name first */}
             <h3 className="text-lg mb-2 text-center">{sample.name}</h3>
-
-            {/* Display image below the name */}
             <div className="flex justify-center">
               <Image
                 src={sample.imageUrl}
@@ -204,6 +217,46 @@ const SampleSelector = () => {
           </div>
         ))}
       </div>
+
+      {/* Modal to show selected sample info */}
+      {selectedSample && (
+        <Dialog
+          open={!!selectedSample}
+          onOpenChange={() => setSelectedSample(null)}
+        >
+          <DialogTrigger />
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm Selection</DialogTitle>
+              <DialogDescription>
+                You selected <b>{selectedSample?.name}</b>. Would you like to
+                proceed?
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-end space-x-4 mt-4">
+              <Button
+                variant="secondary"
+                onClick={() => setSelectedSample(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleProceedToDashboard}
+                disabled={isConfirming}
+              >
+                {isConfirming ? (
+                  <span className="flex items-center">
+                    <span className="loader mr-2" />
+                    Proceeding...
+                  </span>
+                ) : (
+                  "Confirm"
+                )}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
