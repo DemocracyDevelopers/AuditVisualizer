@@ -1,4 +1,4 @@
-import { TreeNode } from "@/components/Tree/helper";
+import { TreeNode } from "@/components/tree/helper";
 
 type demoType = {
   winnerInfo: {

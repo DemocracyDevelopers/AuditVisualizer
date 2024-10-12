@@ -1,5 +1,5 @@
 // stores/useGlobalJsonStore.ts
-import { TreeNode } from "@/components/Tree/helper";
+import { TreeNode } from "@/components/tree/helper";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 

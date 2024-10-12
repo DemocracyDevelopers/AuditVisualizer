@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from "react";
-import OutcomesContent from "../components/OutcomesContent"; // Adjust the import path as needed
+import OutcomesContent from "../components/outcomes-content"; // Adjust the import path as needed
 import SidebarWithSearch from "../components/SidebarWithSearch"; // Import the SidebarWithSearch component
 
 const OutcomesPage: React.FC = () => {

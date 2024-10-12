@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { contentData } from "./dataContent";
+import { contentData } from "./data-content";
 
 // 定义Props类型
 interface SidebarProps {

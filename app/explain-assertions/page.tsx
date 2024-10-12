@@ -2,7 +2,7 @@
 // pages/explain-assertions.tsx
 
 import React, { useState } from "react";
-import { explainAssertions } from "./components/explain_process";
+import { explainAssertions } from "./components/explain-process";
 
 const ExplainAssertionsPage = () => {
   const [inputText, setInputText] = useState("");

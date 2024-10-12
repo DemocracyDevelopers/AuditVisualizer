@@ -1,4 +1,4 @@
-// components/TutorialContent.tsx
+// components/tutorial-content.tsx
 
 import React from "react";
 import Link from "next/link";
