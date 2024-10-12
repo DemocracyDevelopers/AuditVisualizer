@@ -48,7 +48,7 @@ function SearchDropdown({
       <Input
         value={searchTerm}
         type="search"
-        placeholder="Search for a candidate"
+        placeholder="Search for candidate"
         onChange={(e) => setSearchTerm(e.target.value)}
         onFocus={() => setIsOpen(true)}
         onBlur={() => setIsOpen(false)}
