@@ -223,17 +223,30 @@ const markCutNodes = (beforeTree: any, afterTree: any | null) => {
     return paths;
   };
 
-  // If afterTree is null, mark all nodes in beforeTree as 'cut'
+  // If afterTree is null, apply the new logic
   if (!afterTree) {
-    const markAllCuts = (node: any) => {
-      node.cut = true;
-      if (node.children) {
+    // Set 'cut: true' on root's child nodes, and 'eliminated: true' on other nodes
+    const markCutsAtRoot = (node: any) => {
+      if (node.children && node.children.length > 0) {
         for (let i = 0; i < node.children.length; i++) {
-          markAllCuts(node.children[i]);
+          const child = node.children[i];
+          child.cut = true;
+          markEliminated(child);
         }
       }
     };
-    markAllCuts(beforeTree);
+
+    const markEliminated = (node: any) => {
+      if (node.children && node.children.length > 0) {
+        for (let i = 0; i < node.children.length; i++) {
+          const child = node.children[i];
+          child.eliminated = true;
+          markEliminated(child);
+        }
+      }
+    };
+
+    markCutsAtRoot(beforeTree);
     return;
   }
 
@@ -241,7 +254,11 @@ const markCutNodes = (beforeTree: any, afterTree: any | null) => {
   const afterPaths = getPaths(afterTree);
 
   // Function to mark cuts in beforeTree
-  const markCuts = (node: any, path: number[] = []): boolean => {
+  const markCuts = (
+    node: any,
+    path: number[] = [],
+    isParentCut: boolean = false,
+  ): boolean => {
     const currentPath = [...path, node.id];
     const pathStr = currentPath.join("-");
 
@@ -253,7 +270,12 @@ const markCutNodes = (beforeTree: any, afterTree: any | null) => {
     if (node.children && node.children.length > 0) {
       for (let i = 0; i < node.children.length; i++) {
         const child = node.children[i];
-        const childValid = markCuts(child, currentPath);
+        // If the current node is being cut, pass isParentCut = true
+        const childValid = markCuts(
+          child,
+          currentPath,
+          isParentCut || !existsInAfter,
+        );
         if (childValid) {
           hasValidChild = true;
         }
@@ -264,7 +286,11 @@ const markCutNodes = (beforeTree: any, afterTree: any | null) => {
       !existsInAfter ||
       (!hasValidChild && node.children && node.children.length > 0)
     ) {
-      node.cut = true;
+      if (!isParentCut) {
+        node.cut = true;
+      } else {
+        node.eliminated = true;
+      }
       return false;
     }
 
@@ -311,7 +337,7 @@ export function explainAssertions(inputText: string): any {
       inputData.solution.Ok.winner,
     );
 
-    // Process multiWinnerData to mark 'cut' nodes
+    // Process multiWinnerData to mark 'cut' and 'eliminated' nodes
     if (multiWinnerData && Array.isArray(multiWinnerData)) {
       for (let i = 0; i < multiWinnerData.length; i++) {
         const winnerData = multiWinnerData[i];
