@@ -31,10 +31,7 @@ const TooltipWithIcon: React.FC<TooltipWithIconProps> = ({
         <div className="absolute bg-white text-black text-sm rounded-lg shadow-lg py-3 px-5 left-full ml-2 w-64">
           <div className="font-bold mb-2">{title}</div>
           <div className="font-normal">
-            {" "}
-            {/* Ensure text is not bold */}
-            For detailed guidance on understanding the assertion attributes,
-            please refer to our{" "}
+            {description}{" "}
             <Link
               href="/tutorial"
               target="_blank"
