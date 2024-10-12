@@ -3,7 +3,7 @@
 "use client";
 
 import React, { useState } from "react";
-import UsingAssertionsContent from "../components/UsingAssertionsContent";
+import UsingAssertionsContent from "../components/using-assertions-content";
 import SidebarWithSearch from "../components/SidebarWithSearch";
 
 const UsingAssertionsPage: React.FC = () => {

@@ -1,5 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Avatar } from "@/components/ui/avatar";
+import { FaInfoCircle } from "react-icons/fa";
+import Link from "next/link";
+import TooltipWithIcon from "@/app/dashboard/components/Information-icon-text";
 
 // 更新 Assertion 接口，添加 candidateId 字段
 interface Assertion {
@@ -26,6 +29,7 @@ const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
   maxDifficulty,
   minMargin,
 }) => {
+  const [isTooltipVisible, setTooltipVisible] = useState(false);
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -61,7 +65,15 @@ const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
           </svg>
         </button>
 
-        <h2 className="text-2xl font-bold mb-4">Assertions Details</h2>
+        <h2 className="text-2xl font-bold mb-4 flex items-center relative">
+          Assertions Details
+          <TooltipWithIcon
+            title="Need Help?"
+            description="For detailed guidance on understanding the assertion attributes, please refer to our"
+            linkText="Tutorial"
+            linkHref="/tutorial"
+          />
+        </h2>
         <div className="mb-4">
           <p className="text-gray-700 font-bold">
             <span className="font-semibold">Maximum Difficulty:</span>{" "}

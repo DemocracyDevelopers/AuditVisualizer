@@ -3,7 +3,7 @@
 "use client";
 
 import React, { useState } from "react";
-import TutorialContent from "./components/TutorialContent";
+import TutorialContent from "./components/tutorial-content";
 import SidebarWithSearch from "./components/SidebarWithSearch";
 
 const Tutorial: React.FC = () => {

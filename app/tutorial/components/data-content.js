@@ -1,4 +1,4 @@
-// app/tutorial/components/dataContent.js
+// app/tutorial/components/data-content.js
 
 export const contentData = [
   {
