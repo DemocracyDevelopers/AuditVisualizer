@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 import useMultiWinnerDataStore from "../../../store/MultiWinnerData";
 import { AvatarColor } from "@/utils/avatarColor";
-import { explainAssertions } from "../../explain-assertions/components/explain_process";
+import { explainAssertions } from "../../explain-assertions/components/explain-process";
 import { useRouter } from "next/navigation";
 
 type SampleFile = {

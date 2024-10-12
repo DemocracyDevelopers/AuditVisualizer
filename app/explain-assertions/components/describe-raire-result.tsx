@@ -1,4 +1,4 @@
-// components/DescribeRaireResult.tsx
+// components/describe-raire-result.tsx
 
 import React from "react";
 import {

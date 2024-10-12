@@ -3,11 +3,12 @@ import CandidateListBar from "@/app/dashboard/components/elimination-tree/candid
 import Dropdown from "@/app/dashboard/components/elimination-tree/dropdown";
 import StepByStep from "@/app/dashboard/components/elimination-tree/step-by-step";
 // import { demoFromCore } from "@/app/dashboard/components/elimination-tree/demo";
-import Tree from "@/components/Tree";
+import Tree from "../../../../components/tree";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Undo2 } from "lucide-react";
 import useMultiWinnerDataStore from "@/store/MultiWinnerData";
+import TooltipWithIcon from "@/app/dashboard/components/Information-icon-text";
 
 function EliminationTree() {
   const { multiWinner } = useMultiWinnerDataStore();
@@ -91,8 +92,18 @@ function EliminationTree() {
 
   return (
     <div className="border border-gray-300 rounded-lg p-6 h-auto flex flex-col justify-between pl-10">
-      <div className="flex justify-between">
-        <h3 className="text-2xl font-bold">Elimination Tree</h3>
+      <div className="flex items-center justify-between">
+        {/* Elimination Tree title and Tooltip with Icon */}
+        <div className="flex items-center">
+          <h3 className="text-2xl font-bold">Elimination Tree</h3>
+          <TooltipWithIcon
+            title="Need Help?"
+            description="For detailed guidance on the elimination tree process, please refer to our"
+            linkText="Tutorial"
+            linkHref="/tutorial"
+          />
+        </div>
+
         {/* <Dropdown /> */}
       </div>
       <div>

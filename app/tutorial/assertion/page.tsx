@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from "react";
-import AssertionContent from "../components/AssertionContent"; // Adjust the path if necessary
+import AssertionContent from "../components/assertion-content"; // Adjust the path if necessary
 import SidebarWithSearch from "../components/SidebarWithSearch"; // Import the SidebarWithSearch component
 
 const AssertionPage: React.FC = () => {

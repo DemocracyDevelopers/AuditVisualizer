@@ -1,4 +1,4 @@
-// tutorial/components/UsingAssertionsContent.tsx
+// tutorial/components/using-assertions-content.tsx
 
 import React from "react";
 import Link from "next/link";
