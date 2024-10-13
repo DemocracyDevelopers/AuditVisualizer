@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { ChevronLeft } from "lucide-react";
 
 // 定义 Props 类型
 interface OutcomesContentProps {
@@ -88,9 +89,10 @@ const OutcomesContent: React.FC<OutcomesContentProps> = ({
         <div>
           <Link
             href="/tutorial/introduction"
-            className="text-black hover:text-gray-500 flex items-center"
+            className="text-gray-600 hover:text-gray-900 flex items-center"
           >
-            <span className="mr-2 text-black">←</span> Back
+            <ChevronLeft className="mr-2 text-gray-600 group-hover:text-gray-900" />{" "}
+            Back
           </Link>
         </div>
         {/* Next and Home Links - Right aligned */}

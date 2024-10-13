@@ -1,7 +1,6 @@
-// 删除 <<<<<<< HEAD 到 ======= 之间的内容，保留新提交的部分
-
 import React from "react";
 import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 
 // 定义 Props 类型
 interface RiskContentProps {
@@ -195,9 +194,10 @@ const RiskContent: React.FC<RiskContentProps> = ({
         <div>
           <Link
             href="/tutorial/assertion"
-            className="text-black hover:text-gray-500 flex items-center"
+            className="text-gray-600 hover:text-gray-900 flex items-center"
           >
-            <span className="mr-2 text-black">←</span> Back
+            <ChevronLeft className="mr-2 text-gray-600 group-hover:text-gray-900" />{" "}
+            Back
           </Link>
         </div>
         {/* Next and Home Links */}
