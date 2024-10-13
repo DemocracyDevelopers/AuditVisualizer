@@ -6,27 +6,49 @@ import { Candidate } from "./constants";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 
-function SearchDropdown({ candidateList }: { candidateList: Candidate[] }) {
+// function SearchDropdown({ candidateList }: { candidateList: Candidate[] }) {
+//   const [searchTerm, setSearchTerm] = useState("");
+//   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(
+//     null,
+//   );
+//   const [isOpen, setIsOpen] = useState(false);
+//   //不能用shadcn的popover,因为他的popover弹出瞬间会让input失去焦点
+//
+//   const filteredList = candidateList.filter((candidate) =>
+//     candidate.name.toLowerCase().includes(searchTerm.toLowerCase()),
+//   );
+//   const handleSelect = (candidate: Candidate) => {
+//     setSelectedCandidate(candidate);
+//     setSearchTerm(candidate.name);
+//     console.log("Selected Candidate:", candidate.name);
+//     setIsOpen(false);
+//   };
+
+function SearchDropdown({
+  candidateList,
+  onSelect,
+}: {
+  candidateList: Candidate[];
+  onSelect: (candidateId: number) => void;
+}) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(
-    null,
-  );
   const [isOpen, setIsOpen] = useState(false);
-  //不能用shadcn的popover,因为他的popover弹出瞬间会让input失去焦点
 
   const filteredList = candidateList.filter((candidate) =>
     candidate.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+
   const handleSelect = (candidate: Candidate) => {
-    setSelectedCandidate(candidate);
     setSearchTerm(candidate.name);
-    console.log("Selected Candidate:", candidate.name);
+    onSelect(candidate.id);
     setIsOpen(false);
   };
   return (
     <div className="relative">
       <Input
         value={searchTerm}
+        type="search"
+        placeholder="Search for candidate"
         onChange={(e) => setSearchTerm(e.target.value)}
         onFocus={() => setIsOpen(true)}
         onBlur={() => setIsOpen(false)}

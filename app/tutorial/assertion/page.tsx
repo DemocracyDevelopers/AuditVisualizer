@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import AssertionContent from "../components/AssertionContent"; // 调整导入路径
-import SidebarWithSearch from "../components/SidebarWithSearch"; // 导入 SidebarWithSearch 组件
+import AssertionContent from "../components/assertion-content"; // Adjust the path if necessary
+import SidebarWithSearch from "../components/SidebarWithSearch"; // Import the SidebarWithSearch component
 import Breadcrumbs from "../components/Breadcrumbs"; // 导入 Breadcrumbs 组件
 
 const AssertionPage: React.FC = () => {

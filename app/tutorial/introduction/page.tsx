@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import IntroductionContent from "../components/IntroductionContent";
+import IntroductionContent from "../components/introduction-content";
 import SidebarWithSearch from "../components/SidebarWithSearch";
 import Breadcrumbs from "../components/Breadcrumbs"; // 使用你现有的面包屑组件
 

@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import OutcomesContent from "../components/OutcomesContent"; // 调整导入路径
-import SidebarWithSearch from "../components/SidebarWithSearch"; // 导入 SidebarWithSearch 组件
-import Breadcrumbs from "../components/Breadcrumbs"; // 导入 Breadcrumbs 组件
+import OutcomesContent from "../components/outcomes-content"; //
+import SidebarWithSearch from "../components/SidebarWithSearch"; //
+import Breadcrumbs from "../components/Breadcrumbs";
 
 const OutcomesPage: React.FC = () => {
   const [sidebarWidth, setSidebarWidth] = useState(256); // 初始侧边栏宽度

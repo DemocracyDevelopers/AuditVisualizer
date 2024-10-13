@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react"; // Lucide icons
-import { contentData } from "./dataContent"; // Adjust your path to dataContent
+import { contentData } from "./data-content";
 
 // Define Props type
 interface SidebarProps {

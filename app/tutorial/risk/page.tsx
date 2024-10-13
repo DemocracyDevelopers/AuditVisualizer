@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import RiskContent from "../components/RiskContent";
+import RiskContent from "../components/risk-content";
 import SidebarWithSearch from "../components/SidebarWithSearch";
 import Breadcrumbs from "../components/Breadcrumbs"; // 导入 Breadcrumbs 组件
 

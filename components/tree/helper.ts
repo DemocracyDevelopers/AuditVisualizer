@@ -3,10 +3,12 @@
 interface TreeNode {
   id: number;
   name: string;
+  eliminated?: boolean; // eliminated children
   cut?: boolean; // Cut children
   children?: TreeNode[];
   _children?: TreeNode[]; // Hidden children when collapsed
   collapsedCount?: number; // Count of collapsed children
+  hide?: boolean; // 隐藏节点及其子节点
 }
 
 // Function to toggle the children (collapse/expand)

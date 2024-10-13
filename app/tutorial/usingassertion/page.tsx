@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import UsingAssertionsContent from "../components/UsingAssertionsContent";
+import UsingAssertionsContent from "../components/using-assertions-content";
 import SidebarWithSearch from "../components/SidebarWithSearch";
 import Breadcrumbs from "../components/Breadcrumbs"; // 导入面包屑组件
 
