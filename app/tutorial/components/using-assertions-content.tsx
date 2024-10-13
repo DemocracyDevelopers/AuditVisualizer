@@ -132,6 +132,15 @@ const UsingAssertionsContent: React.FC<UsingAssertionsContentProps> = ({
         </div>
         <div className="text-right">
           <div className="mb-2">
+            <span className="font-bold">Next:</span>{" "}
+            <Link
+              href="/tutorial/margin"
+              className="text-blue-500 hover:underline"
+            >
+              Margin and Difficulty
+            </Link>
+          </div>
+          <div>
             <span className="font-bold">or:</span>{" "}
             <Link href="/upload" className="text-blue-500 hover:underline">
               Back to Home Page
