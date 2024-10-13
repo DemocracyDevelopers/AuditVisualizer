@@ -20,9 +20,21 @@ const OutcomesContent: React.FC<OutcomesContentProps> = ({
         transition: "margin-left 0.3s ease",
       }}
     >
+      {/* Main Title */}
       <h2 className="text-4xl font-bold mb-8 text-center">
         IRV elections and Visualizing Outcomes
       </h2>
+
+      {/* Introductory Description */}
+      <p className="text-lg text-gray-700 mb-8">
+        Instant Runoff Voting (IRV) is a preferential voting system where voters
+        rank candidates in order of preference. If no candidate receives a
+        majority of first-preference votes, the candidate with the fewest votes
+        is eliminated, and their votes are redistributed to the remaining
+        candidates based on the next preferences. This process repeats until a
+        candidate receives a majority, ensuring that the winner reflects the
+        preferences of a broader range of voters.
+      </p>
 
       {/* Section: How IRV Counts Work */}
       <div className="mb-8" data-content="How IRV Counts Work">

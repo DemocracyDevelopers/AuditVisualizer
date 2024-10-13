@@ -4,7 +4,7 @@ export const contentData = [
   {
     title: "Getting Started",
     path: "/tutorial",
-    subItems: ["Welcome", "What's Here", "Ready?"],
+    // subItems: ["Welcome", "What's Here", "Ready?"],
   },
   {
     title: "Introduction: IRV RAs with RAIRE",

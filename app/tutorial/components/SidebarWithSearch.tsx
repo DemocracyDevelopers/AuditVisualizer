@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react"; // Lucide icons
 import { contentData } from "./dataContent"; // Adjust your path to dataContent
 
-// 定义Props类型
+// Define Props type
 interface SidebarProps {
   sidebarWidth: number;
   setSidebarWidth: React.Dispatch<React.SetStateAction<number>>;
@@ -24,11 +24,11 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
     { content: string; path: string }[]
   >([]);
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
-  const [activeSubItem, setActiveSubItem] = useState<string | null>(null); // 当前高亮的二级标题
+  const [activeSubItem, setActiveSubItem] = useState<string | null>(null); // Allow null values for activeSubItem
   const pathname = usePathname();
   const router = useRouter();
 
-  // 保存状态到localStorage
+  // Restore state from localStorage
   useEffect(() => {
     const savedExpandedSections = localStorage.getItem("expandedSections");
     const savedCollapsed = localStorage.getItem("sidebarCollapsed");
@@ -42,10 +42,10 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
     }
 
     const currentSection = contentData.find(
-      (section) => pathname === section.path, // 完全匹配路径
+      (section) => pathname === section.path, // Exact path match
     );
     if (currentSection) {
-      // 展开当前页面对应的一级标题
+      // Expand the current section
       setExpandedSections((prevSections) => {
         if (!prevSections.includes(currentSection.title)) {
           return [...prevSections, currentSection.title];
@@ -53,8 +53,8 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
         return prevSections;
       });
 
-      // 根据 URL 设置默认的高亮二级标题
-      const currentSubItem = currentSection.subItems.find((subItem) =>
+      // Set active sub-item based on the URL
+      const currentSubItem = currentSection.subItems?.find((subItem) =>
         pathname.includes(subItem.toLowerCase().replace(/\s/g, "-")),
       );
       if (currentSubItem) {
@@ -63,7 +63,7 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
     }
   }, [pathname, setCollapsed]);
 
-  // 滚动事件监听，检测当前章节并高亮
+  // Handle scroll event to highlight active section
   useEffect(() => {
     const handleScroll = () => {
       const sections = document.querySelectorAll("[data-content]");
@@ -77,11 +77,11 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
       });
 
       if (activeSection) {
-        setActiveSubItem(activeSection); // 高亮当前滚动到的二级标题
+        setActiveSubItem(activeSection);
 
-        // 找到属于该二级标题的一级标题并展开
+        // Expand the corresponding section if it contains the active sub-item
         contentData.forEach((section) => {
-          if (section.subItems.includes(activeSection!)) {
+          if (section.subItems?.includes(activeSection!)) {
             if (!expandedSections.includes(section.title)) {
               setExpandedSections([section.title]);
             }
@@ -96,19 +96,19 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
     };
   }, [expandedSections]);
 
-  // 搜索处理
+  // Handle search
   const handleSearch = (term: string) => {
     setSearchTerm(term);
 
     if (!term) {
-      setSearchResults([]); // 清空搜索结果
+      setSearchResults([]);
       return;
     }
 
     const results: { content: string; path: string }[] = [];
 
     contentData.forEach((page) => {
-      page.subItems.forEach((subItem) => {
+      page.subItems?.forEach((subItem) => {
         if (subItem.toLowerCase().includes(term.toLowerCase())) {
           results.push({ content: subItem, path: page.path });
         }
@@ -123,65 +123,62 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
     setSearchResults(uniqueResults);
   };
 
-  // 折叠/展开处理
+  // Toggle section
   const toggleSection = (title: string) => {
     setExpandedSections((prevSections) => {
       if (prevSections.includes(title)) {
         return prevSections.filter((item) => item !== title);
       }
-      return [...prevSections, title]; // 展开一级标题
+      return [...prevSections, title]; // Expand
     });
   };
 
-  // 点击二级标题或搜索结果时处理
+  // Handle click on search result or sub-item
   const handleResultClick = (path: string, content: string) => {
     setSearchResults([]);
     setSearchTerm("");
 
-    setActiveSubItem(content); // 强制设置高亮的二级标题
+    setActiveSubItem(content);
 
-    // 找到对应的一级标题并展开
     const section = contentData.find((page) => page.path === path);
     if (section) {
-      setExpandedSections([section.title]); // 确保只有一个一级标题展开
+      setExpandedSections([section.title]); // Expand only the relevant section
     }
 
-    router.push(path); // 导航到新的路径
+    router.push(path);
     setTimeout(() => {
       const element = document.querySelector(`[data-content="${content}"]`);
       if (element) {
-        // 滚动到页面中央偏上位置
         element.scrollIntoView({
           behavior: "smooth",
-          block: "center", // 使目标滚动到视图的中间偏上位置
+          block: "center", // Scroll to center
         });
       }
     }, 300);
   };
 
-  // 折叠所有目录并保存状态到 localStorage
+  // Collapse all sections
   const collapseAll = () => {
-    setExpandedSections([]); // 折叠所有展开的一级标题
-    setCollapsed(true); // 折叠侧边栏
+    setExpandedSections([]);
+    setCollapsed(true);
     localStorage.setItem("sidebarCollapsed", "true");
     localStorage.setItem("expandedSections", JSON.stringify([]));
   };
 
-  // 展开按钮，保存到 localStorage
+  // Toggle sidebar visibility
   const toggleSidebar = () => {
     const newCollapsedState = !collapsed;
     setCollapsed(newCollapsedState);
     localStorage.setItem("sidebarCollapsed", JSON.stringify(newCollapsedState));
   };
 
-  // 监听 expandedSections 的变化并保存到 localStorage
+  // Save expandedSections state to localStorage
   useEffect(() => {
     localStorage.setItem("expandedSections", JSON.stringify(expandedSections));
   }, [expandedSections]);
 
   return (
     <>
-      {/* Sidebar wrapper */}
       <div
         className="fixed bottom-0 left-0 z-50 flex flex-col"
         style={{ height: "88vh" }}
@@ -229,7 +226,9 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
                   <li key={section.title}>
                     <div
                       className="flex justify-between items-center cursor-pointer py-2"
-                      onClick={() => toggleSection(section.title)}
+                      onClick={() => {
+                        if (section.subItems) toggleSection(section.title);
+                      }}
                     >
                       <span
                         className={`${
@@ -242,34 +241,37 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
                       >
                         {section.title}
                       </span>
-                      <span className="text-gray-500">
-                        {expandedSections.includes(section.title) ? (
-                          <ChevronDown />
-                        ) : (
-                          <ChevronRight />
-                        )}
-                      </span>
+                      {section.subItems && (
+                        <span className="text-gray-500">
+                          {expandedSections.includes(section.title) ? (
+                            <ChevronDown />
+                          ) : (
+                            <ChevronRight />
+                          )}
+                        </span>
+                      )}
                     </div>
-                    {expandedSections.includes(section.title) && (
-                      <ul className="ml-4 mt-2 space-y-1">
-                        {section.subItems.map((subItem) => (
-                          <li key={subItem}>
-                            <span
-                              className={`block cursor-pointer ${
-                                activeSubItem === subItem
-                                  ? "text-blue-600 font-semibold"
-                                  : "text-gray-700"
-                              } hover:underline`}
-                              onClick={() =>
-                                handleResultClick(section.path, subItem)
-                              }
-                            >
-                              {subItem}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
+                    {expandedSections.includes(section.title) &&
+                      section.subItems && (
+                        <ul className="ml-4 mt-2 space-y-1">
+                          {section.subItems.map((subItem) => (
+                            <li key={subItem}>
+                              <span
+                                className={`block cursor-pointer ${
+                                  activeSubItem === subItem
+                                    ? "text-blue-600 font-semibold"
+                                    : "text-gray-700"
+                                } hover:underline`}
+                                onClick={() =>
+                                  handleResultClick(section.path, subItem)
+                                }
+                              >
+                                {subItem}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                   </li>
                 ))}
               </ul>
@@ -277,11 +279,11 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
           )}
         </div>
 
-        {/* 折叠按钮 */}
+        {/* Collapse button */}
         {!collapsed && (
           <div
             className="h-10 w-full bg-gray-300 cursor-col-resize flex items-center justify-center"
-            onClick={collapseAll} // 点击后触发折叠
+            onClick={collapseAll}
           >
             <button
               className="text-gray-600 hover:text-gray-900"
@@ -292,7 +294,7 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
           </div>
         )}
 
-        {/* 展开按钮 (仅在折叠状态时显示) */}
+        {/* Expand button */}
         {collapsed && (
           <button
             className="fixed top-1/2 left-0 transform -translate-y-1/2 bg-gray-200 p-2 rounded-r-md shadow-lg"
