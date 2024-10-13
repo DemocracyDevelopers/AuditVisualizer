@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import OutcomesContent from "../components/outcomes-content"; //
 import SidebarWithSearch from "../components/SidebarWithSearch"; //
 import Breadcrumbs from "../components/Breadcrumbs";
+import MarginContainer from "@/app/tutorial/components/MarginContainer";
 
 const OutcomesPage: React.FC = () => {
   const [sidebarWidth, setSidebarWidth] = useState(256); // 初始侧边栏宽度
@@ -31,16 +32,9 @@ const OutcomesPage: React.FC = () => {
       {/* Main content */}
       <main className="flex-grow overflow-y-auto">
         {/* Breadcrumbs 放置在侧边栏右侧 */}
-        <div
-          className="p-4"
-          style={{
-            marginLeft: collapsed ? 0 : sidebarWidth, // 根据侧边栏状态动态调整位置
-            transition: "margin-left 0.3s ease",
-          }}
-        >
-          {/* 面包屑 */}
+        <MarginContainer collapsed={collapsed} sidebarWidth={sidebarWidth}>
           <Breadcrumbs paths={breadcrumbPaths} />
-        </div>
+        </MarginContainer>
 
         {/* Outcomes content */}
         <OutcomesContent sidebarWidth={sidebarWidth} collapsed={collapsed} />

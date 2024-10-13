@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import TutorialContent from "./components/tutorial-content";
 import SidebarWithSearch from "./components/SidebarWithSearch";
-import Breadcrumbs from "./components/Breadcrumbs"; // 导入 Breadcrumbs 组件
+import Breadcrumbs from "./components/Breadcrumbs";
+import MarginContainer from "@/app/tutorial/components/MarginContainer"; // 导入 Breadcrumbs 组件
 
 const Tutorial: React.FC = () => {
   const [sidebarWidth, setSidebarWidth] = useState(256); // 设置侧边栏宽度
@@ -28,16 +29,9 @@ const Tutorial: React.FC = () => {
       {/* Main content area */}
       <main className="flex-grow overflow-y-auto">
         {/* Breadcrumbs 放置在侧边栏的右侧 */}
-        <div
-          className="p-4"
-          style={{
-            marginLeft: collapsed ? 0 : sidebarWidth, // 动态调整面包屑的位置，确保不会被侧边栏覆盖
-            transition: "margin-left 0.3s ease",
-          }}
-        >
-          {/* 面包屑 */}
+        <MarginContainer collapsed={collapsed} sidebarWidth={sidebarWidth}>
           <Breadcrumbs paths={breadcrumbPaths} />
-        </div>
+        </MarginContainer>
 
         {/* Tutorial content */}
         <TutorialContent sidebarWidth={sidebarWidth} collapsed={collapsed} />

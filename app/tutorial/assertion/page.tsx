@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import AssertionContent from "../components/assertion-content"; // Adjust the path if necessary
 import SidebarWithSearch from "../components/SidebarWithSearch"; // Import the SidebarWithSearch component
 import Breadcrumbs from "../components/Breadcrumbs"; // 导入 Breadcrumbs 组件
+import MarginContainer from "../components/MarginContainer";
 
 const AssertionPage: React.FC = () => {
   const [sidebarWidth, setSidebarWidth] = useState(256);
@@ -28,16 +29,10 @@ const AssertionPage: React.FC = () => {
       {/* Main content */}
       <main className="flex-grow overflow-y-auto">
         {/* Breadcrumbs 放置在侧边栏右侧 */}
-        <div
-          className="p-4"
-          style={{
-            marginLeft: collapsed ? 0 : sidebarWidth, // 根据侧边栏状态动态调整位置
-            transition: "margin-left 0.3s ease",
-          }}
-        >
-          {/* 面包屑 */}
+        {/* Use MarginContainer for Breadcrumbs */}
+        <MarginContainer collapsed={collapsed} sidebarWidth={sidebarWidth}>
           <Breadcrumbs paths={breadcrumbPaths} />
-        </div>
+        </MarginContainer>
 
         {/* Assertion content */}
         <AssertionContent sidebarWidth={sidebarWidth} collapsed={collapsed} />
