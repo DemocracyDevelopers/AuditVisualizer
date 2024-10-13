@@ -24,7 +24,7 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
     { content: string; path: string }[]
   >([]);
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
-  const [activeSubItem, setActiveSubItem] = useState<string | null>(null); // Allow null values for activeSubItem
+  const [activeSubItem, setActiveSubItem] = useState<string | null>(null);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -81,7 +81,7 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
 
         // Expand the corresponding section if it contains the active sub-item
         contentData.forEach((section) => {
-          if (section.subItems?.includes(activeSection!)) {
+          if (section.subItems?.includes(activeSection as string)) {
             if (!expandedSections.includes(section.title)) {
               setExpandedSections([section.title]);
             }
@@ -124,13 +124,17 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
   };
 
   // Toggle section
-  const toggleSection = (title: string) => {
-    setExpandedSections((prevSections) => {
-      if (prevSections.includes(title)) {
-        return prevSections.filter((item) => item !== title);
-      }
-      return [...prevSections, title]; // Expand
-    });
+  const toggleSection = (title: string, path: string, hasSubItems: boolean) => {
+    if (hasSubItems) {
+      setExpandedSections((prevSections) => {
+        if (prevSections.includes(title)) {
+          return prevSections.filter((item) => item !== title);
+        }
+        return [...prevSections, title]; // Expand
+      });
+    } else {
+      router.push(path); // Navigate directly if no subItems
+    }
   };
 
   // Handle click on search result or sub-item
@@ -226,9 +230,13 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
                   <li key={section.title}>
                     <div
                       className="flex justify-between items-center cursor-pointer py-2"
-                      onClick={() => {
-                        if (section.subItems) toggleSection(section.title);
-                      }}
+                      onClick={() =>
+                        toggleSection(
+                          section.title,
+                          section.path,
+                          !!section.subItems && section.subItems.length > 0, // Handle undefined safely
+                        )
+                      }
                     >
                       <span
                         className={`${
@@ -241,7 +249,7 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
                       >
                         {section.title}
                       </span>
-                      {section.subItems && (
+                      {section.subItems && section.subItems.length > 0 && (
                         <span className="text-gray-500">
                           {expandedSections.includes(section.title) ? (
                             <ChevronDown />
@@ -252,7 +260,8 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
                       )}
                     </div>
                     {expandedSections.includes(section.title) &&
-                      section.subItems && (
+                      section.subItems &&
+                      section.subItems.length > 0 && (
                         <ul className="ml-4 mt-2 space-y-1">
                           {section.subItems.map((subItem) => (
                             <li key={subItem}>
