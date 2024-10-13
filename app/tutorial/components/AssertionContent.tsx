@@ -89,7 +89,7 @@ const AssertionContent: React.FC<AssertionContentProps> = ({
 
         <div className="flex justify-center mb-8">
           <Image
-            src="/tutorial-images/outcomes-preference.png"
+            src="/tutorial-images/assertion-preference.png"
             alt="Preferences and Counts Table"
             width={250}
             height={180}
