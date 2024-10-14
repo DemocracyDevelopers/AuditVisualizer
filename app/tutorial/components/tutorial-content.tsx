@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 
 // 定义 TutorialContentProps 类型
 interface TutorialContentProps {
