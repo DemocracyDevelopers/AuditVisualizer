@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import UsingAssertionsContent from "../components/using-assertions-content";
 import SidebarWithSearch from "../components/SidebarWithSearch";
-import Breadcrumbs from "../components/Breadcrumbs"; // 导入面包屑组件
+import Breadcrumbs from "../components/Breadcrumbs";
+import TermsAndPrivacy from "@/app/upload/components/terms-and-privacy"; // 导入面包屑组件
 
 const UsingAssertionsPage: React.FC = () => {
   const [sidebarWidth, setSidebarWidth] = useState(256);
@@ -41,25 +42,13 @@ const UsingAssertionsPage: React.FC = () => {
           {/* 面包屑 */}
           <Breadcrumbs paths={breadcrumbPaths} />
         </div>
-
         {/* 内容部分 */}
         <UsingAssertionsContent
           sidebarWidth={sidebarWidth}
           collapsed={collapsed}
         />
-
         {/* Footer Section */}
-        <div className="p-4 text-sm text-gray-500 text-center border-t mt-8">
-          By sharing your files or using our{" "}
-          <a href="#" className="text-blue-500 hover:underline">
-            Terms of Service
-          </a>{" "}
-          and{" "}
-          <a href="#" className="text-blue-500 hover:underline">
-            Privacy Policy
-          </a>
-          .
-        </div>
+        <TermsAndPrivacy /> {/* Reusing the TermsAndPrivacy component */}
       </main>
     </div>
   );

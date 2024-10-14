@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import IntroductionContent from "../components/introduction-content";
 import SidebarWithSearch from "../components/SidebarWithSearch";
 import Breadcrumbs from "../components/Breadcrumbs";
-import MarginContainer from "@/app/tutorial/components/MarginContainer"; // 使用你现有的面包屑组件
+import MarginContainer from "@/app/tutorial/components/MarginContainer";
+import TermsAndPrivacy from "../../upload/components/terms-and-privacy";
 
 const IntroductionPage: React.FC = () => {
   const [sidebarWidth, setSidebarWidth] = useState(256); // initial sidebar width in pixels
@@ -35,25 +36,14 @@ const IntroductionPage: React.FC = () => {
         <MarginContainer collapsed={collapsed} sidebarWidth={sidebarWidth}>
           <Breadcrumbs paths={breadcrumbPaths} />
         </MarginContainer>
-
         {/* 主内容 */}
         <IntroductionContent
           sidebarWidth={sidebarWidth}
           collapsed={collapsed}
         />
-
         {/* Footer Section */}
-        <div className="p-4 text-sm text-gray-500 text-center border-t mt-8">
-          By sharing your files or using our service, you agree to our{" "}
-          <a href="#" className="text-blue-500 hover:underline">
-            Terms of Service
-          </a>{" "}
-          and{" "}
-          <a href="#" className="text-blue-500 hover:underline">
-            Privacy Policy
-          </a>
-          .
-        </div>
+        {/* Footer Section */}
+        <TermsAndPrivacy /> {/* Reusing the TermsAndPrivacy component */}
       </main>
     </div>
   );

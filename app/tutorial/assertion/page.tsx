@@ -5,6 +5,7 @@ import AssertionContent from "../components/assertion-content"; // Adjust the pa
 import SidebarWithSearch from "../components/SidebarWithSearch"; // Import the SidebarWithSearch component
 import Breadcrumbs from "../components/Breadcrumbs"; // 导入 Breadcrumbs 组件
 import MarginContainer from "../components/MarginContainer";
+import TermsAndPrivacy from "../../upload/components/terms-and-privacy";
 
 const AssertionPage: React.FC = () => {
   const [sidebarWidth, setSidebarWidth] = useState(256);
@@ -33,22 +34,10 @@ const AssertionPage: React.FC = () => {
         <MarginContainer collapsed={collapsed} sidebarWidth={sidebarWidth}>
           <Breadcrumbs paths={breadcrumbPaths} />
         </MarginContainer>
-
         {/* Assertion content */}
         <AssertionContent sidebarWidth={sidebarWidth} collapsed={collapsed} />
-
         {/* Footer Section */}
-        <p className="p-4 text-sm text-gray-500 text-center border-t mt-8">
-          By sharing your files or using our{" "}
-          <a href="#" className="text-blue-500 hover:underline">
-            Terms of Service
-          </a>{" "}
-          and{" "}
-          <a href="#" className="text-blue-500 hover:underline">
-            Privacy Policy
-          </a>
-          .
-        </p>
+        <TermsAndPrivacy /> {/* Reusing the TermsAndPrivacy component */}
       </main>
     </div>
   );

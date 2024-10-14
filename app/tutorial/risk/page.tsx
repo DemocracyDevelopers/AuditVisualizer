@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import RiskContent from "../components/risk-content";
 import SidebarWithSearch from "../components/SidebarWithSearch";
 import Breadcrumbs from "../components/Breadcrumbs";
-import MarginContainer from "@/app/tutorial/components/MarginContainer"; // 导入 Breadcrumbs 组件
+import MarginContainer from "@/app/tutorial/components/MarginContainer";
+import TermsAndPrivacy from "@/app/upload/components/terms-and-privacy"; // 导入 Breadcrumbs 组件
 
 const RiskPage: React.FC = () => {
   const [sidebarWidth, setSidebarWidth] = useState(256);
@@ -32,21 +33,9 @@ const RiskPage: React.FC = () => {
         <MarginContainer collapsed={collapsed} sidebarWidth={sidebarWidth}>
           <Breadcrumbs paths={breadcrumbPaths} />
         </MarginContainer>
-
         <RiskContent sidebarWidth={sidebarWidth} collapsed={collapsed} />
-
         {/* Footer Section */}
-        <div className="p-4 text-sm text-gray-500 text-center border-t mt-8">
-          By sharing your files or using our{" "}
-          <a href="#" className="text-blue-500 hover:underline">
-            Terms of Service
-          </a>{" "}
-          and{" "}
-          <a href="#" className="text-blue-500 hover:underline">
-            Privacy Policy
-          </a>
-          .
-        </div>
+        <TermsAndPrivacy /> {/* Reusing the TermsAndPrivacy component */}
       </main>
     </div>
   );
