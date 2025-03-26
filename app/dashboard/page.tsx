@@ -7,7 +7,7 @@ import { FaUserFriends, FaTrophy, FaList } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ChevronRight, FilePenLine } from "lucide-react";
-
+import AuditProgressAnimation from "./components/AuditProgressAnimation"; // Ensure the file name matches the actual file
 import EliminationTree from "./components/elimination-tree";
 import AvatarAssignColor from "./components/avatar-assign-color"; // 引入 Avatar 组件
 import useMultiWinnerDataStore from "@/store/multi-winner-data";
@@ -23,6 +23,7 @@ const Dashboard: React.FC = () => {
 
   // Avatar 完成后调用的函数
   const handleAvatarComplete = () => {
+    console.log("Avatar complete");
     setIsAvatarReady(true);
   };
 
@@ -132,6 +133,10 @@ const Dashboard: React.FC = () => {
         assertions={assertionsWithNames}
         maxDifficulty={maxDifficulty}
         minMargin={minMargin}
+      />
+
+      <AuditProgressAnimation
+        championName={winnerInfo ? winnerInfo.name : "Unknown"}
       />
     </div>
   );
