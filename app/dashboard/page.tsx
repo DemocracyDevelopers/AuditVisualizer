@@ -11,9 +11,33 @@ import { ChevronRight, FilePenLine } from "lucide-react";
 import EliminationTree from "./components/elimination-tree";
 import AvatarAssignColor from "./components/avatar-assign-color"; // 引入 Avatar 组件
 import useMultiWinnerDataStore from "@/store/multi-winner-data";
-import multiWinnerData from "@/store/multi-winner-data"; // 引入 zustand store
+// import multiWinnerData from "@/store/multi-winner-data"; // 引入 zustand store
+
+import { TourProvider, useTour } from "@reactour/tour";
+import { steps } from "./steps";
+
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 const Dashboard: React.FC = () => {
+  const searchParams = useSearchParams();
+  const guide = searchParams.get("guide");
+
+  const { setIsOpen } = useTour();
+
+  const startTour = () => {
+    if (setIsOpen) {
+      setIsOpen(true);
+    }
+  };
+  // const tour = useTour();
+
+  // useEffect(() => {
+  //   if (guide === "true" && tour.setIsOpen) {
+  //     tour.setIsOpen(true);
+  //   }
+  // }, [guide, tour]);
+
   const { candidateList, assertionList, winnerInfo } =
     useMultiWinnerDataStore();
 
@@ -74,7 +98,8 @@ const Dashboard: React.FC = () => {
   const minMargin = Math.min(...assertionList.map((a) => a.margin));
 
   return (
-    <div className="p-4">
+    <TourProvider className="p-4" steps={steps}>
+      {/* <div className="p-4"> */}
       {/* 文件上传按钮 */}
       <div className="flex justify-end mb-4 mt-[-20px] pr-6">
         <Link href="/upload">
@@ -85,12 +110,21 @@ const Dashboard: React.FC = () => {
         </Link>
       </div>
 
+      <div>
+        <Button size="sm" onClick={startTour}>
+          Tour
+        </Button>
+      </div>
+
       {/* Grid 布局 */}
       <div className="grid grid-cols-12 gap-6 p-6">
         {/* 左侧区域 */}
         <div className="col-span-12 md:col-span-8 space-y-6">
           {/* 数据卡片 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div
+            data-tour="first-step"
+            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          >
             <Card
               title="Candidate"
               value={candidateNum}
@@ -133,7 +167,8 @@ const Dashboard: React.FC = () => {
         maxDifficulty={maxDifficulty}
         minMargin={minMargin}
       />
-    </div>
+      {/* </div> */}
+    </TourProvider>
   );
 };
 

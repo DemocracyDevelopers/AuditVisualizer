@@ -342,6 +342,13 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
               </p>
               <button
                 type="button"
+                onClick={() => router.push("/dashboard?guide=true")}
+                className="mt-4 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500 transition"
+              >
+                Start Guide
+              </button>
+              <button
+                type="button"
                 onClick={() => router.push("/dashboard")} // 跳转到解析页面
                 className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition"
               >
