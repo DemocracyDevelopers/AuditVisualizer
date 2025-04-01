@@ -1,7 +1,7 @@
-//AvatarAssignColor.tsx
+//avatar-assign-color.tsx
 import React, { useEffect, useMemo, useState } from "react";
-import useMultiWinnerDataStore from "@/store/MultiWinnerData";
-import { AvatarColor } from "@/utils/avatarColor";
+import useMultiWinnerDataStore from "@/store/multi-winner-data";
+import { AvatarColor } from "@/utils/avatar-color";
 
 interface AvatarProps {
   onComplete: () => void;

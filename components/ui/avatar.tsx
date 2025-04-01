@@ -53,7 +53,7 @@
 import * as React from "react";
 import * as AvatarPrimitive from "@radix-ui/react-avatar";
 import { cn } from "@/lib/utils";
-import useMultiWinnerDataStore from "@/store/MultiWinnerData"; // 引入 zustand store
+import useMultiWinnerDataStore from "@/store/multi-winner-data"; // 引入 zustand store
 
 // 定义 AvatarProps 接口，明确指定 candidateId 的类型
 interface AvatarProps
@@ -120,7 +120,7 @@ const AvatarFallback = React.forwardRef<
       ref={ref}
       title={name} // 悬停时显示完整名字
       className={cn(
-        "flex h-full w-full items-center justify-center rounded-full text-white font-bold",
+        "flex h-full w-full items-center justify-center rounded-full text-white text-xs font-bold ",
         className,
       )}
       style={{ backgroundColor: color !== "OVERFLOW" ? color : "gray" }}

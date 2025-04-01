@@ -4,6 +4,8 @@ import Uploader from "./components/uploader";
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import TermsAndPrivacy from "@/app/upload/components/terms-and-privacy";
+import TutorialLink from "@/app/upload/components/tutorial-link";
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
@@ -34,39 +36,9 @@ const Dashboard: React.FC = () => {
             Evaluate any audit result that is formatted as a JSON file.
           </p>
           <Uploader className="flex flex-col flex-grow text-left p-4" />
-          {/*<p className="bg-white text-gray-400 text-center">*/}
-          {/*  By sharing your files or using our service, you agree to our&nbsp;*/}
-          {/*  <span className="underline hover:text-gray-800">*/}
-          {/*    Terms of Service*/}
-          {/*  </span>*/}
-          {/*  &nbsp;and&nbsp;*/}
-          {/*  <span className="underline hover:text-gray-800">*/}
-          {/*    Privacy Policy*/}
-          {/*  </span>*/}
-          {/*  .*/}
-          {/*</p>*/}
+          <TermsAndPrivacy />
         </div>
-        <p className="text-sm text-gray-500 text-center mt-4">
-          By sharing your files or using our service, you agree to our{" "}
-          <Link href="#" className="underline hover:text-gray-800">
-            Terms of Service
-          </Link>{" "}
-          and{" "}
-          <Link href="#" className="underline hover:text-gray-800">
-            Privacy Policy
-          </Link>
-          .
-        </p>
-        <div className="text-center text-lg text-gray-600 my-4">
-          Need help? Click{" "}
-          <button
-            onClick={jumpToTutorial}
-            className="text-blue-600 hover:underline"
-          >
-            here
-          </button>{" "}
-          for a tutorial.
-        </div>
+        <TutorialLink linkText="here" linkHref="/tutorial" />
       </main>
     </div>
   );

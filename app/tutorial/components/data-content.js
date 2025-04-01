@@ -1,10 +1,10 @@
-// app/tutorial/components/dataContent.js
+// app/tutorial/components/data-content.js
 
 export const contentData = [
   {
     title: "Getting Started",
     path: "/tutorial",
-    subItems: ["Welcome", "What's Here", "Ready?"],
+    // subItems: ["Welcome", "What's Here", "Ready?"],
   },
   {
     title: "Introduction: IRV RAs with RAIRE",
@@ -26,6 +26,7 @@ export const contentData = [
       "One candidate dominates",
       "Two leading candidates",
       "Visualizing assertions",
+      // "Margin and Difficulty",
     ],
   },
   {
@@ -41,5 +42,10 @@ export const contentData = [
     title: "Using assertions to audit IRV outcomes",
     path: "/tutorial/usingassertion",
     subItems: ["NEB Assertions", "NEN Assertions", "Assertion scoring summary"],
+  },
+  {
+    title: "Margin and Difficulty",
+    path: "/tutorial/margin",
+    // subItems: ["Welcome", "What's Here", "Ready?"],
   },
 ];

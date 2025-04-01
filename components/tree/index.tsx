@@ -23,6 +23,8 @@ interface TreeProps {
   data: TreeNode;
   nextComponent: React.ReactNode;
   backComponent: React.ReactNode;
+  resetHiddenNodes: boolean;
+  onResetComplete: () => void;
 }
 const dimensions = { width: 400, height: 400 };
 
@@ -30,7 +32,10 @@ export default function Tree({
   data,
   nextComponent,
   backComponent,
+  resetHiddenNodes,
+  onResetComplete,
 }: TreeProps) {
+  // TODO: 应该在这个文件里面操作cut的操作,这样每次通过key就重新渲染,重置操作了
   const svgRef = useRef<SVGSVGElement | null>(null);
   const gRef = useRef<SVGGElement | null>(null);
   const zoomBehaviorRef = useRef<d3.ZoomBehavior<
@@ -39,6 +44,28 @@ export default function Tree({
   > | null>(null); // Ref to store zoom behavior
   const [treeData, setTreeData] = useState(data);
   const [currentZoom, setCurrentZoom] = useState<number>(1);
+
+  useEffect(() => {
+    if (resetHiddenNodes) {
+      const resetNodes = (node: TreeNode) => {
+        node.hide = false;
+        if (node.children) {
+          node.children.forEach(resetNodes);
+        }
+      };
+      resetNodes(treeData);
+      setTreeData({ ...treeData });
+      onResetComplete();
+    }
+  }, [resetHiddenNodes, treeData, onResetComplete]);
+
+  function markNodeAndChildrenAsHidden(node: TreeNode) {
+    node.hide = true; // 设置当前节点为hide
+    if (node.children) {
+      node.children.forEach((child) => markNodeAndChildrenAsHidden(child)); // 递归设置子节点为hide
+    }
+    setTreeData({ ...treeData });
+  }
 
   useEffect(() => {
     if (svgRef.current) {
@@ -68,7 +95,7 @@ export default function Tree({
 
       // Draw links
       g.selectAll("line")
-        .data(links)
+        .data(links.filter((link) => !link.target.data.hide))
         .enter()
         .append("line")
         .attr("x1", (d) => (d.source as d3.HierarchyPointNode<TreeNode>).x)
@@ -77,40 +104,65 @@ export default function Tree({
         .attr("y2", (d) => (d.target as d3.HierarchyPointNode<TreeNode>).y)
         // .attr("stroke", "#e9bc39")
         .attr("stroke", (d) =>
-          d.source.data.cut || d.target.data.cut ? "#d4d4d4" : "#e9bc39",
+          d.source.data.eliminated ||
+          d.target.data.eliminated ||
+          d.source.data.cut ||
+          d.target.data.cut
+            ? "#d4d4d4"
+            : "#e9bc39",
         ) // Set stroke to black if cut is true
         .attr("stroke-width", 3);
 
       // 暂时先用X
-      g.selectAll("text.cut-marker")
+      g.selectAll("foreignObject.cut-marker")
         .data(links)
         .enter()
-        .filter((d: any) => d.source.data.cut || d.target.data.cut) // Only add 'X' for cut links
-        .append("text")
+        // .filter((d: d3.HierarchyLink<TreeNode>) => !!d.target.data.cut) // Only add scissors for cut links
+        .filter(
+          (d: d3.HierarchyLink<TreeNode>) =>
+            !!d.target.data.cut && !d.target.data.hide, // 只为未隐藏的目标节点添加剪刀图标
+        )
+        .append("foreignObject")
         .attr("class", "cut-marker")
         .attr(
           "x",
           (d) =>
             ((d.source as d3.HierarchyPointNode<TreeNode>).x +
               (d.target as d3.HierarchyPointNode<TreeNode>).x) /
-            2,
+              2 -
+            12, // Offset to center the icon
         )
         .attr(
           "y",
           (d) =>
             ((d.source as d3.HierarchyPointNode<TreeNode>).y +
               (d.target as d3.HierarchyPointNode<TreeNode>).y) /
-            2,
+              2 -
+            12, // Offset to center the icon
         )
-        .attr("text-anchor", "middle")
-        .attr("font-size", "14px")
-        .attr("fill", "red")
-        .text("X");
+        .attr("width", 24)
+        .attr("height", 24)
+        .attr("class", "cursor-pointer")
+        .html(
+          `
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scissors">
+          <circle cx="6" cy="6" r="3"/>
+          <path d="M8.12 8.12 12 12"/>
+          <path d="M20 4 8.12 15.88"/>
+          <circle cx="6" cy="18" r="3"/>
+          <path d="M14.8 14.8 20 20"/>
+        </svg>
+      `,
+        )
+        .on("click", (event, d) => {
+          markNodeAndChildrenAsHidden(d.target.data);
+          // setTreeData({ ...treeData });
+        });
 
       // Create groups for each node
       const groups = g
         .selectAll("g")
-        .data(nodes)
+        .data(nodes.filter((node) => !node.data.hide))
         .enter()
         .append("g")
         .attr("transform", (d) => `translate(${d.x},${d.y})`)

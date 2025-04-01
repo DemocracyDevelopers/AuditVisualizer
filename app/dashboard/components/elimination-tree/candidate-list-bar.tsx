@@ -6,9 +6,10 @@ import {
 import { Candidate } from "./constants";
 import SearchDropdown from "./search-dropdown";
 import { TooltipTrigger } from "@radix-ui/react-tooltip";
+import { useState } from "react";
 
 type CandidateListBarProps = {
-  selectedWinnerId: number;
+  selectedWinnerId: number | null;
   handleSelectWinner: (id: number) => void;
   useAvatar: boolean;
   candidateList: Candidate[];
@@ -20,6 +21,10 @@ function CandidateListBar({
   useAvatar,
   candidateList,
 }: CandidateListBarProps) {
+  const handleCandidateSelect = (candidateId: number) => {
+    // setSelectedCandidateId(candidateId);
+    handleSelectWinner(candidateId); // Call to display the tree or other action
+  };
   return (
     <div className="flex justify-center mb-5 gap-10">
       <div className="flex">
@@ -27,9 +32,20 @@ function CandidateListBar({
           <div key={candidate.id} className="flex flex-col items-center w-12">
             <TooltipProvider>
               <Tooltip>
+                {/*<TooltipTrigger*/}
+                {/*  onClick={() => handleSelectWinner(candidate.id)}*/}
+                {/*  className="leading-9 w-10 h-10 rounded-full cursor-pointer text-center border-2 border-black text-xs overflow-hidden whitespace-nowrap text-ellipsis"*/}
+                {/*>*/}
+                {/*  {candidate.name}*/}
+                {/*</TooltipTrigger>*/}
+
                 <TooltipTrigger
-                  onClick={() => handleSelectWinner(candidate.id)}
-                  className="leading-9 w-10 h-10 rounded-full cursor-pointer text-center border-2 border-black text-xs overflow-hidden whitespace-nowrap text-ellipsis"
+                  onClick={() => handleCandidateSelect(candidate.id)}
+                  className={`leading-9 w-10 h-10 rounded-full cursor-pointer text-center border-2 text-xs overflow-hidden whitespace-nowrap text-ellipsis ${
+                    selectedWinnerId === candidate.id
+                      ? "border-blue-500" // Outer blue circle when selected
+                      : "border-black"
+                  }`}
                 >
                   {candidate.name}
                 </TooltipTrigger>
@@ -39,7 +55,11 @@ function CandidateListBar({
           </div>
         ))}
       </div>
-      <SearchDropdown candidateList={candidateList} />
+      {/*<SearchDropdown candidateList={candidateList} />*/}
+      <SearchDropdown
+        candidateList={candidateList}
+        onSelect={handleCandidateSelect}
+      />
     </div>
   );
 }
