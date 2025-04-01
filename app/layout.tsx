@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Image from "next/image";
+import { TourProvider } from "@reactour/tour";
+import { steps } from "./steps";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {

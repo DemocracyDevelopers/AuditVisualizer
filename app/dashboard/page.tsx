@@ -14,7 +14,6 @@ import useMultiWinnerDataStore from "@/store/multi-winner-data";
 // import multiWinnerData from "@/store/multi-winner-data"; // 引入 zustand store
 
 import { TourProvider, useTour } from "@reactour/tour";
-import { steps } from "./steps";
 
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
@@ -98,8 +97,7 @@ const Dashboard: React.FC = () => {
   const minMargin = Math.min(...assertionList.map((a) => a.margin));
 
   return (
-    <TourProvider className="p-4" steps={steps}>
-      {/* <div className="p-4"> */}
+    <div className="p-4">
       {/* 文件上传按钮 */}
       <div className="flex justify-end mb-4 mt-[-20px] pr-6">
         <Link href="/upload">
@@ -167,8 +165,7 @@ const Dashboard: React.FC = () => {
         maxDifficulty={maxDifficulty}
         minMargin={minMargin}
       />
-      {/* </div> */}
-    </TourProvider>
+    </div>
   );
 };
 
