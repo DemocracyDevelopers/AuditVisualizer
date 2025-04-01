@@ -25,6 +25,8 @@ function EliminationTree() {
 
   const [resetHiddenNodes, setResetHiddenNodes] = useState(false);
 
+  const [hasNodeBeenCut, setHasNodeBeenCut] = useState(false);
+
   // Use useEffect to initialize selectedWinnerId when multiWinner loads
   useEffect(() => {
     if (multiWinner && multiWinner.length > 0) {
@@ -84,10 +86,15 @@ function EliminationTree() {
 
   const handleRevertAssertion = () => {
     setResetHiddenNodes(true);
+    setHasNodeBeenCut(false);
   };
 
   const handleResetComplete = () => {
     setResetHiddenNodes(false);
+  };
+
+  const handleNodeCut = () => {
+    setHasNodeBeenCut(true);
   };
 
   return (
@@ -132,6 +139,7 @@ function EliminationTree() {
             backComponent={BackComponent}
             resetHiddenNodes={resetHiddenNodes}
             onResetComplete={handleResetComplete}
+            onNodeCut={handleNodeCut}
           />
         </div>
         <div className="w-48 flex flex-col gap-4">
@@ -141,10 +149,12 @@ function EliminationTree() {
           </div>
 
           <div>
-            <Button onClick={handleRevertAssertion}>
-              Revert Assertion
-              <Undo2 className="ml-2 h-4 w-4" />
-            </Button>
+            {hasNodeBeenCut && (
+              <Button onClick={handleRevertAssertion}>
+                Revert Assertion
+                <Undo2 className="ml-2 h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
       </div>
