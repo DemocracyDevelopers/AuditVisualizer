@@ -25,6 +25,8 @@ function EliminationTree() {
 
   const [resetHiddenNodes, setResetHiddenNodes] = useState(false);
 
+  const [hasNodeBeenCut, setHasNodeBeenCut] = useState(false);
+
   // Use useEffect to initialize selectedWinnerId when multiWinner loads
   useEffect(() => {
     if (multiWinner && multiWinner.length > 0) {
@@ -90,8 +92,6 @@ function EliminationTree() {
   const handleResetComplete = () => {
     setResetHiddenNodes(false);
   };
-
-  const [hasNodeBeenCut, setHasNodeBeenCut] = useState(false);
 
   const handleNodeCut = () => {
     setHasNodeBeenCut(true);
