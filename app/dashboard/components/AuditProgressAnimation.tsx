@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import anime from "animejs";
+import { X } from "lucide-react";
 
 interface EnhancedAuditAnimationProps {
   championName: string;
@@ -12,11 +13,9 @@ const EnhancedAuditAnimation = ({
   const [isVisible, setIsVisible] = useState(true);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const confirmationRef = useRef<HTMLDivElement>(null);
-  const iconRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    if (!isVisible) return; // If the component is not visible, do nothing
-    console.log("championName", championName);
+    if (!isVisible) return; // 如果组件不可见则不执行动画
     anime
       .timeline({
         easing: "easeInOutQuad",
@@ -26,9 +25,8 @@ const EnhancedAuditAnimation = ({
       .add({
         targets: progressBarRef.current,
         width: ["0%", "100%"],
-        // 可以在这里增加背景位置或渐变动画来制造流动效果
         backgroundPosition: ["0% 0%", "100% 0%"],
-        begin: () => console.log("Verification Begin"),
+        // begin: () => console.log("Verification Begin"),
       })
       // 第二步：淡入并弹出冠军确认信息
       .add({
@@ -39,10 +37,10 @@ const EnhancedAuditAnimation = ({
         easing: "easeOutExpo",
         begin: () => {
           if (confirmationRef.current) {
-            confirmationRef.current.innerHTML = `<div style="display:flex; align-items:center; justify-content:center;">
-            <span style="display:inline-block; margin-right:8px; font-size:24px;">🏆</span>
-            <span>Verification Pass!:<strong>${championName}</strong> is the Champion!</span>
-          </div>`;
+            confirmationRef.current.innerHTML = `<div class="flex items-center justify-center">
+              <span class="mr-2 text-2xl">🏆</span>
+              <span>Verification Pass!:<strong>${championName}</strong> is the Champion!</span>
+            </div>`;
           }
         },
       })
@@ -58,71 +56,25 @@ const EnhancedAuditAnimation = ({
   if (!isVisible) return null;
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        right: "20px",
-        bottom: "20px",
-        width: "300px",
-        padding: "15px",
-        background: "#fff",
-        boxShadow: "0 0 15px rgba(0,0,0,0.15)",
-        borderRadius: "10px",
-        overflow: "hidden",
-        zIndex: 9999,
-      }}
-    >
-      {/* Close Button */}
+    <div className="fixed right-5 bottom-5 w-[300px] p-[15px] bg-white shadow-[0_0_15px_rgba(0,0,0,0.15)] rounded-[10px] overflow-hidden z-[9999]">
+      {/* 关闭按钮 */}
       <button
         onClick={() => setIsVisible(false)}
-        style={{
-          position: "absolute",
-          top: "5px",
-          right: "5px",
-          border: "none",
-          background: "transparent",
-          fontSize: "16px",
-          cursor: "pointer",
-        }}
+        className="absolute top-[5px] right-[5px] border-0 bg-transparent text-[16px] cursor-pointer"
         aria-label="Close Animation"
       >
-        ✖
+        <X size={16} />
       </button>
-      <div
-        style={{ marginBottom: "12px", fontSize: "15px", fontWeight: "bold" }}
-      >
-        Audit Progress
-      </div>
-      <div
-        style={{
-          height: "12px",
-          width: "100%",
-          borderRadius: "6px",
-          overflow: "hidden",
-          background: "linear-gradient(90deg, #4caf50, #81c784)",
-          backgroundSize: "200% 100%",
-        }}
-      >
+      <div className="mb-[12px] text-[15px] font-bold">Audit Progress</div>
+      <div className="h-[12px] w-full rounded-[6px] overflow-hidden bg-gradient-to-r from-[#4caf50] to-[#81c784] [background-size:200%_100%]">
         <div
           ref={progressBarRef}
-          style={{
-            height: "100%",
-            width: "0%",
-            background: "linear-gradient(90deg, #4caf50, #81c784)",
-            backgroundSize: "200% 100%",
-          }}
+          className="h-full w-0 bg-gradient-to-r from-[#4caf50] to-[#81c784] [background-size:200%_100%]"
         />
       </div>
       <div
         ref={confirmationRef}
-        style={{
-          marginTop: "15px",
-          textAlign: "center",
-          opacity: 0,
-          transform: "scale(0.8)",
-          fontSize: "16px",
-          color: "#4caf50",
-        }}
+        className="mt-[15px] text-center opacity-0 scale-[0.8] text-[16px] text-[#4caf50]"
       ></div>
     </div>
   );
