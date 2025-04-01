@@ -7,6 +7,7 @@ import { Candidate } from "./constants";
 import SearchDropdown from "./search-dropdown";
 import { TooltipTrigger } from "@radix-ui/react-tooltip";
 import { useState } from "react";
+import { useEffect, useRef } from "react";
 
 type CandidateListBarProps = {
   selectedWinnerId: number | null;
@@ -21,15 +22,35 @@ function CandidateListBar({
   useAvatar,
   candidateList,
 }: CandidateListBarProps) {
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null); // Ref for the scroll container
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      el.scrollLeft += e.deltaY;
+    };
+    el.addEventListener("wheel", handleWheel, { passive: false });
+    return () => {
+      el.removeEventListener("wheel", handleWheel);
+    };
+  }, []);
+
   const handleCandidateSelect = (candidateId: number) => {
     // setSelectedCandidateId(candidateId);
     handleSelectWinner(candidateId); // Call to display the tree or other action
   };
   return (
     <div className="flex justify-center mb-5 gap-10">
-      <div className="flex">
+      <div
+        className="flex overflow-x-auto w-64 border rounded-md px-2 gap-2"
+        ref={scrollContainerRef}
+      >
         {candidateList.map((candidate) => (
-          <div key={candidate.id} className="flex flex-col items-center w-12">
+          <div
+            key={candidate.id}
+            className="flex flex-col items-center w-12 flex-shrink-0"
+          >
             <TooltipProvider>
               <Tooltip>
                 {/*<TooltipTrigger*/}
