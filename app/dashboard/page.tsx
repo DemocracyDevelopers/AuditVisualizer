@@ -23,7 +23,6 @@ const Dashboard: React.FC = () => {
 
   // Avatar 完成后调用的函数
   const handleAvatarComplete = () => {
-    console.log("Avatar complete");
     setIsAvatarReady(true);
   };
 
