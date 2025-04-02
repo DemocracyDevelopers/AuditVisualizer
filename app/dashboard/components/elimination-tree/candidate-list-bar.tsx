@@ -7,7 +7,6 @@ import { Crown } from "lucide-react";
 import { Candidate } from "./constants";
 import SearchDropdown from "./search-dropdown";
 import { TooltipTrigger } from "@radix-ui/react-tooltip";
-import { useState } from "react";
 import { useEffect, useRef } from "react";
 import useMultiWinnerDataStore from "@/store/multi-winner-data";
 
@@ -21,7 +20,7 @@ type CandidateListBarProps = {
 function CandidateListBar({
   selectedWinnerId,
   handleSelectWinner,
-  useAvatar,
+  // useAvatar,
   candidateList,
 }: CandidateListBarProps) {
   const { winnerInfo } = useMultiWinnerDataStore();
@@ -31,7 +30,7 @@ function CandidateListBar({
     if (!el) return;
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
-      el.scrollLeft += e.deltaY;
+      el.scrollLeft += e.deltaX;
     };
     el.addEventListener("wheel", handleWheel, { passive: false });
     return () => {
