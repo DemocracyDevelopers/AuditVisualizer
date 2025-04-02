@@ -11,5 +11,14 @@ interface ClientTourProviderProps {
 export default function ClientTourProvider({
   children,
 }: ClientTourProviderProps) {
-  return <TourProvider steps={steps}>{children}</TourProvider>;
+  return (
+    <TourProvider
+      steps={steps}
+      onClickClose={({ setIsOpen }) => {
+        setIsOpen(false);
+      }}
+    >
+      {children}
+    </TourProvider>
+  );
 }

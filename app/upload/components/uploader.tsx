@@ -30,6 +30,12 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
   const maxFileSize = 100 * 1024 * 1024; // 100MB
   const router = useRouter();
 
+  const startGuide = () => {
+    // 标识引导状态（仅在本次 session 中有效）
+    sessionStorage.setItem("startTour", "true");
+    router.push("/dashboard");
+  };
+
   const {
     setMultiWinner,
     clearMultiWinner,
@@ -342,7 +348,7 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
               </p>
               <button
                 type="button"
-                onClick={() => router.push("/dashboard?guide=true")}
+                onClick={startGuide} // 跳转到引导页面
                 className="mt-4 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500 transition"
               >
                 Start Guide

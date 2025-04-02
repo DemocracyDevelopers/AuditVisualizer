@@ -13,29 +13,32 @@ import AvatarAssignColor from "./components/avatar-assign-color"; // 引入 Avat
 import useMultiWinnerDataStore from "@/store/multi-winner-data";
 // import multiWinnerData from "@/store/multi-winner-data"; // 引入 zustand store
 
-import { TourProvider, useTour } from "@reactour/tour";
+import { useTour } from "@reactour/tour";
+import { useRouter } from "next/navigation";
 
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 const Dashboard: React.FC = () => {
   const searchParams = useSearchParams();
-  const guide = searchParams.get("guide");
 
-  const { setIsOpen } = useTour();
+  // const { setIsOpen } = useTour();
 
-  const startTour = () => {
-    if (setIsOpen) {
-      setIsOpen(true);
-    }
-  };
-  // const tour = useTour();
-
-  // useEffect(() => {
-  //   if (guide === "true" && tour.setIsOpen) {
-  //     tour.setIsOpen(true);
+  // const startTour = () => {
+  //   if (setIsOpen) {
+  //     setIsOpen(true);
   //   }
-  // }, [guide, tour]);
+  // };
+
+  const tour = useTour();
+
+  useEffect(() => {
+    const shouldStart = sessionStorage.getItem("startTour");
+    if (shouldStart === "true" && tour.setIsOpen) {
+      tour.setIsOpen(true);
+      sessionStorage.removeItem("startTour");
+    }
+  }, [tour]);
 
   const { candidateList, assertionList, winnerInfo } =
     useMultiWinnerDataStore();
@@ -108,11 +111,11 @@ const Dashboard: React.FC = () => {
         </Link>
       </div>
 
-      <div>
+      {/* <div>
         <Button size="sm" onClick={startTour}>
           Tour
         </Button>
-      </div>
+      </div> */}
 
       {/* Grid 布局 */}
       <div className="grid grid-cols-12 gap-6 p-6">
