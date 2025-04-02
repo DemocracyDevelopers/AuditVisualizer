@@ -39,7 +39,6 @@ const OutcomesPage: React.FC = () => {
         {/* Outcomes content */}
         <OutcomesContent sidebarWidth={sidebarWidth} collapsed={collapsed} />
         {/* Footer Section */}
-        <TermsAndPrivacy /> {/* Reusing the TermsAndPrivacy component */}
       </main>
     </div>
   );

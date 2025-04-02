@@ -42,7 +42,6 @@ const MarginDifficultyPage: React.FC = () => {
           collapsed={collapsed}
         />
         {/* Footer Section */}
-        <TermsAndPrivacy /> {/* Reusing the TermsAndPrivacy component */}
       </main>
     </div>
   );

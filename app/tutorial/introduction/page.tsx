@@ -43,7 +43,6 @@ const IntroductionPage: React.FC = () => {
         />
         {/* Footer Section */}
         {/* Footer Section */}
-        <TermsAndPrivacy /> {/* Reusing the TermsAndPrivacy component */}
       </main>
     </div>
   );

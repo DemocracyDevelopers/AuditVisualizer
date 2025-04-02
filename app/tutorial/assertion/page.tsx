@@ -37,7 +37,6 @@ const AssertionPage: React.FC = () => {
         {/* Assertion content */}
         <AssertionContent sidebarWidth={sidebarWidth} collapsed={collapsed} />
         {/* Footer Section */}
-        <TermsAndPrivacy /> {/* Reusing the TermsAndPrivacy component */}
       </main>
     </div>
   );

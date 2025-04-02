@@ -36,7 +36,6 @@ const Tutorial: React.FC = () => {
         {/* Tutorial content */}
         <TutorialContent sidebarWidth={sidebarWidth} collapsed={collapsed} />
         {/* Footer Section */}
-        <TermsAndPrivacy /> {/* Reusing the TermsAndPrivacy component */}
       </main>
     </div>
   );
