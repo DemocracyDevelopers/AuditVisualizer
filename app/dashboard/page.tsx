@@ -100,8 +100,8 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="p-4">
-      <div className="grid grid-cols-12 gap-6 p-6">
-        <div className="col-span-12 flex justify-end gap-4 mb-4 pr-6">
+      <div className="grid grid-cols-12 gap-1">
+        <div className="col-span-12 flex justify-end pr-6">
           <Link href="/upload">
             <Button size="sm">
               Change File
