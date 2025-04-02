@@ -26,7 +26,7 @@ function CandidateListBar({
     handleSelectWinner(candidateId); // Call to display the tree or other action
   };
   return (
-    <div className="flex justify-center mb-5 gap-10">
+    <div className="flex justify-center mb-5 gap-10" data-tour="fifth-step">
       <div className="flex">
         {candidateList.map((candidate) => (
           <div key={candidate.id} className="flex flex-col items-center w-12">

@@ -137,14 +137,19 @@ const Dashboard: React.FC = () => {
           </div>
 
           {/* Elimination Tree section */}
-          <EliminationTree />
+          <div data-tour="fourth-step">
+            <EliminationTree />
+          </div>
         </div>
 
         {/* 右侧区域：Assertion 表格 */}
-        <div className="border border-gray-300 col-span-12 md:col-span-4 shadow-md rounded-lg p-6">
+        <div
+          data-tour="second-step"
+          className="border border-gray-300 col-span-12 md:col-span-4 shadow-md rounded-lg p-6"
+        >
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold text-gray-600">The Assertions</h3>
-            <div className="text-right">
+            <div className="text-right" data-tour="third-step">
               <Button size="sm" onClick={handleViewDetails}>
                 View Details <ChevronRight className="ml-2" size={16} />
               </Button>
