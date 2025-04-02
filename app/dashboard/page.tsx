@@ -18,17 +18,16 @@ import { useRouter } from "next/navigation";
 
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import { Workflow } from "lucide-react";
 
 const Dashboard: React.FC = () => {
-  const searchParams = useSearchParams();
+  const { setIsOpen } = useTour();
 
-  // const { setIsOpen } = useTour();
-
-  // const startTour = () => {
-  //   if (setIsOpen) {
-  //     setIsOpen(true);
-  //   }
-  // };
+  const startTour = () => {
+    if (setIsOpen) {
+      setIsOpen(true);
+    }
+  };
 
   const tour = useTour();
 
@@ -101,7 +100,22 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="p-4">
-      {/* 文件上传按钮 */}
+      <div className="grid grid-cols-12 gap-6 p-6">
+        <div className="col-span-12 flex justify-end gap-4 mb-4 pr-6">
+          <Link href="/upload">
+            <Button size="sm">
+              Change File
+              <FilePenLine className="ml-2" size={16} />
+            </Button>
+          </Link>
+          <Button size="sm" onClick={startTour}>
+            Tour
+            <Workflow className="ml-2" size={16} />
+          </Button>
+        </div>
+        {/* 其他内容 */}
+      </div>
+      {/* 文件上传按钮
       <div className="flex justify-end mb-4 mt-[-20px] pr-6">
         <Link href="/upload">
           <Button size="sm">
@@ -109,12 +123,6 @@ const Dashboard: React.FC = () => {
             <FilePenLine className="ml-2" size={16} />
           </Button>
         </Link>
-      </div>
-
-      {/* <div>
-        <Button size="sm" onClick={startTour}>
-          Tour
-        </Button>
       </div> */}
 
       {/* Grid 布局 */}
