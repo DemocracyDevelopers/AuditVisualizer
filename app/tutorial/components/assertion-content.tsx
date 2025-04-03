@@ -15,13 +15,7 @@ const AssertionContent: React.FC<AssertionContentProps> = ({
   collapsed,
 }) => {
   return (
-      <div
-          className="p-8"
-          style={{
-            marginLeft: collapsed ? 0 : sidebarWidth, // 根据 sidebarWidth 和 collapsed 调整内容的左边距
-            transition: "margin-left 0.3s ease",
-          }}
-      >
+      <div className="p-8 transition-all duration-300">
         <h2 className="text-4xl font-bold mb-8 text-center">
           Assertions for IRV winners
         </h2>

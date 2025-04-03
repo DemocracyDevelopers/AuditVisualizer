@@ -33,13 +33,17 @@ const MarginDifficultyPage: React.FC = () => {
       {/* Main content area */}
       <main className="flex-grow overflow-y-auto">
         {/* Breadcrumbs 放置在侧边栏右侧 */}
-        <MarginContainer collapsed={collapsed} sidebarWidth={sidebarWidth}>
-          <Breadcrumbs paths={breadcrumbPaths} />
-        </MarginContainer>
+        <div
+            style={{
+              paddingLeft: collapsed ? 16 : 24, // px，根据 sidebar 状态动态设定
+            }}
+        >
+          <Breadcrumbs paths={breadcrumbPaths}/>
+        </div>
         {/* 内容部分 */}
         <MarginDifficultyContent
-          sidebarWidth={sidebarWidth}
-          collapsed={collapsed}
+            sidebarWidth={sidebarWidth}
+            collapsed={collapsed}
         />
         {/* Footer Section */}
       </main>
