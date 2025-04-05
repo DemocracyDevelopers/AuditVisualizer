@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Card from "./components/card";
 import AssertionTable from "./components/assertion-table";
 import AssertionsDetailsModal from "./components/assertions-details-modal";
@@ -12,6 +12,7 @@ import EliminationTree from "./components/elimination-tree";
 import AvatarAssignColor from "./components/avatar-assign-color"; // 引入 Avatar 组件
 import useMultiWinnerDataStore from "@/store/multi-winner-data";
 import multiWinnerData from "@/store/multi-winner-data"; // 引入 zustand store
+import VerificationProgress from "@/components/verification-progress";
 
 const Dashboard: React.FC = () => {
   const { candidateList, assertionList, winnerInfo } =
@@ -124,6 +125,8 @@ const Dashboard: React.FC = () => {
           <AssertionTable assertions={assertionsWithNames} />
         </div>
       </div>
+      {/* verification */}
+      <VerificationProgress />
 
       {/* Modal 组件 */}
       <AssertionsDetailsModal
