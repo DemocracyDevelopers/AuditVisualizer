@@ -12,9 +12,6 @@ import useMultiWinnerDataStore from "@/store/multi-winner-data";
 
 function EliminationTree() {
   const { multiWinner } = useMultiWinnerDataStore();
-  useEffect(() => {
-    console.log("?", multiWinner);
-  }, [multiWinner]);
 
   // Define loading state
   const isLoading = multiWinner === null;
