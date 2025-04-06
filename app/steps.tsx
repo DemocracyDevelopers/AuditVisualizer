@@ -1,7 +1,12 @@
 export const steps = [
   {
     selector: "[data-tour='first-step']",
-    content: "This is the first Step",
+    content: () => (
+      <div>
+        {"This is the "}
+        <strong>{"first Step"}</strong>
+      </div>
+    ),
   },
   {
     selector: "[data-tour='second-step']",
