@@ -3,11 +3,12 @@ import CandidateListBar from "@/app/dashboard/components/elimination-tree/candid
 import Dropdown from "@/app/dashboard/components/elimination-tree/dropdown";
 import StepByStep from "@/app/dashboard/components/elimination-tree/step-by-step";
 // import { demoFromCore } from "@/app/dashboard/components/elimination-tree/demo";
-import Tree from "@/components/Tree";
+import Tree from "../../../../components/tree";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight } from "lucide-react";
-import useMultiWinnerDataStore from "@/store/MultiWinnerData";
+import { ArrowLeft, ArrowRight, Undo2 } from "lucide-react";
+import TooltipWithIcon from "@/app/dashboard/components/Information-icon-text";
+import useMultiWinnerDataStore from "@/store/multi-winner-data";
 
 function EliminationTree() {
   const { multiWinner } = useMultiWinnerDataStore();
@@ -21,6 +22,10 @@ function EliminationTree() {
   // Ensure multiWinner has at least one winnerInfo
   const [selectedWinnerId, setSelectedWinnerId] = useState<number>(0);
   const [selectedStep, setSelectedStep] = useState<number>(1); // Ensure this is always defined
+
+  const [resetHiddenNodes, setResetHiddenNodes] = useState(false);
+
+  const [hasNodeBeenCut, setHasNodeBeenCut] = useState(false);
 
   // Use useEffect to initialize selectedWinnerId when multiWinner loads
   useEffect(() => {
@@ -79,16 +84,40 @@ function EliminationTree() {
     </Button>
   );
 
+  const handleRevertAssertion = () => {
+    setResetHiddenNodes(true);
+    setHasNodeBeenCut(false);
+  };
+
+  const handleResetComplete = () => {
+    setResetHiddenNodes(false);
+  };
+
+  const handleNodeCut = () => {
+    setHasNodeBeenCut(true);
+  };
+
   return (
     <div className="border border-gray-300 rounded-lg p-6 h-auto flex flex-col justify-between pl-10">
-      <div className="flex justify-between">
-        <h3 className="text-2xl font-bold">Elimination Tree</h3>
-        <Dropdown />
+      <div className="flex items-center justify-between">
+        {/* Elimination Tree title and Tooltip with Icon */}
+        <div className="flex items-center">
+          <h3 className="text-2xl font-bold">Elimination Tree</h3>
+          <TooltipWithIcon
+            title="Need Help?"
+            description="For detailed guidance on the elimination tree process, please refer to our"
+            linkText="Tutorial"
+            linkHref="/tutorial"
+          />
+        </div>
+
+        {/*<Dropdown />*/}
       </div>
       <div>
         <CandidateListBar
           selectedWinnerId={selectedWinnerId}
           handleSelectWinner={(id: number) => {
+            handleRevertAssertion();
             setSelectedStep(1); // Reset step
             setSelectedWinnerId(id);
           }}
@@ -108,7 +137,25 @@ function EliminationTree() {
             key={`${selectedWinnerId}-${selectedStep}`}
             nextComponent={NextComponent}
             backComponent={BackComponent}
+            resetHiddenNodes={resetHiddenNodes}
+            onResetComplete={handleResetComplete}
+            onNodeCut={handleNodeCut}
           />
+        </div>
+        <div className="w-48 flex flex-col gap-4">
+          <div>
+            <div className="font-bold">Applied Assertion: </div>
+            <div>{data.process[selectedStep].assertion}</div>
+          </div>
+
+          <div>
+            {hasNodeBeenCut && (
+              <Button onClick={handleRevertAssertion}>
+                Revert Assertion
+                <Undo2 className="ml-2 h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </div>

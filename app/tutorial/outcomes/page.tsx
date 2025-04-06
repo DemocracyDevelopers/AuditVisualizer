@@ -1,32 +1,45 @@
-// tutorial/outcomes/page.tsx
+"use client";
 
-import React from "react";
-import OutcomesContent from "../components/OutcomesContent"; // Adjust the import path as needed
-import FloatingMenu from "../components/FloatingMenu"; // Import the FloatingMenu component
+import React, { useState } from "react";
+import OutcomesContent from "../components/outcomes-content"; //
+import SidebarWithSearch from "../components/SidebarWithSearch"; //
+import Breadcrumbs from "../components/Breadcrumbs";
+import MarginContainer from "@/app/tutorial/components/MarginContainer";
+import TermsAndPrivacy from "@/app/upload/components/terms-and-privacy";
 
 const OutcomesPage: React.FC = () => {
+  const [sidebarWidth, setSidebarWidth] = useState(256); // 初始侧边栏宽度
+  const [collapsed, setCollapsed] = useState(false); // 侧边栏折叠状态
+
+  // 设置面包屑路径，只显示到一级标题
+  const breadcrumbPaths = [
+    { name: "Home", href: "/" },
+    {
+      name: "IRV elections and Visualizing Outcomes",
+      href: "/tutorial/outcomes",
+    },
+  ];
+
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
+    <div className="flex bg-white">
+      {/* Sidebar */}
+      <SidebarWithSearch
+        sidebarWidth={sidebarWidth}
+        setSidebarWidth={setSidebarWidth}
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
+      />
+
       {/* Main content */}
-      <main className="flex flex-col flex-grow">
-        {/* Outcomes Content Component */}
-        <OutcomesContent />
-
-        {/* Floating Menu */}
-        <FloatingMenu />
-
+      <main className="flex-grow overflow-y-auto">
+        {/* Breadcrumbs 放置在侧边栏右侧 */}
+        <MarginContainer collapsed={collapsed} sidebarWidth={sidebarWidth}>
+          <Breadcrumbs paths={breadcrumbPaths} />
+        </MarginContainer>
+        {/* Outcomes content */}
+        <OutcomesContent sidebarWidth={sidebarWidth} collapsed={collapsed} />
         {/* Footer Section */}
-        <p className="text-sm text-gray-500 text-center mt-8">
-          By sharing your files or using our service, you agree to our{" "}
-          <a href="#" className="text-blue-500 hover:underline">
-            Terms of Service
-          </a>{" "}
-          and{" "}
-          <a href="#" className="text-blue-500 hover:underline">
-            Privacy Policy
-          </a>
-          .
-        </p>
+        <TermsAndPrivacy /> {/* Reusing the TermsAndPrivacy component */}
       </main>
     </div>
   );

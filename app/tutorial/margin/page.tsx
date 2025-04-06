@@ -1,20 +1,23 @@
 "use client";
 
 import React, { useState } from "react";
-import RiskContent from "../components/risk-content";
+import MarginDifficultyContent from "../components/margin-content"; // 引入新的组件
 import SidebarWithSearch from "../components/SidebarWithSearch";
 import Breadcrumbs from "../components/Breadcrumbs";
 import MarginContainer from "@/app/tutorial/components/MarginContainer";
-import TermsAndPrivacy from "@/app/upload/components/terms-and-privacy"; // 导入 Breadcrumbs 组件
+import TermsAndPrivacy from "@/app/upload/components/terms-and-privacy"; // 导入面包屑组件
 
-const RiskPage: React.FC = () => {
+const MarginDifficultyPage: React.FC = () => {
   const [sidebarWidth, setSidebarWidth] = useState(256);
   const [collapsed, setCollapsed] = useState(false);
 
-  // 设置面包屑路径，只显示到一级标题
+  // 面包屑路径，显示到一级标题
   const breadcrumbPaths = [
     { name: "Home", href: "/" },
-    { name: "Risk Limiting Audits", href: "/tutorial/risk" },
+    {
+      name: "Margin and Difficulty",
+      href: "/tutorial/margin",
+    },
   ];
 
   return (
@@ -33,7 +36,11 @@ const RiskPage: React.FC = () => {
         <MarginContainer collapsed={collapsed} sidebarWidth={sidebarWidth}>
           <Breadcrumbs paths={breadcrumbPaths} />
         </MarginContainer>
-        <RiskContent sidebarWidth={sidebarWidth} collapsed={collapsed} />
+        {/* 内容部分 */}
+        <MarginDifficultyContent
+          sidebarWidth={sidebarWidth}
+          collapsed={collapsed}
+        />
         {/* Footer Section */}
         <TermsAndPrivacy /> {/* Reusing the TermsAndPrivacy component */}
       </main>
@@ -41,4 +48,4 @@ const RiskPage: React.FC = () => {
   );
 };
 
-export default RiskPage;
+export default MarginDifficultyPage;

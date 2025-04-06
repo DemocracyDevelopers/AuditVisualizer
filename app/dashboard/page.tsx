@@ -1,17 +1,17 @@
 "use client";
 import React, { useState } from "react";
 import Card from "./components/card";
-import AssertionTable from "./components/assertionTable";
-import AssertionsDetailsModal from "./components/AssertionsDetailsModal";
+import AssertionTable from "./components/assertion-table";
+import AssertionsDetailsModal from "./components/assertions-details-modal";
 import { FaUserFriends, FaTrophy, FaList } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ChevronRight, FilePenLine } from "lucide-react";
 
 import EliminationTree from "./components/elimination-tree";
-import AvatarAssignColor from "./components/AvatarAssignColor"; // 引入 Avatar 组件
-import useMultiWinnerDataStore from "@/store/MultiWinnerData";
-import multiWinnerData from "@/store/MultiWinnerData"; // 引入 zustand store
+import AvatarAssignColor from "./components/avatar-assign-color"; // 引入 Avatar 组件
+import useMultiWinnerDataStore from "@/store/multi-winner-data";
+import multiWinnerData from "@/store/multi-winner-data"; // 引入 zustand store
 
 const Dashboard: React.FC = () => {
   const { candidateList, assertionList, winnerInfo } =
