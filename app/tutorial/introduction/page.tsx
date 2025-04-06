@@ -31,20 +31,24 @@ const IntroductionPage: React.FC = () => {
       />
 
       {/* Main content area */}
-      <main className="flex-grow">
-        {/* Breadcrumbs 放置在侧边栏右侧 */}
-        <MarginContainer collapsed={collapsed} sidebarWidth={sidebarWidth}>
-          <Breadcrumbs paths={breadcrumbPaths} />
-        </MarginContainer>
-        {/* 主内容 */}
-        <IntroductionContent
-          sidebarWidth={sidebarWidth}
-          collapsed={collapsed}
-        />
-        {/* Footer Section */}
-        {/* Footer Section */}
-        <TermsAndPrivacy /> {/* Reusing the TermsAndPrivacy component */}
-      </main>
+        <main className="flex-grow">
+            {/* Breadcrumbs 放置在侧边栏右侧 */}
+            <div
+                style={{
+                    paddingLeft: collapsed ? 16 : 24, // px，根据 sidebar 状态动态设定
+                }}
+            >
+                <Breadcrumbs paths={breadcrumbPaths}/>
+            </div>
+
+            {/* 主内容 */}
+            <IntroductionContent
+                sidebarWidth={sidebarWidth}
+                collapsed={collapsed}
+            />
+            {/* Footer Section */}
+            {/* Footer Section */}
+        </main>
     </div>
   );
 };
