@@ -29,6 +29,23 @@ interface TreeProps {
 }
 const dimensions = { width: 400, height: 400 };
 
+// 递归折叠所有节点
+function recursivelyCollapseAll(node: TreeNode): void {
+  // 如果节点有子节点，先递归折叠它们
+  if (node.children && node.children.length > 0) {
+    // 先对所有子节点递归调用折叠
+    for (const child of node.children) {
+      recursivelyCollapseAll(child);
+    }
+
+    // 然后调用toggleChildren折叠当前节点的子节点
+    // 只有在节点有可见子节点时才需要折叠
+    if (node.children.length > 0) {
+      toggleChildren(node);
+    }
+  }
+}
+
 export default function Tree({
   data,
   nextComponent,
@@ -37,24 +54,57 @@ export default function Tree({
   onResetComplete,
   onNodeCut,
 }: TreeProps) {
-  // TODO: 应该在这个文件里面操作cut的操作,这样每次通过key就重新渲染,重置操作了
   const svgRef = useRef<SVGSVGElement | null>(null);
   const gRef = useRef<SVGGElement | null>(null);
   const zoomBehaviorRef = useRef<d3.ZoomBehavior<
     SVGSVGElement,
     unknown
   > | null>(null); // Ref to store zoom behavior
-  const [treeData, setTreeData] = useState(data);
+
+  // 直接初始化折叠后的数据而不是使用原始数据
+  const processedData = (() => {
+    // 深拷贝输入数据
+    const newData = JSON.parse(JSON.stringify(data));
+    // 递归折叠所有节点
+    recursivelyCollapseAll(newData);
+    return newData;
+  })();
+
+  const [treeData, setTreeData] = useState<TreeNode>(processedData);
   const [currentZoom, setCurrentZoom] = useState<number>(1);
+  const dataRef = useRef(data);
+
+  // 当data引用变化时更新treeData
+  useEffect(() => {
+    // 检查data是否真的变化了（深比较太昂贵，只比较引用）
+    if (data !== dataRef.current) {
+      dataRef.current = data;
+
+      // 深拷贝并折叠数据
+      const newTreeData = JSON.parse(JSON.stringify(data));
+      recursivelyCollapseAll(newTreeData);
+
+      // 更新状态
+      setTreeData(newTreeData);
+    }
+  }, [data]);
 
   useEffect(() => {
     if (resetHiddenNodes) {
       const resetNodes = (node: TreeNode) => {
         node.hide = false;
+
+        // 处理可见的子节点
         if (node.children) {
           node.children.forEach(resetNodes);
         }
+
+        // 同时处理折叠状态的子节点
+        if (node._children) {
+          node._children.forEach(resetNodes);
+        }
       };
+
       resetNodes(treeData);
       setTreeData({ ...treeData });
       onResetComplete();
@@ -171,7 +221,9 @@ export default function Tree({
         .attr("transform", (d) => `translate(${d.x},${d.y})`)
         .classed("cursor-pointer", true)
         .on("click", (event, d) => {
+          // 使用toggleChildren切换节点的展开/折叠状态
           toggleChildren(d.data);
+          // 创建一个新的树数据对象以触发重新渲染
           setTreeData({ ...treeData });
         });
 
