@@ -15,7 +15,6 @@ interface Assertion {
 interface Candidate {
   id: number;
   name: string; // full name
-  shortName: string;
 }
 
 interface AssertionsDetailsModalProps {
