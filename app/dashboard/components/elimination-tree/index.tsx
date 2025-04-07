@@ -131,7 +131,7 @@ function EliminationTree() {
           setSelectedStep={setSelectedStep}
           selectedStep={selectedStep}
         />
-        <div className="w-full h-96">
+        <div className="w-full h-96" data-tour="seventh-step">
           <Tree
             data={data.process[selectedStep].before!}
             key={`${selectedWinnerId}-${selectedStep}`}
@@ -142,7 +142,7 @@ function EliminationTree() {
             onNodeCut={handleNodeCut}
           />
         </div>
-        <div className="w-48 flex flex-col gap-4">
+        <div className="w-48 flex flex-col gap-4" data-tour="ninth-step">
           <div>
             <div className="font-bold">Applied Assertion: </div>
             <div>{data.process[selectedStep].assertion}</div>

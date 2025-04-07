@@ -43,7 +43,7 @@ function CandidateListBar({
     handleSelectWinner(candidateId); // Call to display the tree or other action
   };
   return (
-    <div className="flex justify-center mb-5 gap-10">
+    <div className="flex justify-center mb-5 gap-10" data-tour="fifth-step">
       <div
         className="flex gap-2 rounded-md w-[220px] px-2 overflow-x-scroll" // so the space can show the 4 candidates
         ref={scrollContainerRef}
