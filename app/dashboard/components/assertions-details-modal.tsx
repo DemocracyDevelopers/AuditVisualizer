@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Avatar } from "@/components/ui/avatar";
-import { FaInfoCircle } from "react-icons/fa";
-import Link from "next/link";
 import TooltipWithIcon from "@/app/dashboard/components/Information-icon-text";
 import { Candidate } from "@/app/dashboard/components/elimination-tree/constants";
 import { getSmartDisplayName } from "@/components/ui/avatar";
@@ -37,7 +35,7 @@ const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
   minMargin,
   candidates,
 }) => {
-  const [isTooltipVisible, setTooltipVisible] = useState(false);
+  // const [isTooltipVisible, setTooltipVisible] = useState(false);
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";

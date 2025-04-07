@@ -14,9 +14,7 @@ import useMultiWinnerDataStore from "@/store/multi-winner-data";
 // import multiWinnerData from "@/store/multi-winner-data"; // 引入 zustand store
 
 import { useTour } from "@reactour/tour";
-import { useRouter } from "next/navigation";
 
-import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { Workflow } from "lucide-react";
 
