@@ -23,7 +23,7 @@ const Avatar = React.forwardRef<
     <AvatarPrimitive.Root
       ref={ref}
       className={cn(
-        "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full border border-gray-300 bg-white",
+        "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full border border-black bg-white",
         className,
       )}
       {...props}
@@ -84,7 +84,7 @@ const AvatarFallback = React.forwardRef<
         ref={ref}
         title={explanation || name}
         className={cn(
-          "flex h-full w-full items-center justify-center rounded-full bg-white text-black border border-gray-300 text-[10px] leading-tight text-center font-bold px-1",
+          "flex h-full w-full items-center justify-center rounded-full bg-white text-black border border-black text-[10px] leading-tight text-center font-bold px-1",
           className,
         )}
         {...props}
@@ -125,11 +125,14 @@ function getSmartDisplayName(
       const circledNumber = getCircledNumber(index + 1);
       return {
         shortName: `${truncateWithDots(firstName)}${circledNumber}`,
-        explanation: `${firstName}（Same Name Mark）`,
+        explanation: `${current.name} (${index + 1})`,
       };
     }
 
-    return { shortName: truncateWithDots(firstName) };
+    return {
+      shortName: truncateWithDots(firstName),
+      explanation: current.name,
+    };
   }
 
   const sameStructureFirst = candidateList.filter((c) => {
@@ -147,6 +150,7 @@ function getSmartDisplayName(
       shortName: lastInitial
         ? `${firstName} ${lastInitial}.`
         : truncateWithDots(firstName),
+      explanation: current.name,
     };
   }
 
@@ -159,17 +163,32 @@ function getSmartDisplayName(
     return {
       shortName:
         display.length > maxLength ? display.slice(0, maxLength) : display,
-      explanation: `${current.name}（Rename user identification）`,
+      explanation: `${current.name} (${index + 1})`,
     };
   }
 
   return {
     shortName:
       display.length > maxLength ? display.slice(0, maxLength) : display,
+    explanation: current.name,
   };
 }
 
 function getCircledNumber(n: number): string {
-  const circled = ["", "①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩"];
+  const circled = [
+    "",
+    "(1)",
+    "(2)",
+    " (3)",
+    " (4)",
+    " (5)",
+    " (6)",
+    " (7)",
+    " (8)",
+    " (9)",
+    " (10)",
+  ];
   return n >= 1 && n <= 10 ? circled[n] : `(${n})`;
 }
+
+export { getSmartDisplayName };
