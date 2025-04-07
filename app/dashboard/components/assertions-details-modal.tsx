@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import TooltipWithIcon from "@/app/dashboard/components/Information-icon-text";
-import { Candidate } from "@/app/dashboard/components/elimination-tree/constants";
 import { getSmartDisplayName } from "@/components/ui/avatar";
 // 更新 Assertion 接口，添加 candidateId 字段
 interface Assertion {
