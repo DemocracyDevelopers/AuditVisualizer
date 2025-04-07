@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Undo2 } from "lucide-react";
 import TooltipWithIcon from "@/app/dashboard/components/Information-icon-text";
 import useMultiWinnerDataStore from "@/store/multi-winner-data";
-
+import { getSmartDisplayName } from "@/components/ui/avatar";
 function EliminationTree() {
   const { multiWinner } = useMultiWinnerDataStore();
   useEffect(() => {
