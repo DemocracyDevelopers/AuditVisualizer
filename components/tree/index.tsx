@@ -25,6 +25,7 @@ interface TreeProps {
   backComponent: React.ReactNode;
   resetHiddenNodes: boolean;
   onResetComplete: () => void;
+  onNodeCut: () => void;
 }
 const dimensions = { width: 400, height: 400 };
 
@@ -34,6 +35,7 @@ export default function Tree({
   backComponent,
   resetHiddenNodes,
   onResetComplete,
+  onNodeCut,
 }: TreeProps) {
   // TODO: 应该在这个文件里面操作cut的操作,这样每次通过key就重新渲染,重置操作了
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -65,6 +67,7 @@ export default function Tree({
       node.children.forEach((child) => markNodeAndChildrenAsHidden(child)); // 递归设置子节点为hide
     }
     setTreeData({ ...treeData });
+    onNodeCut();
   }
 
   useEffect(() => {
