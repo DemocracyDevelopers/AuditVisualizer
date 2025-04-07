@@ -21,10 +21,11 @@ import { useEffect } from "react";
 import { Workflow } from "lucide-react";
 
 const Dashboard: React.FC = () => {
-  const { setIsOpen } = useTour();
+  const { setIsOpen, setCurrentStep } = useTour();
 
   const startTour = () => {
     if (setIsOpen) {
+      setCurrentStep(0);
       setIsOpen(true);
     }
   };
