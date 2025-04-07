@@ -39,7 +39,7 @@ const EnhancedAuditAnimation = ({
           if (confirmationRef.current) {
             confirmationRef.current.innerHTML = `<div class="flex items-center justify-center">
               <span class="mr-2 text-2xl">🏆</span>
-              <span>Verification Pass!:<strong>${championName}</strong> is the Champion!</span>
+              <span>Verification Pass!<strong>${championName}</strong> is the Champion!</span>
             </div>`;
           }
         },
