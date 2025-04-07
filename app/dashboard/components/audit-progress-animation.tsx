@@ -11,8 +11,8 @@ const EnhancedAuditAnimation = ({
   championName,
 }: EnhancedAuditAnimationProps) => {
   const [isVisible, setIsVisible] = useState(true);
-  const progressBarRef = useRef<HTMLDivElement>();
-  const confirmationRef = useRef<HTMLDivElement>();
+  const progressBarRef = useRef<HTMLDivElement>(null);
+  const confirmationRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isVisible) return; // 如果组件不可见则不执行动画
