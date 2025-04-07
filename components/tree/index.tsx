@@ -263,7 +263,7 @@ export default function Tree({
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full" data-tour="seventh-step">
       <svg
         ref={svgRef}
         width="100%"
