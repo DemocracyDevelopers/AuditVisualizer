@@ -2,10 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react"; // Lucide icons
+import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 import { contentData } from "./data-content";
+import { Search } from "lucide-react"; // ✅ 加上这一行引入
 
-// Define Props type
 interface SidebarProps {
   sidebarWidth: number;
   setSidebarWidth: React.Dispatch<React.SetStateAction<number>>;
@@ -28,7 +28,6 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
   const pathname = usePathname();
   const router = useRouter();
 
-  // Restore state from localStorage
   useEffect(() => {
     const savedExpandedSections = localStorage.getItem("expandedSections");
     const savedCollapsed = localStorage.getItem("sidebarCollapsed");
@@ -42,18 +41,15 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
     }
 
     const currentSection = contentData.find(
-      (section) => pathname === section.path, // Exact path match
+      (section) => pathname === section.path,
     );
     if (currentSection) {
-      // Expand the current section
-      setExpandedSections((prevSections) => {
-        if (!prevSections.includes(currentSection.title)) {
-          return [...prevSections, currentSection.title];
-        }
-        return prevSections;
-      });
+      setExpandedSections((prev) =>
+        prev.includes(currentSection.title)
+          ? prev
+          : [...prev, currentSection.title],
+      );
 
-      // Set active sub-item based on the URL
       const currentSubItem = currentSection.subItems?.find((subItem) =>
         pathname.includes(subItem.toLowerCase().replace(/\s/g, "-")),
       );
@@ -63,7 +59,6 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
     }
   }, [pathname, setCollapsed]);
 
-  // Handle scroll event to highlight active section
   useEffect(() => {
     const handleScroll = () => {
       const sections = document.querySelectorAll("[data-content]");
@@ -78,8 +73,6 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
 
       if (activeSection) {
         setActiveSubItem(activeSection);
-
-        // Expand the corresponding section if it contains the active sub-item
         contentData.forEach((section) => {
           if (section.subItems?.includes(activeSection as string)) {
             if (!expandedSections.includes(section.title)) {
@@ -91,12 +84,9 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
     };
 
     window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [expandedSections]);
 
-  // Handle search
   const handleSearch = (term: string) => {
     setSearchTerm(term);
 
@@ -123,45 +113,37 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
     setSearchResults(uniqueResults);
   };
 
-  // Toggle section
-  const toggleSection = (title: string, path: string, hasSubItems: boolean) => {
-    if (hasSubItems) {
-      setExpandedSections((prevSections) => {
-        if (prevSections.includes(title)) {
-          return prevSections.filter((item) => item !== title);
-        }
-        return [...prevSections, title]; // Expand
-      });
-    } else {
-      router.push(path); // Navigate directly if no subItems
-    }
-  };
-
-  // Handle click on search result or sub-item
   const handleResultClick = (path: string, content: string) => {
     setSearchResults([]);
     setSearchTerm("");
-
     setActiveSubItem(content);
 
     const section = contentData.find((page) => page.path === path);
     if (section) {
-      setExpandedSections([section.title]); // Expand only the relevant section
+      setExpandedSections([section.title]);
     }
 
-    router.push(path);
+    router.push(path, { scroll: false });
     setTimeout(() => {
       const element = document.querySelector(`[data-content="${content}"]`);
       if (element) {
-        element.scrollIntoView({
-          behavior: "smooth",
-          block: "center", // Scroll to center
-        });
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }, 300);
   };
 
-  // Collapse all sections
+  const toggleSection = (title: string, path: string, hasSubItems: boolean) => {
+    if (hasSubItems) {
+      setExpandedSections((prev) =>
+        prev.includes(title)
+          ? prev.filter((item) => item !== title)
+          : [...prev, title],
+      );
+    } else {
+      router.push(path);
+    }
+  };
+
   const collapseAll = () => {
     setExpandedSections([]);
     setCollapsed(true);
@@ -169,14 +151,12 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
     localStorage.setItem("expandedSections", JSON.stringify([]));
   };
 
-  // Toggle sidebar visibility
   const toggleSidebar = () => {
-    const newCollapsedState = !collapsed;
-    setCollapsed(newCollapsedState);
-    localStorage.setItem("sidebarCollapsed", JSON.stringify(newCollapsedState));
+    const newState = !collapsed;
+    setCollapsed(newState);
+    localStorage.setItem("sidebarCollapsed", JSON.stringify(newState));
   };
 
-  // Save expandedSections state to localStorage
   useEffect(() => {
     localStorage.setItem("expandedSections", JSON.stringify(expandedSections));
   }, [expandedSections]);
@@ -184,35 +164,39 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
   return (
     <>
       <div
-        className="fixed bottom-0 left-0 z-50 flex flex-col"
+        className="sticky top-6 left-2 flex flex-col"
         style={{ height: "88vh" }}
       >
         <div
-          className="bg-white shadow-lg transition-transform duration-300 flex-1 overflow-auto"
+          className="bg-white shadow-xl rounded-xl transition-transform duration-300 flex-1 overflow-auto"
           style={{ width: collapsed ? "0px" : `${sidebarWidth}px` }}
         >
           {!collapsed && (
             <div className="p-4">
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchTerm}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="w-full p-2 border rounded-md"
-              />
-              <button
-                onClick={() => handleSearch(searchTerm)}
-                className="w-full mt-2 bg-blue-500 text-white p-2 rounded-md"
-              >
-                Search
-              </button>
+              {/* 搜索框区域 */}
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchTerm}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="w-full p-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  onClick={() => handleSearch(searchTerm)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-blue-500 hover:text-blue-700"
+                  aria-label="Search"
+                >
+                  <Search size={18} />
+                </button>
+              </div>
 
               {searchResults.length > 0 && (
-                <ul className="mt-4 bg-gray-100 p-2 rounded-md max-h-60 overflow-y-auto">
+                <ul className="mt-4 bg-gray-50 p-2 rounded-md max-h-60 overflow-y-auto shadow-inner">
                   {searchResults.map((result, index) => (
                     <li
                       key={index}
-                      className="text-blue-500 hover:underline cursor-pointer"
+                      className="text-blue-600 px-3 py-2 hover:bg-blue-100 rounded cursor-pointer border-b last:border-b-0"
                       onClick={() =>
                         handleResultClick(result.path, result.content)
                       }
@@ -223,87 +207,89 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
                 </ul>
               )}
 
-              <div className="mt-6"></div>
-              <h4 className="text-xl font-bold mb-4">Table of Content</h4>
-              <ul className="space-y-2">
-                {contentData.map((section) => (
-                  <li key={section.title}>
-                    <div
-                      className="flex justify-between items-center cursor-pointer py-2"
-                      onClick={() =>
-                        toggleSection(
-                          section.title,
-                          section.path,
-                          !!section.subItems && section.subItems.length > 0, // Handle undefined safely
-                        )
-                      }
-                    >
-                      <span
-                        className={`${
-                          expandedSections.includes(section.title) ||
-                          (pathname === section.path &&
-                            pathname === "/tutorial")
-                            ? "text-blue-600 font-semibold"
-                            : "text-gray-700"
-                        }`}
+              {searchResults.length === 0 && searchTerm && (
+                <p className="text-gray-500 mt-3 text-sm">No results found.</p>
+              )}
+
+              {/* 内容目录区域 */}
+              <div className="mt-6 pt-4 border-t">
+                <h4 className="text-xl font-bold mb-4">Table of Content</h4>
+                <ul className="space-y-2">
+                  {contentData.map((section) => (
+                    <li key={section.title}>
+                      <div
+                        className="flex justify-between items-center cursor-pointer py-2"
+                        onClick={() =>
+                          toggleSection(
+                            section.title,
+                            section.path,
+                            !!section.subItems && section.subItems.length > 0,
+                          )
+                        }
                       >
-                        {section.title}
-                      </span>
-                      {section.subItems && section.subItems.length > 0 && (
-                        <span className="text-gray-500">
-                          {expandedSections.includes(section.title) ? (
-                            <ChevronDown />
-                          ) : (
-                            <ChevronRight />
-                          )}
+                        <span
+                          className={`${
+                            expandedSections.includes(section.title) ||
+                            (pathname === section.path &&
+                              pathname === "/tutorial")
+                              ? "text-blue-600 font-semibold"
+                              : "text-gray-800"
+                          }`}
+                        >
+                          {section.title}
                         </span>
-                      )}
-                    </div>
-                    {expandedSections.includes(section.title) &&
-                      section.subItems &&
-                      section.subItems.length > 0 && (
-                        <ul className="ml-4 mt-2 space-y-1">
-                          {section.subItems.map((subItem) => (
-                            <li key={subItem}>
-                              <span
-                                className={`block cursor-pointer ${
-                                  activeSubItem === subItem
-                                    ? "text-blue-600 font-semibold"
-                                    : "text-gray-700"
-                                } hover:underline`}
-                                onClick={() =>
-                                  handleResultClick(section.path, subItem)
-                                }
-                              >
-                                {subItem}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                  </li>
-                ))}
-              </ul>
+                        {section.subItems && section.subItems.length > 0 && (
+                          <span className="text-gray-500">
+                            {expandedSections.includes(section.title) ? (
+                              <ChevronDown />
+                            ) : (
+                              <ChevronRight />
+                            )}
+                          </span>
+                        )}
+                      </div>
+                      {expandedSections.includes(section.title) &&
+                        section.subItems &&
+                        section.subItems.length > 0 && (
+                          <ul className="ml-4 mt-2 space-y-1">
+                            {section.subItems.map((subItem) => (
+                              <li key={subItem}>
+                                <span
+                                  className={`block cursor-pointer ${
+                                    activeSubItem === subItem
+                                      ? "text-blue-600 font-semibold"
+                                      : "text-gray-700"
+                                  } hover:underline`}
+                                  onClick={() =>
+                                    handleResultClick(section.path, subItem)
+                                  }
+                                >
+                                  {subItem}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           )}
         </div>
 
-        {/* Collapse button */}
         {!collapsed && (
-          <div
-            className="h-10 w-full bg-gray-300 cursor-col-resize flex items-center justify-center"
-            onClick={collapseAll}
-          >
+          <div className="flex justify-center py-3 bg-transparent">
             <button
-              className="text-gray-600 hover:text-gray-900"
-              aria-label="Collapse"
+              onClick={collapseAll}
+              className="bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 p-2 rounded-full shadow-md transition"
+              aria-label="Collapse sidebar"
             >
-              <ChevronLeft />
+              <ChevronLeft size={18} />
             </button>
           </div>
         )}
 
-        {/* Expand button */}
         {collapsed && (
           <button
             className="fixed top-1/2 left-0 transform -translate-y-1/2 bg-gray-200 p-2 rounded-r-md shadow-lg"

@@ -3,6 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
+import TermsAndPrivacy from "@/app/upload/components/terms-and-privacy";
+import Breadcrumbs from "@/app/tutorial/components/Breadcrumbs";
 
 // 定义 TutorialContentProps 类型
 interface TutorialContentProps {
@@ -10,18 +12,17 @@ interface TutorialContentProps {
   collapsed: boolean;
 }
 
+const breadcrumbPaths = [
+  { name: "Home", href: "/" },
+  { name: "Getting Started", href: "/tutorial" }, // 当前页面的一级标题
+];
+
 const TutorialContent: React.FC<TutorialContentProps> = ({
   sidebarWidth,
   collapsed,
 }) => {
   return (
-    <div
-      className="p-8"
-      style={{
-        marginLeft: collapsed ? 0 : sidebarWidth, // 根据 sidebarWidth 和 collapsed 调整内容的左边距
-        transition: "margin-left 0.3s ease",
-      }}
-    >
+    <div className="p-8 transition-all duration-300">
       <h2 className="text-5xl font-bold mb-8" data-content="Getting Started">
         Getting Started
       </h2>
@@ -70,6 +71,9 @@ const TutorialContent: React.FC<TutorialContentProps> = ({
             Back to Home Page
           </Link>
         </div>
+      </div>
+      <div className="mt-12 pt-8 border-t text-sm text-gray-600">
+        <TermsAndPrivacy />
       </div>
     </div>
   );

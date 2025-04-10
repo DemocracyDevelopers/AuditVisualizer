@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
+import TermsAndPrivacy from "@/app/upload/components/terms-and-privacy";
 
 // 定义 Props 类型
 interface RiskContentProps {
@@ -13,13 +14,7 @@ const RiskContent: React.FC<RiskContentProps> = ({
   collapsed,
 }) => {
   return (
-    <div
-      className="p-8"
-      style={{
-        marginLeft: collapsed ? 0 : sidebarWidth, // 根据 sidebarWidth 和 collapsed 状态调整内容的左边距
-        transition: "margin-left 0.3s ease",
-      }}
-    >
+    <div className="p-8 transition-all duration-300">
       <h2 className="text-4xl font-bold mb-8 text-center">
         Risk Limiting Audits
       </h2>
@@ -197,7 +192,7 @@ const RiskContent: React.FC<RiskContentProps> = ({
             className="text-gray-600 hover:text-gray-900 flex items-center"
           >
             <ChevronLeft className="mr-2 text-gray-600 group-hover:text-gray-900" />{" "}
-            Back
+            Previous
           </Link>
         </div>
         {/* Next and Home Links */}
@@ -218,6 +213,9 @@ const RiskContent: React.FC<RiskContentProps> = ({
             </Link>
           </div>
         </div>
+      </div>
+      <div className="mt-12 pt-8 border-t text-sm text-gray-600">
+        <TermsAndPrivacy />
       </div>
     </div>
   );

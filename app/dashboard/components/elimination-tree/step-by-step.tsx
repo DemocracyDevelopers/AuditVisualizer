@@ -11,7 +11,7 @@ function StepByStep({
   setSelectedStep,
 }: StepByStepProps) {
   return (
-    <div className="relative flex flex-col">
+    <div className="relative flex flex-col" data-tour="sixth-step">
       <div
         className="absolute h-full w-0.5 bg-[#bfbfbf] left-1/2 transform -translate-x-1/2 z-0"
         style={{ top: "20px", height: `${(stepSize - 1) * 50}px` }}

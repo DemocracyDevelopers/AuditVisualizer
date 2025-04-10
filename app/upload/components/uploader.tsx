@@ -30,6 +30,12 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
   const maxFileSize = 100 * 1024 * 1024; // 100MB
   const router = useRouter();
 
+  const startGuide = () => {
+    // 标识引导状态（仅在本次 session 中有效）
+    sessionStorage.setItem("startTour", "true");
+    router.push("/dashboard");
+  };
+
   const {
     setMultiWinner,
     clearMultiWinner,
@@ -340,13 +346,22 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
               <p className="text-sm text-gray-500">
                 Your file has been added successfully!
               </p>
-              <button
-                type="button"
-                onClick={() => router.push("/dashboard")} // 跳转到解析页面
-                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition"
-              >
-                Start Explaining
-              </button>
+              <div className="mt-4 flex justify-center gap-4">
+                <button
+                  type="button"
+                  onClick={startGuide}
+                  className="w-40 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500 transition"
+                >
+                  Start Guide
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push("/dashboard")}
+                  className="w-40 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition"
+                >
+                  Start Explaining
+                </button>
+              </div>
               <div className="mt-4">
                 <button
                   onClick={handleReset}

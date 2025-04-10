@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Undo2 } from "lucide-react";
 import TooltipWithIcon from "@/app/dashboard/components/Information-icon-text";
 import useMultiWinnerDataStore from "@/store/multi-winner-data";
-
+import { getSmartDisplayName } from "@/components/ui/avatar";
 function EliminationTree() {
   const { multiWinner } = useMultiWinnerDataStore();
 
@@ -128,7 +128,7 @@ function EliminationTree() {
           setSelectedStep={setSelectedStep}
           selectedStep={selectedStep}
         />
-        <div className="w-full h-96">
+        <div className="w-full h-96" data-tour="seventh-step">
           <Tree
             data={data.process[selectedStep].before!}
             key={`${selectedWinnerId}-${selectedStep}`}
@@ -139,7 +139,7 @@ function EliminationTree() {
             onNodeCut={handleNodeCut}
           />
         </div>
-        <div className="w-48 flex flex-col gap-4">
+        <div className="w-48 flex flex-col gap-4" data-tour="ninth-step">
           <div>
             <div className="font-bold">Applied Assertion: </div>
             <div>{data.process[selectedStep].assertion}</div>

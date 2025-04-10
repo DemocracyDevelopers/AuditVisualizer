@@ -33,13 +33,16 @@ const OutcomesPage: React.FC = () => {
       {/* Main content */}
       <main className="flex-grow overflow-y-auto">
         {/* Breadcrumbs 放置在侧边栏右侧 */}
-        <MarginContainer collapsed={collapsed} sidebarWidth={sidebarWidth}>
+        <div
+          style={{
+            paddingLeft: collapsed ? 16 : 24, // px，根据 sidebar 状态动态设定
+          }}
+        >
           <Breadcrumbs paths={breadcrumbPaths} />
-        </MarginContainer>
+        </div>
         {/* Outcomes content */}
         <OutcomesContent sidebarWidth={sidebarWidth} collapsed={collapsed} />
         {/* Footer Section */}
-        <TermsAndPrivacy /> {/* Reusing the TermsAndPrivacy component */}
       </main>
     </div>
   );

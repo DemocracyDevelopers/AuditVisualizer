@@ -5,8 +5,8 @@ interface Assertion {
   index: number;
   content: string;
   type: string;
-  winner: number; // 候选人的 ID
-  name: string; // 候选人名字
+  winner: number; // candidate ID
+  name: string; // candidate name
 }
 
 interface AssertionTableProps {

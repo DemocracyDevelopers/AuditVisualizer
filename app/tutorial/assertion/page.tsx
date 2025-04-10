@@ -31,13 +31,16 @@ const AssertionPage: React.FC = () => {
       <main className="flex-grow overflow-y-auto">
         {/* Breadcrumbs 放置在侧边栏右侧 */}
         {/* Use MarginContainer for Breadcrumbs */}
-        <MarginContainer collapsed={collapsed} sidebarWidth={sidebarWidth}>
+        <div
+          style={{
+            paddingLeft: collapsed ? 16 : 24, // px，根据 sidebar 状态动态设定
+          }}
+        >
           <Breadcrumbs paths={breadcrumbPaths} />
-        </MarginContainer>
+        </div>
         {/* Assertion content */}
         <AssertionContent sidebarWidth={sidebarWidth} collapsed={collapsed} />
         {/* Footer Section */}
-        <TermsAndPrivacy /> {/* Reusing the TermsAndPrivacy component */}
       </main>
     </div>
   );
