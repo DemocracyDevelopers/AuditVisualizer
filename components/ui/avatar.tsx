@@ -85,7 +85,7 @@ const AvatarFallback = React.forwardRef<
         title={explanation || name}
         className={cn(
           "flex h-full w-full items-center justify-center rounded-full bg-white text-black font-bold px-1 text-center leading-tight whitespace-nowrap",
-          shortName.length > 5 ? "text-[8px]" : "text-[10px]",
+          shortName.length > 5 ? "text-[8px]" : "text-[9px]",
           className,
         )}
         {...props}
