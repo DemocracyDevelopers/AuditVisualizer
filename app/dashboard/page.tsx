@@ -11,6 +11,11 @@ import AuditProgressAnimation from "./components/audit-progress-animation"; // E
 import EliminationTree from "./components/elimination-tree";
 import AvatarAssignColor from "./components/avatar-assign-color"; // 引入 Avatar 组件
 import useMultiWinnerDataStore from "@/store/multi-winner-data";
+import {
+  // inferEliminationPathWithDetails,
+  AssertionInternal,
+  verifyWinnerByDP,
+} from "@/lib/explain/judge_winner";
 // import multiWinnerData from "@/store/multi-winner-data"; // 引入 zustand store
 
 import { useTour } from "@reactour/tour";
@@ -37,12 +42,53 @@ const Dashboard: React.FC = () => {
     }
   }, [tour]);
 
-  const { candidateList, assertionList, winnerInfo } =
+  const { candidateList, assertionList, winnerInfo, multiWinner } =
     useMultiWinnerDataStore();
 
-  // 将所有 Hooks 移到顶层
+  // Ensure hooks are always called in the same order
   const [isAvatarReady, setIsAvatarReady] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false); // 移到这里
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  if (!multiWinner) {
+    return <div>Please Re-Upload File</div>;
+  }
+
+  // 1. 拿到 name 列表，等价于 metadata.candidates
+  const names = candidateList.map((c) => c.name);
+
+  // 2. 利用 content 字符串解析 loser & context
+  const internalAssertions: AssertionInternal[] = assertionList.map((a) => {
+    const high = names[a.winner];
+    let low: string;
+    let context: string[];
+
+    if (a.type === "NEB") {
+      // 格式: "WinnerName NEB LoserName"
+      const parts = a.content.split(" NEB ");
+      low = parts[1].trim();
+      context = [...names];
+    } else {
+      // 格式: "WinnerName > LoserName if only {A, B, ...} remain"
+      // 先提取 "WinnerName > LoserName"
+      const beforeIf = a.content.split(" if only")[0];
+      low = beforeIf.split(" > ")[1].trim();
+
+      // 再提取花括号内的名字列表
+      const m = a.content.match(/\{([^}]+)\}/);
+      context = m ? m[1].split(",").map((s: string) => s.trim()) : []; // 如果解析失败，就空数组
+    }
+
+    return { high, low, context };
+  });
+
+  // 3. 真正的冠军名字
+  const trueWinner = winnerInfo?.name ?? "Unknown";
+
+  // 4. 推导并验证
+  const result = winnerInfo
+    ? verifyWinnerByDP(internalAssertions, names, winnerInfo.name)
+    : null;
+  const isValid = result !== null;
 
   // Avatar 完成后调用的函数
   const handleAvatarComplete = () => {
@@ -72,7 +118,7 @@ const Dashboard: React.FC = () => {
     ...assertion,
     name:
       candidateList.find((candidate) => candidate.id === assertion.winner)
-        ?.name || "Unknown",
+        ?.name ?? "Unknown",
   }));
 
   // 获取候选人的数量
@@ -171,6 +217,7 @@ const Dashboard: React.FC = () => {
 
           <AuditProgressAnimation
             championName={winnerInfo ? winnerInfo.name : "Unknown"}
+            isValid={isValid}
           />
         </div>
       </div>
