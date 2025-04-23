@@ -130,7 +130,10 @@ const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
                   <td className="px-4 py-2 text-left border-b">
                     <div className="flex items-center justify-start">
                       {/* 使用 Avatar 组件，传入 candidateId */}
-                      <Avatar candidateId={assertion.winner} className="mr-2" />
+                      <Avatar
+                        candidateId={assertion.winner}
+                        className="mr-2 border-black"
+                      />
                       <span>{assertion.content}</span>
                     </div>
                   </td>

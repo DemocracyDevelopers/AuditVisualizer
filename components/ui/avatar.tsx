@@ -23,7 +23,7 @@ const Avatar = React.forwardRef<
     <AvatarPrimitive.Root
       ref={ref}
       className={cn(
-        "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full border border-black bg-white",
+        "relative flex h-11 w-11 shrink-0 overflow-hidden rounded-full border-2 bg-white",
         className,
       )}
       {...props}
@@ -84,7 +84,8 @@ const AvatarFallback = React.forwardRef<
         ref={ref}
         title={explanation || name}
         className={cn(
-          "flex h-full w-full items-center justify-center rounded-full bg-white text-black border border-black text-[10px] leading-tight text-center font-bold px-1",
+          "flex h-full w-full items-center justify-center rounded-full bg-white text-black font-bold px-1 text-center leading-tight whitespace-nowrap",
+          shortName.length > 5 ? "text-[8px]" : "text-[10px]",
           className,
         )}
         {...props}
@@ -102,74 +103,64 @@ export { Avatar, AvatarImage, AvatarFallback };
 function getSmartDisplayName(
   currentId: number,
   candidateList: { id: number; name: string }[],
-  maxLength: number = 7,
 ): { shortName: string; explanation?: string } {
   const current = candidateList.find((c) => c.id === currentId);
   if (!current || !current.name) return { shortName: "???" };
 
   const parts = current.name.trim().split(/\s+/);
-  const firstName = parts[0];
+  const firstNameRaw = parts[0];
+  const lastName = parts[parts.length - 1];
 
-  const truncateWithDots = (str: string) =>
-    str.length > 5 ? str.slice(0, 5) + ".." : str;
+  const truncate = (str: string, len = 5) =>
+    str.length > len ? str.slice(0, len) + ".." : str;
 
-  // ✅ 处理单名情况
-  if (parts.length === 1) {
-    const sameFirstOnly = candidateList.filter((c) => {
-      const cParts = c.name.trim().split(/\s+/);
-      return cParts.length === 1 && cParts[0] === firstName;
-    });
+  const firstName = truncate(firstNameRaw);
 
-    if (sameFirstOnly.length > 1) {
-      const index = sameFirstOnly.findIndex((c) => c.id === currentId);
-      const circledNumber = getCircledNumber(index + 1);
-      return {
-        shortName: `${truncateWithDots(firstName)}${circledNumber}`,
-        explanation: `${current.name} (${index + 1})`,
-      };
-    }
-
-    return {
-      shortName: truncateWithDots(firstName),
-      explanation: current.name,
-    };
-  }
-
-  const sameStructureFirst = candidateList.filter((c) => {
-    const otherParts = c.name.trim().split(/\s+/);
-    return otherParts.length === parts.length && otherParts[0] === firstName;
+  // Step 1: All candidates with same first name
+  const sameFirst = candidateList.filter((c) => {
+    const p = c.name.trim().split(/\s+/);
+    return p[0] === firstNameRaw; // still use original name for disambiguation
   });
 
-  const sameFull = sameStructureFirst.filter(
+  // Step 2: Same first name and same last initial
+  const sameFirstLastInitial = sameFirst.filter((c) => {
+    const p = c.name.trim().split(/\s+/);
+    return p.length > 1 && p[p.length - 1][0] === lastName[0];
+  });
+
+  // Step 3: Same full name
+  const sameFullName = sameFirstLastInitial.filter(
     (c) => c.name.trim() === current.name.trim(),
   );
 
-  if (sameFull.length <= 1) {
-    const lastInitial = parts[1]?.[0]?.toUpperCase();
+  // Step 4: Disambiguate full name duplicates
+  if (sameFullName.length > 1) {
+    const index = sameFullName.findIndex((c) => c.id === currentId);
     return {
-      shortName: lastInitial
-        ? `${firstName} ${lastInitial}.`
-        : truncateWithDots(firstName),
-      explanation: current.name,
-    };
-  }
-
-  const initials = parts.map((p) => p[0]?.toUpperCase()).filter(Boolean);
-  let display = initials.map((ch) => `${ch}.`).join(" ");
-
-  const index = sameFull.findIndex((c) => c.id === currentId);
-  if (index !== -1) {
-    display += getCircledNumber(index + 1);
-    return {
-      shortName:
-        display.length > maxLength ? display.slice(0, maxLength) : display,
+      shortName: `${firstName} ${lastName} ${index + 1}`,
       explanation: `${current.name} (${index + 1})`,
     };
   }
 
+  // Step 3 fallback: full last name
+  if (sameFirstLastInitial.length > 1) {
+    return {
+      shortName: `${firstName} ${lastName}`,
+      explanation: current.name,
+    };
+  }
+
+  // Step 2 fallback: last initial
+  if (sameFirst.length > 1) {
+    return {
+      shortName: `${firstName} ${lastName[0]}.`,
+      explanation: current.name,
+    };
+  }
+
+  // Step 1: unique first name
   return {
-    shortName:
-      display.length > maxLength ? display.slice(0, maxLength) : display,
+    shortName: firstName,
     explanation: current.name,
   };
 }

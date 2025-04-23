@@ -12,7 +12,7 @@ interface Assertion {
 interface AssertionTableProps {
   assertions: Assertion[];
 }
-const assertion_per_page = 5;
+const assertion_per_page = 4;
 
 const AssertionTable: React.FC<AssertionTableProps> = ({ assertions }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -65,36 +65,43 @@ const AssertionTable: React.FC<AssertionTableProps> = ({ assertions }) => {
   };
 
   return (
-    <div>
-      <table className="min-w-full table-auto">
-        <thead>
-          <tr>
-            <th className="px-4 py-2 border-b">Index</th>
-            <th className="px-4 py-2 border-b">Content</th>
-            <th className="px-4 py-2 border-b">Type</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentAssertions.map((assertion) => (
-            <tr key={assertion.index} className="h-24">
-              <td className="px-4 py-2 text-center border-b">
-                {assertion.index}
-              </td>
-              <td className="px-4 py-2 text-left border-b">
-                <div className="flex items-center justify-start">
-                  <Avatar candidateId={assertion.winner} className="mr-2" />
-                  <span>{assertion.content}</span>
-                </div>
-              </td>
-              <td className="px-4 py-2 text-center border-b">
-                {assertion.type}
-              </td>
+    <div className="flex flex-col">
+      <div className="overflow-y-auto max-h-[520px]">
+        <table className="min-w-full table-auto">
+          <thead className="sticky top-0 bg-white z-10">
+            <tr>
+              <th className="px-4 py-2 border-b">Index</th>
+              <th className="px-4 py-2 border-b">Content</th>
+              <th className="px-4 py-2 border-b">Type</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {currentAssertions.map((assertion) => (
+              <tr key={assertion.index} className="h-auto">
+                <td className="px-4 py-2 text-center border-b">
+                  {assertion.index}
+                </td>
+                <td className="px-4 py-2 text-left border-b">
+                  <div className="flex items-center justify-start">
+                    <Avatar
+                      candidateId={assertion.winner}
+                      className="mr-2 border-black"
+                    />
+                    <span>{assertion.content}</span>
+                  </div>
+                </td>
+                <td className="px-4 py-2 text-center border-b">
+                  {assertion.type}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination area — always visible */}
       {totalPages > 1 && (
-        <div className="flex justify-center items-center mt-4 gap-4">
+        <div className="flex justify-center items-center py-2 gap-4 border-t">
           <Button
             variant="outline"
             size="sm"
@@ -103,10 +110,7 @@ const AssertionTable: React.FC<AssertionTableProps> = ({ assertions }) => {
           >
             &lt; Previous
           </Button>
-
-          {/* Page numbers */}
           {renderPageNumbers()}
-
           <Button
             variant="outline"
             size="sm"
