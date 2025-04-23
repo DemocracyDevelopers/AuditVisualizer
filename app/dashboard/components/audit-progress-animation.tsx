@@ -90,7 +90,7 @@ const AuditProgressAnimation = ({
       </div>
       <div
         ref={confirmationRef}
-        className="mt-3 text-center opacity-0 scale-[0.8] text-gray-800"
+        className="mt-[15px] text-center opacity-0 scale-[0.8] text-[#4caf50] text-[16px]"
       />
     </div>
   );
