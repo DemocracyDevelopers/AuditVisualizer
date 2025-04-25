@@ -50,18 +50,16 @@ const inferWinnerFromAssertions = (
   }
 };
 
-// JSON validation function
-export const validateInputData = (
-  input: string | any,
-): { error_message: string; state: 0 } | null => {
-  let data: any;
+export type FormatCheckResult =
+  | { success: true;  state: 0 }
+  | { success: false; state: 0; error_message: string };
 
+// JSON validation function
+export const validateInputData = (input: string | any): FormatCheckResult => {
+  let data: any;
   if (typeof input === "string") {
-    try {
-      data = JSON.parse(input);
-    } catch {
-      return { error_message: "Invalid JSON input", state: 0 };
-    }
+    try { data = JSON.parse(input); }
+    catch { return { success: false, state: 0, error_message: "Invalid JSON" }; }
   } else {
     data = input;
   }
@@ -192,7 +190,7 @@ export const validateInputData = (
   }
 
 
-  return null; // All validations passed
+  return { success: true, state: 0 }; // All validations passed
 };
 
 // Function to mark cut nodes in the 'before' tree by comparing with 'after' tree
