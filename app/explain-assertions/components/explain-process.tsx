@@ -50,10 +50,23 @@ const inferWinnerFromAssertions = (
   }
 };
 
+export type FormatCheckResult =
+  | { success: true; state: 0 }
+  | { success: false; state: 0; error_message: string };
+
 // JSON validation function
-const validateInputData = (
-  data: any,
-): { error_message: string; state: number } | null => {
+export const validateInputData = (input: string | any): FormatCheckResult => {
+  let data: any;
+  if (typeof input === "string") {
+    try {
+      data = JSON.parse(input);
+    } catch {
+      return { success: false, state: 0, error_message: "Invalid JSON" };
+    }
+  } else {
+    data = input;
+  }
+
   // Check if metadata and candidates array are present and valid
   if (!data.metadata || !Array.isArray(data.metadata.candidates)) {
     return { error_message: "Invalid metadata or candidates field", state: 0 };
@@ -179,29 +192,7 @@ const validateInputData = (
     }
   }
 
-  // At the end of validation, infer the winner and compare
-  const inferredWinner = inferWinnerFromAssertions(
-    solution.assertions,
-    numCandidates,
-  );
-
-  if (inferredWinner === null) {
-    return {
-      error_message: "Unable to infer a unique winner from the assertions.",
-      state: 1,
-    };
-  }
-
-  if (inferredWinner !== solution.winner) {
-    const winnerName = data.metadata.candidates[inferredWinner];
-    const expectedWinnerName = data.metadata.candidates[solution.winner];
-    return {
-      error_message: `Inferred winner (${winnerName}) does not match the winner in the JSON data (${expectedWinnerName}).`,
-      state: 1,
-    };
-  }
-
-  return null; // All validations passed
+  return { success: true, state: 0 }; // All validations passed
 };
 
 // Function to mark cut nodes in the 'before' tree by comparing with 'after' tree
@@ -315,15 +306,29 @@ export function explainAssertions(inputText: string): any {
     };
   }
 
-  // Validate the input data
-  const validationResult = validateInputData(inputData);
+  const solution = inputData.solution.Ok;
+  const numCandidates = inputData.metadata.candidates.length;
 
-  if (validationResult) {
-    // There is an error
+  const inferredWinner = inferWinnerFromAssertions(
+    solution.assertions,
+    numCandidates,
+  );
+
+  if (inferredWinner === null) {
     return {
       success: false,
-      error_message: validationResult.error_message,
-      state: validationResult.state,
+      state: 1,
+      error_message: "Unable to infer a unique winner from the assertions.",
+    };
+  }
+
+  if (inferredWinner !== solution.winner) {
+    const winnerName = inputData.metadata.candidates[inferredWinner];
+    const expectedWinnerName = inputData.metadata.candidates[solution.winner];
+    return {
+      success: false,
+      state: 1,
+      error_message: `Inferred winner (${winnerName}) does not match the winner in the JSON data (${expectedWinnerName}).`,
     };
   }
 
