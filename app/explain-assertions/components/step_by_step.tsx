@@ -50,26 +50,6 @@ function getPermutations(array: number[]): number[][] {
 }
 
 /**
- * 根据指定 NEN 断言的 continuing 数组计算受该断言影响的淘汰顺序。
- * 假设 continuing 数组中最后一个为获胜者，断言要求的 winner 必须出现在首位，
- * 中间部分为 continuing 中除获胜者和断言 winner 外的候选人的所有排列。
- *
- * @param assertion 指定的 NEN 断言
- * @returns 一个二维数组，每个数组表示一个淘汰顺序
- */
-function computeAffectedSequences(assertion: Assertion): number[][] {
-  if (!assertion.continuing || assertion.continuing.length < 2) return [];
-  const continuing = [...assertion.continuing];
-  const treeWinner = continuing[continuing.length - 1];
-  const NEN_winner = assertion.winner;
-  if (!continuing.includes(treeWinner) || !continuing.includes(NEN_winner)) return [];
-  if (NEN_winner === treeWinner) return [];
-  const middle = continuing.filter(c => c !== treeWinner && c !== NEN_winner);
-  const perms = getPermutations(middle);
-  return perms.map(perm => [NEN_winner, ...perm, treeWinner]);
-}
-
-/**
  * 沿着给定淘汰顺序展开树的分支。
  * 从根节点开始逐层展开，直到得到与目标序列一致的节点。
  *
