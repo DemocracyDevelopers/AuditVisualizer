@@ -32,51 +32,6 @@ export interface StepData {
 }
 
 /**
- * 生成数组所有排列的辅助函数
- * @param array 待排列数组
- * @returns 所有排列结果
- */
-function getPermutations(array: number[]): number[][] {
-  if (array.length === 0) return [[]];
-  const result: number[][] = [];
-  for (let i = 0; i < array.length; i++) {
-    const rest = array.slice(0, i).concat(array.slice(i + 1));
-    const restPermutations = getPermutations(rest);
-    for (const perm of restPermutations) {
-      result.push([array[i], ...perm]);
-    }
-  }
-  return result;
-}
-
-/**
- * 沿着给定淘汰顺序展开树的分支。
- * 从根节点开始逐层展开，直到得到与目标序列一致的节点。
- *
- * @param root 当前淘汰树的根节点（初始树）
- * @param sequence 目标淘汰顺序，例如 [3,1,2,0]
- * @returns 展开后的目标节点，若无法展开返回 null
- */
-function expandTreeToSequence(root: TreeNode, sequence: number[]): TreeNode | null {
-  let currentNode: TreeNode = root;
-  // 遍历目标序列中除最后一元素外的部分，逐层展开
-  for (let i = 0; i < sequence.length - 1; i++) {
-    const candidate = sequence[i];
-    let child = currentNode.children.find(c => c.id === candidate);
-    if (!child) {
-      // 未找到则调用 lazy load 扩展当前节点
-      currentNode = expandTreeByNode(currentNode, currentNode.id);
-      child = currentNode.children.find(c => c.id === candidate);
-      if (!child) {
-        return null;
-      }
-    }
-    currentNode = child;
-  }
-  return currentNode;
-}
-
-/**
  * 主函数：按 step-by-step 模式执行 lazy load 剪枝操作
  * 输入：
  *   - tree：当前整棵淘汰树（初始时只有根节点，由 createInitialTree 生成，根节点包含全部 Assertions）
