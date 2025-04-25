@@ -281,6 +281,21 @@ const markCutNodes = (beforeTree: any, afterTree: any | null) => {
   markCuts(beforeTree);
 };
 
+/**
+ * Parse the input JSON string and return the number of candidates.
+ * Returns -1 if parsing fails or if the field is missing/invalid.
+ */
+export function getCandidateNumber(jsonText: string): number {
+  try {
+    const data = JSON.parse(jsonText);
+    if (data.metadata && Array.isArray(data.metadata.candidates)) {
+      return data.metadata.candidates.length;
+    }
+  } catch {
+  }
+  return -1; // invalid input or missing field
+}
+
 // Main function to process inputText and return the outputData
 export function explainAssertions(inputText: string): ExplainResult {
   // Parse the JSON input
