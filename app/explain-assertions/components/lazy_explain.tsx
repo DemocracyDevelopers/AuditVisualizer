@@ -141,4 +141,40 @@ export function createInitialTree(
   };
 }
 
+/**
+ * 从完整 JSON 文件内容直接创建初始树
+ * 文件应包含：
+ * {
+ *   metadata: { candidates: string[] },
+ *   solution: { Ok: { winner: number; assertions: { assertion: Assertion }[] } }
+ * }
+ */
+export function createTreeFromFile(fileContent: string): TreeNode {
+  let data: any;
+  try {
+    data = JSON.parse(fileContent);
+  } catch {
+    throw new Error("Invalid JSON file content");
+  }
+
+  const solution = data.solution?.Ok;
+  if (!solution) {
+    throw new Error("Missing solution.Ok in file");
+  }
+
+  const candidates = data.metadata?.candidates;
+  if (!Array.isArray(candidates)) {
+    throw new Error("Invalid metadata.candidates in file");
+  }
+  const numCandidates = candidates.length;
+
+  const rootCandidate = solution.winner;
+  if (typeof rootCandidate !== 'number') {
+    throw new Error("Invalid or missing winner index in solution");
+  }
+
+  const assertions: Assertion[] = solution.assertions.map((a: any) => a.assertion);
+  return createInitialTree(rootCandidate, numCandidates, assertions);
+}
+
 export default expandTreeByNode;
