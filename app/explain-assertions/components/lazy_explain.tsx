@@ -30,17 +30,20 @@ export interface TreeNode {
   prunedBy?: Assertion;            // 剪枝时使用的断言（如果有）
 }
 
+function pathsEqual(a: number[], b: number[]): boolean {
+  if (a.length !== b.length) return false;
+  return a.every((v, i) => v === b[i]);
+}
+
 /**
- * 辅助函数：递归查找树中指定 id 的节点
- *
- * @param root - 树的根节点
- * @param targetId - 目标节点 id
- * @returns 找到的 TreeNode 对象，未找到返回 null
+ * 递归按 path 查找节点（path 唯一）
+ * @param root   树根
+ * @param target 完整淘汰顺序 path，例如 [3,1,0]
  */
-function findNode(root: TreeNode, targetId: number): TreeNode | null {
-  if (root.id === targetId) return root;
+function findNodeByPath(root: TreeNode, target: number[]): TreeNode | null {
+  if (pathsEqual(root.path, target)) return root;
   for (const child of root.children) {
-    const found = findNode(child, targetId);
+    const found = findNodeByPath(child, target);
     if (found) return found;
   }
   return null;
@@ -55,18 +58,19 @@ function findNode(root: TreeNode, targetId: number): TreeNode | null {
  *  - 如果返回 NeedsMoreDetail，则保留该断言；
  *  - 如果返回 Contradiction，则标记该子节点为剪枝（pruned），并记录 prunedBy。
  *
- * @param currentTree - 当前的整棵树
- * @param targetNodeId - 需要扩展的目标节点 id
- * @returns 更新后的整棵树（目标节点的 children 被扩展）
+ *
+ * 根据目标节点的 path 扩展其下一层
+ * @param currentTree   当前整棵树
+ * @param targetPath    目标节点的 path（唯一标识）
+ * @returns 更新后的整棵树
  */
 export function expandTreeByNode(
   currentTree: TreeNode,
-  targetNodeId: number
+  targetPath: number[]
 ): TreeNode {
-  // 在当前树中查找目标节点
-  const targetNode = findNode(currentTree, targetNodeId);
+  const targetNode = findNodeByPath(currentTree, targetPath);
   if (!targetNode) {
-    throw new Error(`Node with id ${targetNodeId} not found in the tree.`);
+    throw new Error(`Node with path [${targetPath.join(",")}] not found.`);
   }
 
   // 使用目标节点的 remaining 列表
