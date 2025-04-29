@@ -20,7 +20,7 @@ export default function ClientTourProvider({
       styles={{
         popover: (base) => ({
           ...base,
-          borderRadius: "12px", // 设置提示框圆角
+          borderRadius: "12px",
         }),
       }}
     >
