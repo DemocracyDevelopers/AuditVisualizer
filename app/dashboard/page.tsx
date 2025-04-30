@@ -7,13 +7,36 @@ import { FaUserFriends, FaTrophy, FaList } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ChevronRight, FilePenLine } from "lucide-react";
-
+import AuditProgressAnimation from "./components/audit-progress-animation"; // Ensure the file name matches the actual file
 import EliminationTree from "./components/elimination-tree";
 import AvatarAssignColor from "./components/avatar-assign-color"; // 引入 Avatar 组件
 import useMultiWinnerDataStore from "@/store/multi-winner-data";
-import multiWinnerData from "@/store/multi-winner-data"; // 引入 zustand store
+// import multiWinnerData from "@/store/multi-winner-data"; // 引入 zustand store
+
+import { useTour } from "@reactour/tour";
+
+import { useEffect } from "react";
+import { Workflow } from "lucide-react";
 
 const Dashboard: React.FC = () => {
+  const { setIsOpen } = useTour();
+
+  const startTour = () => {
+    if (setIsOpen) {
+      setIsOpen(true);
+    }
+  };
+
+  const tour = useTour();
+
+  useEffect(() => {
+    const shouldStart = sessionStorage.getItem("startTour");
+    if (shouldStart === "true" && tour.setIsOpen) {
+      tour.setIsOpen(true);
+      sessionStorage.removeItem("startTour");
+    }
+  }, [tour]);
+
   const { candidateList, assertionList, winnerInfo } =
     useMultiWinnerDataStore();
 
@@ -75,7 +98,22 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="p-4">
-      {/* 文件上传按钮 */}
+      <div className="grid grid-cols-12 gap-6">
+        <div className="col-span-12 flex justify-end gap-4 mb-2 pr-6">
+          <Link href="/upload">
+            <Button size="sm">
+              Change File
+              <FilePenLine className="ml-2" size={16} />
+            </Button>
+          </Link>
+          <Button size="sm" onClick={startTour}>
+            Tour
+            <Workflow className="ml-2" size={16} />
+          </Button>
+        </div>
+        {/* 其他内容 */}
+      </div>
+      {/* 文件上传按钮
       <div className="flex justify-end mb-4 mt-[-20px] pr-6">
         <Link href="/upload">
           <Button size="sm">
@@ -83,14 +121,17 @@ const Dashboard: React.FC = () => {
             <FilePenLine className="ml-2" size={16} />
           </Button>
         </Link>
-      </div>
+      </div> */}
 
       {/* Grid 布局 */}
       <div className="grid grid-cols-12 gap-6 p-6">
         {/* 左侧区域 */}
         <div className="col-span-12 md:col-span-8 space-y-6">
           {/* 数据卡片 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div
+            data-tour="first-step"
+            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          >
             <Card
               title="Candidate"
               value={candidateNum}
@@ -105,14 +146,19 @@ const Dashboard: React.FC = () => {
           </div>
 
           {/* Elimination Tree section */}
-          <EliminationTree />
+          <div data-tour="fourth-step">
+            <EliminationTree />
+          </div>
         </div>
 
         {/* 右侧区域：Assertion 表格 */}
-        <div className="border border-gray-300 col-span-12 md:col-span-4 shadow-md rounded-lg p-6">
+        <div
+          data-tour="second-step"
+          className="border border-gray-300 col-span-12 md:col-span-4 shadow-md rounded-lg p-6"
+        >
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold text-gray-600">The Assertions</h3>
-            <div className="text-right">
+            <div className="text-right" data-tour="third-step">
               <Button size="sm" onClick={handleViewDetails}>
                 View Details <ChevronRight className="ml-2" size={16} />
               </Button>
@@ -132,6 +178,11 @@ const Dashboard: React.FC = () => {
         assertions={assertionsWithNames}
         maxDifficulty={maxDifficulty}
         minMargin={minMargin}
+        candidates={candidateList}
+      />
+
+      <AuditProgressAnimation
+        championName={winnerInfo ? winnerInfo.name : "Unknown"}
       />
     </div>
   );

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Undo2 } from "lucide-react";
 import TooltipWithIcon from "@/app/dashboard/components/Information-icon-text";
 import useMultiWinnerDataStore from "@/store/multi-winner-data";
-
+import { getSmartDisplayName } from "@/components/ui/avatar";
 function EliminationTree() {
   const { multiWinner } = useMultiWinnerDataStore();
   useEffect(() => {
@@ -24,6 +24,8 @@ function EliminationTree() {
   const [selectedStep, setSelectedStep] = useState<number>(1); // Ensure this is always defined
 
   const [resetHiddenNodes, setResetHiddenNodes] = useState(false);
+
+  const [hasNodeBeenCut, setHasNodeBeenCut] = useState(false);
 
   // Use useEffect to initialize selectedWinnerId when multiWinner loads
   useEffect(() => {
@@ -84,10 +86,15 @@ function EliminationTree() {
 
   const handleRevertAssertion = () => {
     setResetHiddenNodes(true);
+    setHasNodeBeenCut(false);
   };
 
   const handleResetComplete = () => {
     setResetHiddenNodes(false);
+  };
+
+  const handleNodeCut = () => {
+    setHasNodeBeenCut(true);
   };
 
   return (
@@ -124,7 +131,7 @@ function EliminationTree() {
           setSelectedStep={setSelectedStep}
           selectedStep={selectedStep}
         />
-        <div className="w-full h-96">
+        <div className="w-full h-96" data-tour="seventh-step">
           <Tree
             data={data.process[selectedStep].before!}
             key={`${selectedWinnerId}-${selectedStep}`}
@@ -132,19 +139,22 @@ function EliminationTree() {
             backComponent={BackComponent}
             resetHiddenNodes={resetHiddenNodes}
             onResetComplete={handleResetComplete}
+            onNodeCut={handleNodeCut}
           />
         </div>
-        <div className="w-48 flex flex-col gap-4">
+        <div className="w-48 flex flex-col gap-4" data-tour="ninth-step">
           <div>
             <div className="font-bold">Applied Assertion: </div>
             <div>{data.process[selectedStep].assertion}</div>
           </div>
 
           <div>
-            <Button onClick={handleRevertAssertion}>
-              Revert Assertion
-              <Undo2 className="ml-2 h-4 w-4" />
-            </Button>
+            {hasNodeBeenCut && (
+              <Button onClick={handleRevertAssertion}>
+                Revert Assertion
+                <Undo2 className="ml-2 h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
       </div>

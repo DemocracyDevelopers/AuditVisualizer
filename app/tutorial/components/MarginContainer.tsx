@@ -14,15 +14,9 @@ const MarginContainer: React.FC<MarginContainerProps> = ({
   children,
 }) => {
   return (
-    <div
-      className="p-4"
-      style={{
-        marginLeft: collapsed ? 0 : sidebarWidth, // Adjust position based on sidebar state
-        transition: "margin-left 0.3s ease",
-      }}
-    >
-      {children}
-    </div>
+      <div className="px-6 pt-6 max-w-5xl mx-auto transition-all duration-300">
+          {children}
+      </div>
   );
 };
 

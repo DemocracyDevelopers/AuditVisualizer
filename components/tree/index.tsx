@@ -18,6 +18,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import useMultiWinnerDataStore from "@/store/multi-winner-data";
+import { getSmartDisplayName } from "@/components/ui/avatar";
+import { candidateList } from "@/app/dashboard/components/elimination-tree/constants";
 
 interface TreeProps {
   data: TreeNode;
@@ -25,6 +28,7 @@ interface TreeProps {
   backComponent: React.ReactNode;
   resetHiddenNodes: boolean;
   onResetComplete: () => void;
+  onNodeCut: () => void;
 }
 const dimensions = { width: 400, height: 400 };
 
@@ -34,6 +38,7 @@ export default function Tree({
   backComponent,
   resetHiddenNodes,
   onResetComplete,
+  onNodeCut,
 }: TreeProps) {
   // TODO: 应该在这个文件里面操作cut的操作,这样每次通过key就重新渲染,重置操作了
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -65,6 +70,7 @@ export default function Tree({
       node.children.forEach((child) => markNodeAndChildrenAsHidden(child)); // 递归设置子节点为hide
     }
     setTreeData({ ...treeData });
+    onNodeCut();
   }
 
   useEffect(() => {
@@ -178,7 +184,7 @@ export default function Tree({
         .attr("r", 18)
         .attr("fill", "white")
         .attr("stroke", "black")
-        .attr("stroke-width", 2);
+        .attr("stroke-width", 1);
 
       // Add text
       groups
@@ -186,11 +192,14 @@ export default function Tree({
         .attr("y", 3)
         .attr("text-anchor", "middle")
         .attr("font-size", "10px")
+        .attr("fill", "black")
         // .text((d) => d.data.name);
         .text(function (d) {
+          const { candidateList } = useMultiWinnerDataStore.getState();
+          const { shortName } = getSmartDisplayName(d.data.id, candidateList);
           const maxWidth = 35; // 最大宽度
-          let text = d.data.name;
-          const ellipsis = "...";
+          let text = shortName;
+          const ellipsis = "..";
 
           // 创建临时的text元素来测量宽度
           let textElement = d3.select(this).text(text);
@@ -206,6 +215,12 @@ export default function Tree({
           }
 
           return textElement.text();
+        })
+        .append("title")
+        .text(function (d) {
+          const { candidateList } = useMultiWinnerDataStore.getState();
+          const { explanation } = getSmartDisplayName(d.data.id, candidateList);
+          return explanation || d.data.name;
         });
 
       // 添加折叠节点数量的圆形
@@ -263,7 +278,7 @@ export default function Tree({
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full" data-tour="seventh-step">
       <svg
         ref={svgRef}
         width="100%"
