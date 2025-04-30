@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
+"use client";
+
+import React, { useEffect } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import TooltipWithIcon from "@/app/dashboard/components/Information-icon-text";
 import { getSmartDisplayName } from "@/components/ui/avatar";
-// 更新 Assertion 接口，添加 candidateId 字段
+
 interface Assertion {
   index: number;
   winner: number;
@@ -13,7 +15,7 @@ interface Assertion {
 }
 interface Candidate {
   id: number;
-  name: string; // full name
+  name: string;
 }
 
 interface AssertionsDetailsModalProps {
@@ -33,26 +35,27 @@ const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
   minMargin,
   candidates,
 }) => {
-  // const [isTooltipVisible, setTooltipVisible] = useState(false);
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
+    document.body.style.overflow = isOpen ? "hidden" : "auto";
   }, [isOpen]);
 
   if (!isOpen) return null;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
-      <div className="bg-white rounded-lg max-w-3xl w-full mx-4 p-6 relative">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center
+                    bg-black/30 dark:bg-black/60 transition-colors"
+    >
+      <div
+        className="bg-background text-foreground border border-border dark:border-border/60
+                   rounded-lg max-w-3xl w-full mx-4 p-6 relative transition-colors"
+      >
         {/* 关闭按钮 */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
           aria-label="Close"
+          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
         >
-          {/* SVG 图标 */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6"
@@ -69,7 +72,7 @@ const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
           </svg>
         </button>
 
-        <h2 className="text-2xl font-bold mb-4 flex items-center relative">
+        <h2 className="text-2xl font-bold mb-4 flex items-center">
           Assertions Details
           <TooltipWithIcon
             title="Need Help?"
@@ -78,65 +81,70 @@ const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
             linkHref="/tutorial"
           />
         </h2>
+
+        {/* Candidates list */}
         <div className="mb-4">
           <h3 className="text-lg font-semibold mb-2">Candidates</h3>
-          <ul className="list-disc list-inside text-gray-700">
-            {candidates.map((candidate) => {
-              const { shortName } = getSmartDisplayName(
-                candidate.id,
-                candidates,
-              );
+          <ul className="list-disc list-inside">
+            {candidates.map((c) => {
+              const { shortName } = getSmartDisplayName(c.id, candidates);
               return (
-                <li key={candidate.id}>
-                  <strong>{shortName}</strong> – {candidate.name}
+                <li key={c.id}>
+                  <strong>{shortName}</strong> – {c.name}
                 </li>
               );
             })}
           </ul>
         </div>
+
+        {/* Max / Min summary */}
         <div className="mb-4">
-          <p className="text-gray-700 font-bold">
+          <p className="font-bold">
             <span className="font-semibold">Maximum Difficulty:</span>{" "}
             {maxDifficulty}{" "}
             <span className="font-semibold">Minimum Margin:</span> {minMargin}
           </p>
         </div>
 
+        {/* Assertions table */}
         <div className="overflow-x-auto">
-          <table className="min-w-full table-auto">
+          <table className="min-w-full table-auto text-sm">
             <thead>
               <tr>
-                <th scope="col" className="px-4 py-2 border-b text-left">
-                  Index
-                </th>
-                <th scope="col" className="px-4 py-2 border-b text-left">
-                  Content
-                </th>
-                <th scope="col" className="px-4 py-2 border-b text-left">
-                  Type
-                </th>
-                <th scope="col" className="px-4 py-2 border-b text-left">
-                  Difficulty
-                </th>
-                <th scope="col" className="px-4 py-2 border-b text-left">
-                  Margin
-                </th>
+                {["Index", "Content", "Type", "Difficulty", "Margin"].map(
+                  (h) => (
+                    <th
+                      key={h}
+                      scope="col"
+                      className="px-4 py-2 border-b border-border dark:border-border/60 text-left"
+                    >
+                      {h}
+                    </th>
+                  ),
+                )}
               </tr>
             </thead>
             <tbody>
-              {assertions.map((assertion) => (
-                <tr key={assertion.index}>
-                  <td className="px-4 py-2 border-b">{assertion.index}</td>
-                  <td className="px-4 py-2 text-left border-b">
-                    <div className="flex items-center justify-start">
-                      {/* 使用 Avatar 组件，传入 candidateId */}
-                      <Avatar candidateId={assertion.winner} className="mr-2" />
-                      <span>{assertion.content}</span>
+              {assertions.map((a) => (
+                <tr key={a.index}>
+                  <td className="px-4 py-2 border-b border-border dark:border-border/60">
+                    {a.index}
+                  </td>
+                  <td className="px-4 py-2 border-b border-border dark:border-border/60">
+                    <div className="flex items-center">
+                      <Avatar candidateId={a.winner} className="mr-2" />
+                      <span>{a.content}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-2 border-b">{assertion.type}</td>
-                  <td className="px-4 py-2 border-b">{assertion.difficulty}</td>
-                  <td className="px-4 py-2 border-b">{assertion.margin}</td>
+                  <td className="px-4 py-2 border-b border-border dark:border-border/60">
+                    {a.type}
+                  </td>
+                  <td className="px-4 py-2 border-b border-border dark:border-border/60">
+                    {a.difficulty}
+                  </td>
+                  <td className="px-4 py-2 border-b border-border dark:border-border/60">
+                    {a.margin}
+                  </td>
                 </tr>
               ))}
             </tbody>

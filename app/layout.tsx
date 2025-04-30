@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+
 import Image from "next/image";
 
 import ClientTourProvider from "./ClientTourProvider";
+// ⭐ 新增：引入 ThemeProvider 与切换按钮
+import { ThemeProvider } from "./_lib/theme-context";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,18 +23,33 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        <ClientTourProvider>
-          <div className="flex flex-col h-screen">
-            {/* Header part */}
-            <header className="flex items-center py-2">
-              <Image src="/Logo.png" alt="Logo" width={80} height={80} />
-              <h1 className="text-3xl font-bold ml-4">AuditVisualizer</h1>
-            </header>
-            {/* Main content */}
-            <main className="flex flex-col flex-grow bg-white">{children}</main>
-          </div>
-        </ClientTourProvider>
+      <body
+        className={`${inter.className} bg-background text-foreground transition-colors`}
+      >
+        {}
+        <ThemeProvider>
+          <ClientTourProvider>
+            <div className="flex flex-col h-screen">
+              {/* === Header === */}
+              <header
+                className="flex items-center justify-between
+                           py-2 px-4 border-b border-border dark:border-border/60"
+              >
+                <div className="flex items-center">
+                  <Image src="/Logo.png" alt="Logo" width={80} height={80} />
+                  <h1 className="text-3xl font-bold ml-4">AuditVisualizer</h1>
+                </div>
+                {}
+                <ThemeToggle />
+              </header>
+
+              {/* === Main content === */}
+              <main className="flex flex-col flex-grow bg-background">
+                {children}
+              </main>
+            </div>
+          </ClientTourProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

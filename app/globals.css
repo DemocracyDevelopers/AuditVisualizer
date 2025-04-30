@@ -58,6 +58,19 @@
     --chart-5: 340 75% 55%;
   }
 }
+html {
+  @apply transition-colors duration-300;
+}
+
+@layer components {
+  .dark .uploader-box {
+    @apply bg-gray-800 border-gray-600;
+  }
+  .dark .uploader-box .text-gray-600,
+  .dark .uploader-box .text-gray-400 {
+    @apply text-gray-300;
+  }
+}
 
 @layer base {
   * {

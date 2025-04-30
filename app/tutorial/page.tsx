@@ -18,7 +18,7 @@ const Tutorial: React.FC = () => {
   ];
 
   return (
-    <div className="flex bg-white">
+    <div className="flex bg-background">
       {/* Sidebar */}
       <SidebarWithSearch
         sidebarWidth={sidebarWidth}
@@ -28,19 +28,19 @@ const Tutorial: React.FC = () => {
       />
 
       {/* Main content area */}
-        <main className="flex-grow overflow-y-auto">
-            {/* Breadcrumbs 放置在侧边栏的右侧 */}
-            <div
-                style={{
-                    paddingLeft: collapsed ? 16 : 24, // px，根据 sidebar 状态动态设定
-                }}
-            >
-                <Breadcrumbs paths={breadcrumbPaths}/>
-            </div>
-            {/* Tutorial content */}
-            <TutorialContent sidebarWidth={sidebarWidth} collapsed={collapsed}/>
-            {/* Footer Section */}
-        </main>
+      <main className="flex-grow overflow-y-auto">
+        {/* Breadcrumbs 放置在侧边栏的右侧 */}
+        <div
+          style={{
+            paddingLeft: collapsed ? 16 : 24, // px，根据 sidebar 状态动态设定
+          }}
+        >
+          <Breadcrumbs paths={breadcrumbPaths} />
+        </div>
+        {/* Tutorial content */}
+        <TutorialContent sidebarWidth={sidebarWidth} collapsed={collapsed} />
+        {/* Footer Section */}
+      </main>
     </div>
   );
 };

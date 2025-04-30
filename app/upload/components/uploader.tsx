@@ -334,7 +334,7 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
       ) : uploadComplete && selectedFile ? (
         <>
           {/* 上传完成 */}
-          <div className="border-2 border-gray-300 p-8 rounded-lg bg-gray-50 cursor-pointer w-full relative text-center flex flex-grow justify-center items-center">
+          <div className="uploader-box border-2 border-gray-300 p-8 rounded-lg bg-gray-50 cursor-pointer w-full relative text-center flex flex-grow justify-center items-center">
             <div>
               <h2 className="text-2xl font-bold text-gray-600 mb-2">
                 Uploaded!
@@ -382,7 +382,7 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
             Use the dropzone below to upload your file.
           </p>
           <div
-            className="border-2 border-gray-300 p-8 rounded-lg bg-gray-50 cursor-pointer w-full relative text-center flex flex-grow justify-center items-center"
+            className="uploader-box border-2 border-gray-300 p-8 rounded-lg bg-gray-50 cursor-pointer w-full relative text-center flex flex-grow justify-center items-center"
             onDragOver={handleDragOver}
             onDrop={handleDrop}
           >

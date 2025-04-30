@@ -1,5 +1,3 @@
-// components/MarginContainer.tsx
-
 import React from "react";
 
 interface MarginContainerProps {
@@ -8,15 +6,22 @@ interface MarginContainerProps {
   children: React.ReactNode;
 }
 
+/**
+ * Simple wrapper that centres content and keeps smooth left-margin animation.
+ * No fixed colours → 自动跟随主题。
+ */
 const MarginContainer: React.FC<MarginContainerProps> = ({
   collapsed,
   sidebarWidth,
   children,
 }) => {
   return (
-      <div className="px-6 pt-6 max-w-5xl mx-auto transition-all duration-300">
-          {children}
-      </div>
+    <div
+      className="px-6 pt-6 max-w-5xl mx-auto transition-all duration-300"
+      style={{ marginLeft: collapsed ? 0 : sidebarWidth }}
+    >
+      {children}
+    </div>
   );
 };
 
