@@ -12,13 +12,13 @@ interface Assertion {
 interface AssertionTableProps {
   assertions: Assertion[];
 }
-const assertion_per_page = 4;
+const assertionPerPage = 4;
 
 const AssertionTable: React.FC<AssertionTableProps> = ({ assertions }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(assertions.length / assertion_per_page);
-  const startIndex = (currentPage - 1) * assertion_per_page;
-  const endIndex = startIndex + assertion_per_page;
+  const totalPages = Math.ceil(assertions.length / assertionPerPage);
+  const startIndex = (currentPage - 1) * assertionPerPage;
+  const endIndex = startIndex + assertionPerPage;
   const currentAssertions = assertions.slice(startIndex, endIndex);
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -50,7 +50,7 @@ const AssertionTable: React.FC<AssertionTableProps> = ({ assertions }) => {
       }
     }
 
-    return pageNumbers.map((page, index) => (
+    return pageNumbers.map((page, index) =>
       typeof page === "number" ? (
         <button
           key={index}
@@ -68,8 +68,8 @@ const AssertionTable: React.FC<AssertionTableProps> = ({ assertions }) => {
         >
           {page}
         </span>
-      )
-    ));
+      ),
+    );
   };
 
   return (
