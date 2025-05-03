@@ -51,16 +51,24 @@ const AssertionTable: React.FC<AssertionTableProps> = ({ assertions }) => {
     }
 
     return pageNumbers.map((page, index) => (
-      <button
-        key={index}
-        onClick={() => typeof page === "number" && handlePageChange(page)}
-        disabled={page === "..."}
-        className={`px-3 py-1 rounded-md border ${
-          currentPage === page ? "bg-black text-white" : "bg-white text-black"
-        } ${page === "..." ? "cursor-default" : "cursor-pointer"}`}
-      >
-        {page}
-      </button>
+      typeof page === "number" ? (
+        <button
+          key={index}
+          onClick={() => handlePageChange(page)}
+          className={`px-3 py-1 rounded-md border ${
+            currentPage === page ? "bg-black text-white" : "bg-white text-black"
+          } cursor-pointer`}
+        >
+          {page}
+        </button>
+      ) : (
+        <span
+          key={index}
+          className="px-3 py-1 rounded-md border bg-white text-black cursor-default"
+        >
+          {page}
+        </span>
+      )
     ));
   };
 
