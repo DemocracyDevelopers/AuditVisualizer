@@ -23,7 +23,7 @@ const OutcomesContent: React.FC<OutcomesContentProps> = ({
       </h2>
 
       {/* ---------- Intro ---------- */}
-      <p className="text-lg text-muted-foreground mb-8">
+      <p className="text-lg text-gray-700 dark:text-white mb-8">
         Instant-Runoff Voting (IRV) is a preferential voting system where voters
         rank candidates in order of preference. …
       </p>
@@ -31,7 +31,7 @@ const OutcomesContent: React.FC<OutcomesContentProps> = ({
       {/* ---------- How IRV Counts Work ---------- */}
       <div className="mb-8" data-content="How IRV Counts Work">
         <h3 className="text-2xl font-semibold mb-4">How IRV Counts Work</h3>
-        <p className="text-lg text-muted-foreground">
+        <p className="text-lg text-gray-700 dark:text-white">
           In IRV elections, voters rank candidates in order of preference. …
         </p>
       </div>
@@ -39,7 +39,7 @@ const OutcomesContent: React.FC<OutcomesContentProps> = ({
       {/* ---------- Example ---------- */}
       <div className="mb-8" data-content="Example">
         <h3 className="text-xl font-bold mb-4">Example</h3>
-        <p className="text-lg text-muted-foreground mb-4">
+        <p className="text-lg text-gray-700 dark:text-white mb-4">
           Suppose there are 4 candidates: Alice, Bob, Chuan, and Diego. …
         </p>
 
@@ -53,7 +53,7 @@ const OutcomesContent: React.FC<OutcomesContentProps> = ({
           />
         </div>
 
-        <p className="text-lg text-muted-foreground">
+        <p className="text-lg text-gray-700 dark:text-white">
           We first count the first-preference tallies: Alice 5, Bob 2, Chuan 4,
           Diego 4. Bob is eliminated … Diego wins with 7 votes compared to
           Alice’s 6.

@@ -25,7 +25,7 @@ const IntroductionContent: React.FC<IntroductionContentProps> = ({
 
       {/* ---------- Intro Paragraph ---------- */}
       <div className="mb-8" data-content="Introduction">
-        <p className="text-lg text-muted-foreground">
+        <p className="text-lg text-gray-700 dark:text-white">
           Risk-Limiting Audits&nbsp;(RLAs) for Instant-Runoff Voting (IRV)
           elections can be efficiently conducted using the RAIRE tool. RAIRE
           helps election administrators verify whether the announced winner in
@@ -37,7 +37,7 @@ const IntroductionContent: React.FC<IntroductionContentProps> = ({
 
       {/* ---------- RAIRE Overview ---------- */}
       <div className="mb-8" data-content="RAIRE Overview">
-        <p className="text-lg text-muted-foreground">
+        <p className="text-lg text-gray-700 dark:text-white">
           RAIRE uses a cost-effective method to select the necessary sample size
           for verification, relying on cast-vote records&nbsp;(CVRs) from paper
           ballots. The tool focuses on validating the winner and deliberately
@@ -55,7 +55,7 @@ const IntroductionContent: React.FC<IntroductionContentProps> = ({
         <h3 className="text-2xl font-bold mb-4">
           The Audit Process from Beginning to End
         </h3>
-        <ol className="list-decimal ml-6 text-lg text-muted-foreground space-y-2">
+        <ol className="list-decimal ml-6 text-lg text-gray-700 dark:text-white space-y-2">
           <li>Commit to the ballot manifest and CVRs.</li>
           <li>Choose contest(s) for audit.</li>
           <li>
