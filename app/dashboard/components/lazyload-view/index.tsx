@@ -792,8 +792,8 @@ function LazyLoadView() {
             Winner Selected: {name || shortName}
           </h3>
           <p className="text-gray-700 mb-4">
-            The winner's elimination tree is typically very large and complex,
-            which may cause performance issues if displayed.
+            The winner&apos;s elimination tree is typically very large and
+            complex, which may cause performance issues if displayed.
           </p>
           <p className="text-gray-700 mb-6">
             Please select another candidate from the list above to view their
@@ -813,7 +813,7 @@ function LazyLoadView() {
                 }
               }}
             >
-              View Another Candidate's Tree
+              View Another Candidate&apos;s Tree
             </Button>
           </div>
         </div>
