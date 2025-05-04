@@ -3,8 +3,12 @@ import { ArrowLeft, ArrowRight, Undo2 } from "lucide-react";
 import Tree from "../../../../components/tree";
 import CandidateListBar from "@/app/dashboard/components/elimination-tree/candidate-list-bar";
 import StepByStep from "@/app/dashboard/components/elimination-tree/step-by-step";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Candidate } from "../elimination-tree/constants";
+import useMultiWinnerDataStore from "@/store/multi-winner-data";
+import { AvatarColor } from "@/utils/avatar-color";
+import { explainAssertions } from "@/app/explain-assertions/components/explain-process";
+import { useFileDataStore } from "@/store/fileData";
 
 interface ProcessStep {
   before: any;
@@ -21,21 +25,53 @@ interface OneWinnerTree {
 }
 
 interface StepByStepViewProps {
-  possibleWinnerList: Candidate[];
-  multiWinner: OneWinnerTree[] | null;
   selectedWinnerId: number;
   setSelectedWinnerId: (id: number) => void;
 }
 
 function StepByStepView({
-  possibleWinnerList,
-  multiWinner,
   selectedWinnerId,
   setSelectedWinnerId,
 }: StepByStepViewProps) {
   const [selectedStep, setSelectedStep] = useState<number>(1);
   const [resetHiddenNodes, setResetHiddenNodes] = useState(false);
   const [hasNodeBeenCut, setHasNodeBeenCut] = useState(false);
+  const fileData = useFileDataStore((state) => state.fileData);
+
+  const { setCandidateList, setMultiWinner, multiWinner } =
+    useMultiWinnerDataStore();
+
+  useEffect(() => {
+    if (multiWinner && multiWinner.length > 0) {
+      setSelectedWinnerId(multiWinner[0].winnerInfo.id);
+    }
+  }, [multiWinner]);
+
+  useEffect(() => {
+    const avatarColor = new AvatarColor();
+    const response = explainAssertions(fileData);
+    // 根据核心库返回的 response 进行处理
+    if (response.success) {
+      // 成功解析并校验，将数据存储到全局状态中
+      setMultiWinner(response.data);
+      const jsonData = JSON.parse(fileData);
+      const candidateList = jsonData.metadata.candidates.map(
+        (name: string, index: number) => ({
+          id: index,
+          name: name,
+          color: avatarColor.getColor(index),
+        }),
+      );
+
+      setCandidateList(candidateList);
+    }
+  }, [fileData, setMultiWinner, setCandidateList]);
+
+  const possibleWinnerList = useMemo(() => {
+    return Array.isArray(multiWinner)
+      ? multiWinner.map((cur) => cur.winnerInfo)
+      : []; // Default to an empty array if multiWinner is not an array
+  }, [multiWinner]);
 
   // Find the selected winner's tree data
   const oneWinnerTrees = multiWinner

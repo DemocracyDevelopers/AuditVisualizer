@@ -27,7 +27,7 @@ interface MultiWinnerData {
   winnerInfo: { id: number; name: string } | null;
   setWinnerInfo: (data: { id: number; name: string }) => void;
   clearWinnerInfo: () => void;
-  candidateList: any[];
+  candidateList: { id: number; name: string; color: string }[];
   setCandidateList: (data: any) => void;
   clearCandidateList: () => void;
   assertionList: any[];

@@ -1,5 +1,3 @@
-// utils/explainAssertions.ts
-
 import {
   explain,
   all_elimination_orders,
@@ -52,11 +50,11 @@ const inferWinnerFromAssertions = (
 
 export type FormatCheckResult =
   | { success: true; state: 0 }
-  | { success: false; state: 0; error_message: string };
+  | { success: false; state: 0 | 1; error_message: string };
 
 export type ExplainResult =
-  | { success: true;  data: any }
-  | { success: false; state: 0 | 1; error_message: string };
+  | { success: true; data: any }
+  | { success: false; state: 0 | 1 | 2; error_message: string };
 
 // JSON validation function
 export const validateInputData = (input: string | any): FormatCheckResult => {
@@ -73,34 +71,59 @@ export const validateInputData = (input: string | any): FormatCheckResult => {
 
   // Check if metadata and candidates array are present and valid
   if (!data.metadata || !Array.isArray(data.metadata.candidates)) {
-     return { success: false, state: 0, error_message: "Invalid metadata or candidates field" };
+    return {
+      success: false,
+      state: 0,
+      error_message: "Invalid metadata or candidates field",
+    };
   }
 
   // Check if solution and solution.Ok exist and are valid
   if (!data.solution || !data.solution.Ok) {
-    return { success: false, state: 0, error_message: "Invalid solution structure" };
+    return {
+      success: false,
+      state: 0,
+      error_message: "Invalid solution structure",
+    };
   }
 
   const solution = data.solution.Ok;
 
   // Check if difficulty and margin exist in solution.Ok and are valid numbers
   if (typeof solution.difficulty !== "number" || solution.difficulty < 0) {
-    return { success: false, state: 0, error_message: "Invalid or missing 'difficulty' in solution.Ok" };
+    return {
+      success: false,
+      state: 0,
+      error_message: "Invalid or missing 'difficulty' in solution.Ok",
+    };
   }
 
   if (typeof solution.margin !== "number" || solution.margin < 0) {
-    return { success: false, state: 0, error_message: "Invalid or missing 'margin' in solution.Ok" };
+    return {
+      success: false,
+      state: 0,
+      error_message: "Invalid or missing 'margin' in solution.Ok",
+    };
   }
 
   // Check if assertions are present and valid as an array
   if (!Array.isArray(solution.assertions)) {
-    return { success: false, state: 0, error_message: "Invalid assertions field" };
+    return {
+      success: false,
+      state: 0,
+      error_message: "Invalid assertions field",
+    };
   }
 
   // Check if num_candidates matches the length of candidates array
   const numCandidates = data.metadata.candidates.length;
   if (solution.num_candidates !== numCandidates) {
-    return { success: false, state: 0, error_message: "Mismatch between num_candidates and candidates array length" };
+    return {
+      success: false,
+      state: 0,
+      error_message:
+        "Mismatch between num_candidates and candidates array length",
+    };
   }
 
   // Validate if winner is within the valid range
@@ -109,14 +132,22 @@ export const validateInputData = (input: string | any): FormatCheckResult => {
     solution.winner < 0 ||
     solution.winner >= numCandidates
   ) {
-    return { success: false, state: 0, error_message: "Winner index out of range or invalid" };
+    return {
+      success: false,
+      state: 0,
+      error_message: "Winner index out of range or invalid",
+    };
   }
 
   // Validate each assertion's completeness and fields
   for (let index = 0; index < solution.assertions.length; index++) {
     const assertionObj = solution.assertions[index];
     if (!assertionObj.assertion) {
-      return { success: false, state: 0, error_message: `Assertion at index ${index} missing 'assertion' field` };
+      return {
+        success: false,
+        state: 0,
+        error_message: `Assertion at index ${index} missing 'assertion' field`,
+      };
     }
 
     const assertion = assertionObj.assertion;
@@ -124,9 +155,10 @@ export const validateInputData = (input: string | any): FormatCheckResult => {
     // Check if assertion.type exists and is a string
     if (!assertion.type || typeof assertion.type !== "string") {
       return {
-          success: false,
-          state: 0,
-          error_message: `Assertion at index ${index} missing 'type' field or 'type' is not a string` };
+        success: false,
+        state: 0,
+        error_message: `Assertion at index ${index} missing 'type' field or 'type' is not a string`,
+      };
     }
 
     // Check if assertion.winner and assertion.loser exist and are within valid range
@@ -136,9 +168,10 @@ export const validateInputData = (input: string | any): FormatCheckResult => {
       assertion.winner >= numCandidates
     ) {
       return {
-          success: false,
-          state: 0,
-          error_message: `Invalid or missing 'winner' index in assertion at index ${index}` };
+        success: false,
+        state: 0,
+        error_message: `Invalid or missing 'winner' index in assertion at index ${index}`,
+      };
     }
 
     if (
@@ -147,18 +180,20 @@ export const validateInputData = (input: string | any): FormatCheckResult => {
       assertion.loser >= numCandidates
     ) {
       return {
-          success: false,
-          state: 0,
-          error_message: `Invalid or missing 'loser' index in assertion at index ${index}` };
+        success: false,
+        state: 0,
+        error_message: `Invalid or missing 'loser' index in assertion at index ${index}`,
+      };
     }
 
     // For assertions of type 'NEN', check if the continuing array is valid
     if (assertion.type === "NEN") {
       if (!Array.isArray(assertion.continuing)) {
         return {
-            success: false,
-            state: 0,
-            error_message: `Assertion of type 'NEN' at index ${index} missing 'continuing' array` };
+          success: false,
+          state: 0,
+          error_message: `Assertion of type 'NEN' at index ${index} missing 'continuing' array`,
+        };
       }
 
       // Check if the continuing array indices are valid
@@ -170,17 +205,43 @@ export const validateInputData = (input: string | any): FormatCheckResult => {
           candidateIndex >= numCandidates
         ) {
           return {
-              success: false,
-              state: 0,
-              error_message: `Invalid index in 'continuing' array at position ${i} in assertion at index ${index}` };
+            success: false,
+            state: 0,
+            error_message: `Invalid index in 'continuing' array at position ${i} in assertion at index ${index}`,
+          };
         }
       }
     } else if (assertion.type !== "NEB") {
       return {
-          success: false,
-          state: 0,
-          error_message: `Unknown assertion type '${assertion.type}' at index ${index}` };
+        success: false,
+        state: 0,
+        error_message: `Unknown assertion type '${assertion.type}' at index ${index}`,
+      };
     }
+  }
+
+  // At the end of validation, infer the winner and compare
+  const inferredWinner = inferWinnerFromAssertions(
+    solution.assertions,
+    numCandidates,
+  );
+
+  if (inferredWinner === null) {
+    return {
+      success: false,
+      error_message: "Unable to infer a unique winner from the assertions.",
+      state: 1,
+    };
+  }
+
+  if (inferredWinner !== solution.winner) {
+    const winnerName = data.metadata.candidates[inferredWinner];
+    const expectedWinnerName = data.metadata.candidates[solution.winner];
+    return {
+      success: false,
+      error_message: `Inferred winner (${winnerName}) does not match the winner in the JSON data (${expectedWinnerName}).`,
+      state: 1,
+    };
   }
 
   return { success: true, state: 0 }; // All validations passed
@@ -293,9 +354,22 @@ export function getCandidateNumber(jsonText: string): number {
     if (data.metadata && Array.isArray(data.metadata.candidates)) {
       return data.metadata.candidates.length;
     }
-  } catch {
-  }
+  } catch {}
   return -1; // invalid input or missing field
+}
+
+export function getAssertions(jsonText: string): any[] {
+  try {
+    const data = JSON.parse(jsonText);
+    if (
+      data.solution &&
+      data.solution.Ok &&
+      Array.isArray(data.solution.Ok.assertions)
+    ) {
+      return data.solution.Ok.assertions;
+    }
+  } catch {}
+  return []; // invalid input or missing field
 }
 
 // Main function to process inputText and return the outputData
@@ -384,6 +458,7 @@ export function explainAssertions(inputText: string): ExplainResult {
     return {
       success: false,
       error_message: errorMessage,
+      state: 2,
     };
   }
 }

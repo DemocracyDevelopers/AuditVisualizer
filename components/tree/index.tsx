@@ -8,6 +8,8 @@ import {
   ArrowRight,
   ChevronLeft,
   ChevronRight,
+  Maximize,
+  Minimize,
   Minus,
   Plus,
 } from "lucide-react";
@@ -20,7 +22,6 @@ import {
 } from "../ui/dropdown-menu";
 import useMultiWinnerDataStore from "@/store/multi-winner-data";
 import { getSmartDisplayName } from "@/components/ui/avatar";
-import { candidateList } from "@/app/dashboard/components/elimination-tree/constants";
 
 interface TreeProps {
   data: TreeNode;
@@ -30,24 +31,13 @@ interface TreeProps {
   onResetComplete: () => void;
   onNodeCut: () => void;
 }
-const dimensions = { width: 400, height: 400 };
 
-// 递归折叠所有节点
-function recursivelyCollapseAll(node: TreeNode): void {
-  // 如果节点有子节点，先递归折叠它们
-  if (node.children && node.children.length > 0) {
-    // 先对所有子节点递归调用折叠
-    for (const child of node.children) {
-      recursivelyCollapseAll(child);
-    }
+// Adjusted dimensions with more width to prevent horizontal crowding
+const dimensions = { width: 800, height: 500 };
 
-    // 然后调用toggleChildren折叠当前节点的子节点
-    // 只有在节点有可见子节点时才需要折叠
-    if (node.children.length > 0) {
-      toggleChildren(node);
-    }
-  }
-}
+// Node sizing constants
+const NODE_RADIUS = 18;
+const NODE_MARGIN = 15; // Minimum margin between nodes
 
 export default function Tree({
   data,
@@ -59,50 +49,34 @@ export default function Tree({
 }: TreeProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const gRef = useRef<SVGGElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const zoomBehaviorRef = useRef<d3.ZoomBehavior<
     SVGSVGElement,
     unknown
-  > | null>(null); // Ref to store zoom behavior
+  > | null>(null);
 
-  // 直接初始化折叠后的数据而不是使用原始数据
-  const processedData = (() => {
-    // 深拷贝输入数据
-    const newData = JSON.parse(JSON.stringify(data));
-    // 递归折叠所有节点
-    recursivelyCollapseAll(newData);
-    return newData;
-  })();
-
-  const [treeData, setTreeData] = useState<TreeNode>(processedData);
+  const [treeData, setTreeData] = useState<TreeNode>(data);
   const [currentZoom, setCurrentZoom] = useState<number>(1);
-  const dataRef = useRef(data);
+  const [currentTransform, setCurrentTransform] =
+    useState<d3.ZoomTransform | null>(null);
+  const [containerDimensions, setContainerDimensions] = useState({
+    width: 0,
+    height: 0,
+  });
+  const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
 
-  // 当data引用变化时更新treeData
-  useEffect(() => {
-    // 检查data是否真的变化了（深比较太昂贵，只比较引用）
-    if (data !== dataRef.current) {
-      dataRef.current = data;
-
-      // 深拷贝并折叠数据
-      const newTreeData = JSON.parse(JSON.stringify(data));
-      recursivelyCollapseAll(newTreeData);
-
-      // 更新状态
-      setTreeData(newTreeData);
-    }
-  }, [data]);
-
+  // Reset hidden nodes when requested
   useEffect(() => {
     if (resetHiddenNodes) {
       const resetNodes = (node: TreeNode) => {
         node.hide = false;
 
-        // 处理可见的子节点
+        // Handle visible children
         if (node.children) {
           node.children.forEach(resetNodes);
         }
 
-        // 同时处理折叠状态的子节点
+        // Also handle collapsed children
         if (node._children) {
           node._children.forEach(resetNodes);
         }
@@ -114,32 +88,134 @@ export default function Tree({
     }
   }, [resetHiddenNodes, treeData, onResetComplete]);
 
+  // Mark node and its children as hidden
   function markNodeAndChildrenAsHidden(node: TreeNode) {
-    node.hide = true; // 设置当前节点为hide
+    node.hide = true;
     if (node.children) {
-      node.children.forEach((child) => markNodeAndChildrenAsHidden(child)); // 递归设置子节点为hide
+      node.children.forEach((child) => markNodeAndChildrenAsHidden(child));
     }
     setTreeData({ ...treeData });
     onNodeCut();
   }
 
+  // Toggle node children with view state preservation
+  function handleNodeToggle(node: TreeNode) {
+    // Store current transform before toggling
+    if (svgRef.current && zoomBehaviorRef.current) {
+      const transform = d3.zoomTransform(svgRef.current);
+      setCurrentTransform(transform);
+    }
+
+    // Toggle node children
+    toggleChildren(node);
+    setTreeData({ ...treeData });
+  }
+
+  // Resize observer to adjust tree size based on container
+  useEffect(() => {
+    if (containerRef.current) {
+      const resizeObserver = new ResizeObserver((entries) => {
+        for (let entry of entries) {
+          const { width, height } = entry.contentRect;
+          setContainerDimensions({ width, height });
+        }
+      });
+
+      resizeObserver.observe(containerRef.current);
+
+      // Also handle window resize events for fullscreen mode
+      const handleResize = () => {
+        if (isFullScreen) {
+          // Force redraw with new dimensions when in fullscreen mode
+          setContainerDimensions({
+            width: window.innerWidth,
+            height: window.innerHeight - 60, // Leave room for controls
+          });
+        }
+      };
+
+      window.addEventListener("resize", handleResize);
+
+      return () => {
+        resizeObserver.disconnect();
+        window.removeEventListener("resize", handleResize);
+      };
+    }
+  }, [isFullScreen]);
+
+  const countVisibleNodesAtDepth = (
+    node: TreeNode,
+    depth = 0,
+    counts: Record<number, number> = {},
+  ): Record<number, number> => {
+    if (node.hide) return counts;
+
+    counts[depth] = (counts[depth] || 0) + 1;
+
+    if (node.children) {
+      node.children.forEach((child) =>
+        countVisibleNodesAtDepth(child, depth + 1, counts),
+      );
+    }
+
+    return counts;
+  };
+
+  // Main effect for tree rendering
   useEffect(() => {
     if (svgRef.current) {
       const svgElement = d3.select(svgRef.current);
       svgElement.selectAll("*").remove();
 
-      const { width, height } = dimensions;
-      const margin = { top: 20, right: 20, bottom: 20, left: 20 };
+      // Automatically re-render when fullscreen state changes
+      const width = isFullScreen
+        ? window.innerWidth
+        : containerDimensions.width || dimensions.width;
+      const height = isFullScreen
+        ? window.innerHeight - 60 // Leave room for controls
+        : containerDimensions.height || dimensions.height;
 
+      const margin = { top: 30, right: 40, bottom: 30, left: 40 };
+      const innerWidth = width - margin.left - margin.right;
+      const innerHeight = height - margin.top - margin.bottom;
+
+      // Count number of visible nodes at each level for better spacing
+      const nodeCounts = countVisibleNodesAtDepth(treeData);
+      const maxNodesAtAnyLevel = Math.max(...Object.values(nodeCounts));
+
+      // Calculate dynamic node spacing based on tree width and node count
+      const nodeSpacing = Math.max(
+        innerWidth / (maxNodesAtAnyLevel + 2),
+        NODE_RADIUS * 2 + NODE_MARGIN, // Ensure minimum spacing
+      );
+
+      // Create tree layout with improved spacing
       const treeLayout = d3
         .tree<TreeNode>()
-        .size([
-          height - margin.top - margin.bottom - 10,
-          width - margin.left - margin.right - 10,
-        ]);
+        .size([innerWidth, innerHeight])
+        .nodeSize([nodeSpacing * 0.8, 70]) // Set minimum node size to prevent overlap
+        .separation((a, b) => {
+          // Return a larger separation value between non-sibling nodes
+          return a.parent === b.parent ? 1 : 1.5;
+        });
 
       const root = d3.hierarchy(treeData);
+
+      // Center the root node
       const treeDataLayout = treeLayout(root);
+
+      // Adjust y-coordinate to ensure top-down orientation with root at top
+      treeDataLayout.descendants().forEach((node) => {
+        node.y = node.depth * 100; // Fixed vertical spacing
+      });
+
+      // Recenter the root node horizontally
+      const rootNode = treeDataLayout.descendants()[0];
+      const xOffset = innerWidth / 2 - rootNode.x;
+
+      treeDataLayout.descendants().forEach((node) => {
+        node.x += xOffset;
+      });
 
       const nodes = treeDataLayout.descendants();
       const links = treeDataLayout.links();
@@ -158,7 +234,6 @@ export default function Tree({
         .attr("y1", (d) => (d.source as d3.HierarchyPointNode<TreeNode>).y)
         .attr("x2", (d) => (d.target as d3.HierarchyPointNode<TreeNode>).x)
         .attr("y2", (d) => (d.target as d3.HierarchyPointNode<TreeNode>).y)
-        // .attr("stroke", "#e9bc39")
         .attr("stroke", (d) =>
           d.source.data.eliminated ||
           d.target.data.eliminated ||
@@ -166,17 +241,16 @@ export default function Tree({
           d.target.data.cut
             ? "#d4d4d4"
             : "#e9bc39",
-        ) // Set stroke to black if cut is true
+        )
         .attr("stroke-width", 3);
 
-      // 暂时先用X
+      // Add cut markers (scissors)
       g.selectAll("foreignObject.cut-marker")
         .data(links)
         .enter()
-        // .filter((d: d3.HierarchyLink<TreeNode>) => !!d.target.data.cut) // Only add scissors for cut links
         .filter(
           (d: d3.HierarchyLink<TreeNode>) =>
-            !!d.target.data.cut && !d.target.data.hide, // 只为未隐藏的目标节点添加剪刀图标
+            !!d.target.data.cut && !d.target.data.hide,
         )
         .append("foreignObject")
         .attr("class", "cut-marker")
@@ -186,7 +260,7 @@ export default function Tree({
             ((d.source as d3.HierarchyPointNode<TreeNode>).x +
               (d.target as d3.HierarchyPointNode<TreeNode>).x) /
               2 -
-            12, // Offset to center the icon
+            12,
         )
         .attr(
           "y",
@@ -194,7 +268,7 @@ export default function Tree({
             ((d.source as d3.HierarchyPointNode<TreeNode>).y +
               (d.target as d3.HierarchyPointNode<TreeNode>).y) /
               2 -
-            12, // Offset to center the icon
+            12,
         )
         .attr("width", 24)
         .attr("height", 24)
@@ -212,58 +286,53 @@ export default function Tree({
         )
         .on("click", (event, d) => {
           markNodeAndChildrenAsHidden(d.target.data);
-          // setTreeData({ ...treeData });
         });
 
-      // Create groups for each node
+      // Create node groups
       const groups = g
-        .selectAll("g")
+        .selectAll("g.node")
         .data(nodes.filter((node) => !node.data.hide))
         .enter()
         .append("g")
+        .attr("class", "node")
         .attr("transform", (d) => `translate(${d.x},${d.y})`)
         .classed("cursor-pointer", true)
         .on("click", (event, d) => {
-          // 使用toggleChildren切换节点的展开/折叠状态
-          toggleChildren(d.data);
-          // 创建一个新的树数据对象以触发重新渲染
-          setTreeData({ ...treeData });
+          handleNodeToggle(d.data);
         });
 
-      // Add circles
+      // Add node circles
       groups
         .append("circle")
-        .attr("r", 18)
+        .attr("r", NODE_RADIUS)
         .attr("fill", "white")
         .attr("stroke", "black")
         .attr("stroke-width", 1);
 
-      // Add text
+      // Add node text with improved text handling
       groups
         .append("text")
         .attr("y", 3)
         .attr("text-anchor", "middle")
         .attr("font-size", "10px")
         .attr("fill", "black")
-        // .text((d) => d.data.name);
         .text(function (d) {
           const { candidateList } = useMultiWinnerDataStore.getState();
           const { shortName } = getSmartDisplayName(d.data.id, candidateList);
-          const maxWidth = 35; // 最大宽度
+          const maxWidth = 35;
           let text = shortName;
           const ellipsis = "..";
 
-          // 创建临时的text元素来测量宽度
+          // Create temporary text element to measure width
           let textElement = d3.select(this).text(text);
 
-          // 检查 textElement.node() 是否为 null
-          // 如果宽度超过最大宽度，进行截断
+          // Check if text width exceeds maximum width
           while (
             textElement.node()!.getComputedTextLength() > maxWidth &&
             text.length > 0
           ) {
-            text = text.slice(0, -1); // 每次去掉一个字符
-            textElement.text(text + ellipsis); // 加上省略号
+            text = text.slice(0, -1);
+            textElement.text(text + ellipsis);
           }
 
           return textElement.text();
@@ -275,77 +344,254 @@ export default function Tree({
           return explanation || d.data.name;
         });
 
-      // 添加折叠节点数量的圆形
+      // Add collapsed node count indicator
       groups
         .filter((d) => !!d.data.collapsedCount)
         .append("circle")
-        .attr("cy", 40) // 圆心y坐标
-        .attr("r", 12) // 半径
-        .attr("fill", "#e77d00") // 设置填充色为 #e77d00
-        .attr("stroke-width", 1); // 设置圆形边框的宽度为 1
+        .attr("cy", 54)
+        .attr("r", 12)
+        .attr("fill", "#e77d00")
+        .attr("stroke-width", 1);
 
       groups
         .filter((d) => !!d.data.collapsedCount)
         .append("text")
-        .attr("y", 46) // 控制折叠数量的文本位置
+        .attr("y", 60)
         .attr("text-anchor", "middle")
         .attr("class", "text-lg text-black")
         .text((d) => (d.data.collapsedCount ? `${d.data.collapsedCount}` : ""));
 
+      // Add collapsible/expandable indicators
+      groups
+        .filter(
+          (d) =>
+            (d.data.children && d.data.children.length > 0) ||
+            (d.data._children && d.data._children.length > 0),
+        )
+        .append("circle")
+        .attr("r", 8)
+        .attr("cy", NODE_RADIUS + 15)
+        .attr("fill", "#f0f0f0")
+        .attr("stroke", "#888")
+        .attr("stroke-width", 1);
+
+      groups
+        .filter((d) => d.data.children && d.data.children.length > 0)
+        .append("text")
+        .attr("text-anchor", "middle")
+        .attr("y", NODE_RADIUS + 18)
+        .attr("font-size", "12px")
+        .text("-");
+
+      groups
+        .filter((d) => d.data._children && d.data._children.length > 0)
+        .append("text")
+        .attr("text-anchor", "middle")
+        .attr("y", NODE_RADIUS + 18)
+        .attr("font-size", "12px")
+        .text("+");
+
       // Add zoom behavior
       const zoom = d3
         .zoom<SVGSVGElement, unknown>()
-        .scaleExtent([0.25, 1.5])
+        .scaleExtent([0.25, 2])
         .on("zoom", (event) => {
           d3.select(gRef.current).attr("transform", event.transform.toString());
           setCurrentZoom(event.transform.k);
+          setCurrentTransform(event.transform);
         });
 
+      zoomBehaviorRef.current = zoom;
       svgElement.call(zoom);
-      zoomBehaviorRef.current = zoom; // Save zoom behavior reference
+
+      // Apply previous transform if available, or calculate a default one
+      if (currentTransform) {
+        // Restore previous transform
+        svgElement.call(zoom.transform, currentTransform);
+      } else {
+        // Initial transform to fit the tree in view
+        const initialScale = Math.min(
+          innerWidth / (root.descendants().length * nodeSpacing * 0.8),
+          0.9, // Cap at 90% to leave some margin
+        );
+
+        // Center the tree in the view
+        const initialTransform = d3.zoomIdentity
+          .translate(width / 5, 30)
+          .scale(initialScale);
+
+        svgElement.call(zoom.transform, initialTransform);
+        setCurrentZoom(initialScale);
+      }
 
       return () => {
         svgElement.on(".zoom", null);
       };
     }
-  }, [treeData]);
+  }, [treeData, containerDimensions]);
 
   const handleZoomChange = (scaleFactor: number) => {
     if (zoomBehaviorRef.current && svgRef.current) {
       const svgElement = d3.select(svgRef.current);
-      const { width, height } = dimensions;
 
-      const transform = d3.zoomIdentity
-        .translate(width / 2, height / 2)
-        .scale(scaleFactor)
-        .translate(-width / 2, -height / 2);
+      // Get current transform to maintain center point during zoom
+      const transform = d3.zoomTransform(svgElement.node()!);
+
+      // Calculate new transform with adjusted scale but maintaining center
+      const newTransform = d3.zoomIdentity
+        .translate(transform.x, transform.y)
+        .scale(scaleFactor);
 
       svgElement
         .transition()
         .duration(500)
-        .call(zoomBehaviorRef.current.transform, transform);
+        .call(zoomBehaviorRef.current.transform, newTransform);
 
       setCurrentZoom(scaleFactor);
+      setCurrentTransform(newTransform);
     }
   };
 
+  // Reset view to fit all nodes with the same settings as initial view
+  const handleResetView = () => {
+    if (zoomBehaviorRef.current && svgRef.current) {
+      const svgElement = d3.select(svgRef.current);
+      const width = containerDimensions.width || dimensions.width;
+      const height = containerDimensions.height || dimensions.height;
+
+      // Use the same margin configuration as in the rendering effect
+      const margin = { top: 30, right: 40, bottom: 30, left: 40 };
+      const innerWidth = width - margin.left - margin.right;
+
+      // Create hierarchy for the current tree state
+      const root = d3.hierarchy(treeData);
+
+      // Calculate the node spacing exactly as in the rendering logic
+      const nodeCounts = countVisibleNodesAtDepth(treeData);
+      const maxNodesAtAnyLevel = Math.max(...Object.values(nodeCounts));
+      const nodeSpacing = Math.max(
+        innerWidth / (maxNodesAtAnyLevel + 1),
+        NODE_RADIUS * 2 + NODE_MARGIN,
+      );
+
+      // Use the exact same scale calculation as the initial render
+      const initialScale = Math.min(
+        innerWidth / (root.descendants().length * nodeSpacing * 0.8),
+        0.9,
+      );
+
+      // Create the transform exactly as in the initial setup
+      const initialTransform = d3.zoomIdentity
+        .translate(width / 5, 30)
+        .scale(initialScale);
+
+      // Apply the transform with a transition for better UX
+      svgElement
+        .transition()
+        .duration(750)
+        .call(zoomBehaviorRef.current.transform, initialTransform);
+
+      setCurrentZoom(initialScale);
+      setCurrentTransform(initialTransform);
+    }
+  };
+
+  // Toggle fullscreen
+  const toggleFullScreen = () => {
+    if (!containerRef.current) return;
+
+    if (!isFullScreen) {
+      if (containerRef.current.requestFullscreen) {
+        containerRef.current
+          .requestFullscreen()
+          .then(() => setIsFullScreen(true))
+          .catch((err) =>
+            console.error(
+              `Error attempting to enable fullscreen: ${err.message}`,
+            ),
+          );
+      } else if ((containerRef.current as any).webkitRequestFullscreen) {
+        (containerRef.current as any).webkitRequestFullscreen();
+        setIsFullScreen(true);
+      } else if ((containerRef.current as any).msRequestFullscreen) {
+        (containerRef.current as any).msRequestFullscreen();
+        setIsFullScreen(true);
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document
+          .exitFullscreen()
+          .then(() => setIsFullScreen(false))
+          .catch((err) =>
+            console.error(
+              `Error attempting to exit fullscreen: ${err.message}`,
+            ),
+          );
+      } else if ((document as any).webkitExitFullscreen) {
+        (document as any).webkitExitFullscreen();
+        setIsFullScreen(false);
+      } else if ((document as any).msExitFullscreen) {
+        (document as any).msExitFullscreen();
+        setIsFullScreen(false);
+      }
+    }
+  };
+
+  // Listen for fullscreen change events
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullScreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+    document.addEventListener("mozfullscreenchange", handleFullscreenChange);
+    document.addEventListener("MSFullscreenChange", handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      document.removeEventListener(
+        "webkitfullscreenchange",
+        handleFullscreenChange,
+      );
+      document.removeEventListener(
+        "mozfullscreenchange",
+        handleFullscreenChange,
+      );
+      document.removeEventListener(
+        "MSFullscreenChange",
+        handleFullscreenChange,
+      );
+    };
+  }, []);
+
   return (
-    <div className="flex flex-col h-full" data-tour="seventh-step">
-      <svg
-        ref={svgRef}
-        width="100%"
-        height="100%"
-        className="overflow-hidden"
-        viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
-        preserveAspectRatio="xMidYMid meet"
-      />
-      <div className="flex justify-between">
-        {backComponent}
-        <div className="flex items-center">
+    <div
+      ref={containerRef}
+      className={`flex flex-col ${isFullScreen ? "h-screen bg-white" : "h-full"} overflow-hidden`}
+      data-tour="seventh-step"
+    >
+      <div className="flex-grow relative overflow-hidden">
+        <svg
+          ref={svgRef}
+          width="100%"
+          height="100%"
+          className="overflow-hidden"
+          preserveAspectRatio="xMidYMid meet"
+        />
+      </div>
+      <div
+        className={`flex justify-between items-center mt-2 ${isFullScreen ? "p-2 border-t" : ""}`}
+      >
+        {!isFullScreen && backComponent}
+        <div
+          className={`flex items-center space-x-2 ${isFullScreen ? "mx-auto" : ""}`}
+        >
           <Button
             variant="outline"
             size="icon"
             onClick={() => handleZoomChange(currentZoom - 0.1)}
+            disabled={currentZoom <= 0.25}
           >
             <Minus className="h-4 w-4" />
           </Button>
@@ -371,17 +617,42 @@ export default function Tree({
               <DropdownMenuItem onClick={() => handleZoomChange(1.5)}>
                 150%
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleZoomChange(2)}>
+                200%
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <Button
             variant="outline"
             size="icon"
             onClick={() => handleZoomChange(currentZoom + 0.1)}
+            disabled={currentZoom >= 2}
           >
             <Plus className="h-4 w-4" />
           </Button>
+          <Button
+            variant="outline"
+            onClick={handleResetView}
+            size="sm"
+            className="ml-2"
+          >
+            Fit
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={toggleFullScreen}
+            className="ml-2"
+            title={isFullScreen ? "Exit Fullscreen" : "Fullscreen"}
+          >
+            {isFullScreen ? (
+              <Minimize className="h-4 w-4" />
+            ) : (
+              <Maximize className="h-4 w-4" />
+            )}
+          </Button>
         </div>
-        {nextComponent}
+        {!isFullScreen && nextComponent}
       </div>
     </div>
   );

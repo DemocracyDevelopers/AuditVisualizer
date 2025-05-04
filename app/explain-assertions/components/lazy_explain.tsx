@@ -1,4 +1,3 @@
-// lazy_explain.tsx
 // 该模块实现 lazy load 功能，用于扩展整棵淘汰顺序树中指定节点的一层。
 // 外部调用时传入整棵树、目标节点的 id 以及完整的 Assertions 列表，
 // 函数内部直接使用目标节点的 remaining 和 remainingAssertions 进行扩展，返回更新后的整棵树。
@@ -21,13 +20,13 @@ import {
  *  - prunedBy：剪枝时使用的断言（如果有）
  */
 export interface TreeNode {
-  id: number;                      // 节点唯一标识
-  path: number[];                  // 当前节点的淘汰顺序（从当前节点到根节点）
+  id: number; // 节点唯一标识
+  path: number[]; // 当前节点的淘汰顺序（从当前节点到根节点）
   remainingAssertions: Assertion[]; // 剩余可用的 Assertions
-  children: TreeNode[];            // 子节点数组
-  remaining: number[];             // 剩余未使用的候选人索引
-  pruned: boolean;                 // 是否被剪枝
-  prunedBy?: Assertion;            // 剪枝时使用的断言（如果有）
+  children: TreeNode[]; // 子节点数组
+  remaining: number[]; // 剩余未使用的候选人索引
+  pruned: boolean; // 是否被剪枝
+  prunedBy?: Assertion; // 剪枝时使用的断言（如果有）
 }
 
 function pathsEqual(a: number[], b: number[]): boolean {
@@ -40,13 +39,57 @@ function pathsEqual(a: number[], b: number[]): boolean {
  * @param root   树根
  * @param target 完整淘汰顺序 path，例如 [3,1,0]
  */
-function findNodeByPath(root: TreeNode, target: number[]): TreeNode | null {
-  if (pathsEqual(root.path, target)) return root;
-  for (const child of root.children) {
-    const found = findNodeByPath(child, target);
-    if (found) return found;
+export function findNodeByPath(
+  root: TreeNode,
+  path: number[],
+): TreeNode | null {
+  if (!path || path.length === 0) return null;
+
+  // 检查根节点路径是否匹配
+  if (pathsEqual(root.path, path)) return root;
+
+  // 使用队列进行广度优先搜索
+  const queue: TreeNode[] = [root];
+
+  while (queue.length > 0) {
+    const node = queue.shift()!;
+
+    // 检查每个子节点
+    if (node.children && node.children.length > 0) {
+      for (const child of node.children) {
+        if (pathsEqual(child.path, path)) {
+          return child;
+        }
+        queue.push(child);
+      }
+    }
   }
+
   return null;
+}
+
+/**
+ * 检查节点是否已展开（有子节点）
+ * @param node 要检查的节点
+ * @returns 如果节点有子节点，则返回 true；否则返回 false
+ */
+export function isNodeExpanded(node: TreeNode): boolean {
+  return node.children && node.children.length > 0;
+}
+
+export function collapseTreeByNode(
+  currentTree: TreeNode,
+  targetPath: number[],
+): TreeNode {
+  const targetNode = findNodeByPath(currentTree, targetPath);
+  if (!targetNode) {
+    throw new Error(`Node with path [${targetPath.join(",")}] not found.`);
+  }
+
+  // 直接清空子节点数组
+  targetNode.children = [];
+
+  return currentTree;
 }
 
 /**
@@ -66,7 +109,7 @@ function findNodeByPath(root: TreeNode, target: number[]): TreeNode | null {
  */
 export function expandTreeByNode(
   currentTree: TreeNode,
-  targetPath: number[]
+  targetPath: number[],
 ): TreeNode {
   const targetNode = findNodeByPath(currentTree, targetPath);
   if (!targetNode) {
@@ -81,7 +124,7 @@ export function expandTreeByNode(
     // 新的淘汰顺序：将 candidate 插入当前节点 path 的前面
     const newPath = [candidate, ...targetNode.path];
     // 新的 remaining：去除当前 candidate
-    const newRemaining = targetNode.remaining.filter(c => c !== candidate);
+    const newRemaining = targetNode.remaining.filter((c) => c !== candidate);
     // 更新 remainingAssertions：遍历目标节点的 remainingAssertions，
     // 如果断言对新 path 返回 Ok，则不保留；返回 NeedsMoreDetail，则保留；
     // 如果返回 Contradiction，则标记剪枝。
@@ -94,20 +137,22 @@ export function expandTreeByNode(
         pruned = true;
         prunedBy = assertion;
         break; // 一旦出现矛盾，停止检查
-      } else if (effect === EffectOfAssertionOnEliminationOrderSuffix.NeedsMoreDetail) {
+      } else if (
+        effect === EffectOfAssertionOnEliminationOrderSuffix.NeedsMoreDetail
+      ) {
         newRemainingAssertions.push(assertion);
       }
       // 如果返回 Ok，则该断言已满足，不保留
     }
 
     return {
-      id: candidate,                // 使用 candidate 索引作为节点 id
-      path: newPath,                // 新的淘汰顺序
+      id: candidate, // 使用 candidate 索引作为节点 id
+      path: newPath, // 新的淘汰顺序
       remainingAssertions: newRemainingAssertions, // 更新后的 Assertions
-      children: [],                 // 初始无子节点
-      remaining: newRemaining,      // 更新后的 remaining 列表
-      pruned,                      // 剪枝标记
-      prunedBy,                    // 导致剪枝的断言（如果有）
+      children: [], // 初始无子节点
+      remaining: newRemaining, // 更新后的 remaining 列表
+      pruned, // 剪枝标记
+      prunedBy, // 导致剪枝的断言（如果有）
     } as TreeNode;
   });
 
@@ -127,7 +172,7 @@ export function expandTreeByNode(
 export function createInitialTree(
   rootCandidate: number,
   numCandidates: number,
-  assertions: Assertion[]
+  assertions: Assertion[],
 ): TreeNode {
   const remaining: number[] = [];
   for (let i = 0; i < numCandidates; i++) {
@@ -153,7 +198,10 @@ export function createInitialTree(
  *   solution: { Ok: { winner: number; assertions: { assertion: Assertion }[] } }
  * }
  */
-export function createTreeFromFile(fileContent: string): TreeNode {
+export function createTreeFromFile(
+  fileContent: string,
+  rootId: number,
+): TreeNode {
   let data: any;
   try {
     data = JSON.parse(fileContent);
@@ -172,13 +220,13 @@ export function createTreeFromFile(fileContent: string): TreeNode {
   }
   const numCandidates = candidates.length;
 
-  const rootCandidate = solution.winner;
-  if (typeof rootCandidate !== 'number') {
+  const rootCandidate = rootId;
+  if (typeof rootCandidate !== "number") {
     throw new Error("Invalid or missing winner index in solution");
   }
 
-  const assertions: Assertion[] = solution.assertions.map((a: any) => a.assertion);
+  const assertions: Assertion[] = solution.assertions.map(
+    (a: any) => a.assertion,
+  );
   return createInitialTree(rootCandidate, numCandidates, assertions);
 }
-
-export default expandTreeByNode;

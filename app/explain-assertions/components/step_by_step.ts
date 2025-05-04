@@ -26,8 +26,8 @@ import { TreeNode, expandTreeByNode, createInitialTree } from "./lazy_explain";
  * stepData 用于记录当前 step 的编号、已使用的 NEN 断言以及当前可用的断言
  */
 export interface StepData {
-  stepId: number;            // 当前 step 编号
-  usedNEN: Assertion[];      // 已使用的 NEN 断言
+  stepId: number; // 当前 step 编号
+  usedNEN: Assertion[]; // 已使用的 NEN 断言
   availableNEN: Assertion[]; // 当前剩余可用的断言（主要用于 NEN 类型）
 }
 
@@ -52,7 +52,10 @@ export interface StepData {
  * @param inputStepData 可选的 stepData，如果不存在则使用默认值
  * @returns { updatedTree, stepData }，其中 stepData 包括 stepId、usedNEN 和 availableNEN
  */
-export function applyStepByStepLazyLoad(tree: TreeNode, inputStepData?: StepData): { updatedTree: TreeNode; stepData: StepData } {
+export function applyStepByStepLazyLoad(
+  tree: TreeNode,
+  inputStepData?: StepData,
+): { updatedTree: TreeNode; stepData: StepData } {
   // 如果没有输入 stepData，则初始化默认值，stepId=1，usedNEN为空，availableNEN为根节点的 remainingAssertions
   let stepData: StepData;
   if (!inputStepData) {
@@ -67,9 +70,10 @@ export function applyStepByStepLazyLoad(tree: TreeNode, inputStepData?: StepData
 
   const treeWinner = tree.id; // 根节点 id 作为获胜者
   // 1. 筛选出有效的 NEN 断言（只考虑 NEN 类型）
-  let effectiveNEN = stepData.availableNEN.filter(assertion => {
+  let effectiveNEN = stepData.availableNEN.filter((assertion) => {
     if (assertion.type !== "NEN") return false;
-    if (!assertion.continuing || !assertion.continuing.includes(treeWinner)) return false;
+    if (!assertion.continuing || !assertion.continuing.includes(treeWinner))
+      return false;
     if (assertion.winner === treeWinner) return false;
     return true;
   });
@@ -80,7 +84,7 @@ export function applyStepByStepLazyLoad(tree: TreeNode, inputStepData?: StepData
   }
 
   // 2. 选择 continuing 数量最少的一个有效 NEN（如有多个，则取排序后的第一个）
-  effectiveNEN.sort((a, b) => (a.continuing!.length - b.continuing!.length));
+  effectiveNEN.sort((a, b) => a.continuing!.length - b.continuing!.length);
   const selectedNEN = effectiveNEN[0];
 
   // 3. 根据选中断言计算所有受其影响的淘汰顺序
@@ -88,7 +92,7 @@ export function applyStepByStepLazyLoad(tree: TreeNode, inputStepData?: StepData
   // affectedSequences 例如可能返回 [[3,1,2,0], [3,2,1,0]]
 
   // 4. 针对每个受影响的淘汰顺序，通过 lazy load 展开对应分支，并标记该分支为剪枝
-  affectedSequences.forEach(seq => {
+  affectedSequences.forEach((seq) => {
     const targetNode = expandTreeToSequence(tree, seq);
     if (targetNode) {
       targetNode.pruned = true;
@@ -97,7 +101,7 @@ export function applyStepByStepLazyLoad(tree: TreeNode, inputStepData?: StepData
   });
 
   // 5. 更新 availableNEN：移除已使用的 selectedNEN；同时将 selectedNEN 加入 usedNEN 中
-  const newAvailable = stepData.availableNEN.filter(a => a !== selectedNEN);
+  const newAvailable = stepData.availableNEN.filter((a) => a !== selectedNEN);
   const newUsed = [...stepData.usedNEN, selectedNEN];
 
   // 6. 更新 stepData 的 stepId
@@ -123,11 +127,12 @@ function computeAffectedSequences(assertion: Assertion): number[][] {
   const continuing = [...assertion.continuing];
   const treeWinner = continuing[continuing.length - 1];
   const NEN_winner = assertion.winner;
-  if (!continuing.includes(treeWinner) || !continuing.includes(NEN_winner)) return [];
+  if (!continuing.includes(treeWinner) || !continuing.includes(NEN_winner))
+    return [];
   if (NEN_winner === treeWinner) return [];
-  const middle = continuing.filter(c => c !== treeWinner && c !== NEN_winner);
+  const middle = continuing.filter((c) => c !== treeWinner && c !== NEN_winner);
   const perms = getPermutations(middle);
-  return perms.map(perm => [NEN_winner, ...perm, treeWinner]);
+  return perms.map((perm) => [NEN_winner, ...perm, treeWinner]);
 }
 
 /**
@@ -155,16 +160,19 @@ function getPermutations(array: number[]): number[][] {
  * @param sequence 目标淘汰顺序，例如 [3,1,2,0]
  * @returns 展开后的目标节点，若无法展开则返回 null
  */
-function expandTreeToSequence(root: TreeNode, sequence: number[]): TreeNode | null {
+function expandTreeToSequence(
+  root: TreeNode,
+  sequence: number[],
+): TreeNode | null {
   let currentNode: TreeNode = root;
   // 遍历 sequence 中除最后一个元素外的部分，逐层展开
   for (let i = 0; i < sequence.length - 1; i++) {
     const candidate = sequence[i];
-    let child = currentNode.children.find(c => c.id === candidate);
+    let child = currentNode.children.find((c) => c.id === candidate);
     if (!child) {
       // 如果未找到则扩展当前节点
       currentNode = expandTreeByNode(currentNode, currentNode.id);
-      child = currentNode.children.find(c => c.id === candidate);
+      child = currentNode.children.find((c) => c.id === candidate);
       if (!child) {
         return null;
       }

@@ -6,27 +6,28 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Lock } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import StepByStepView from "../step-by-step-view";
-import { Candidate } from "@/app/dashboard/components/elimination-tree/constants";
-
-// Define the interface for OneWinnerTree based on StepByStepView props
-interface ProcessStep {
-  before: any;
-  assertion: string;
-}
-
-interface TreeData {
-  process: ProcessStep[];
-}
-
-interface OneWinnerTree {
-  winnerInfo: Candidate;
-  data: TreeData;
-}
+import LazyLoadView from "../lazyload-view";
+import {
+  explainAssertions,
+  getCandidateNumber,
+} from "@/app/explain-assertions/components/explain-process";
+import { useFileDataStore } from "@/store/fileData";
 
 function EliminationTree() {
+  // "default" | "step-by-step"
   const [tabValue, setTabValue] = useState<string>("default");
-  const [isLocked, setIsLocked] = useState<boolean>(false);
+  const [isLocked, setIsLocked] = useState<boolean>(true);
   const [selectedWinnerId, setSelectedWinnerId] = useState<number>(0);
+
+  const fileData = useFileDataStore((state) => state.fileData);
+
+  useEffect(() => {
+    const candidateNumber = getCandidateNumber(fileData);
+    // NOTE: 根据情况修改
+    if (candidateNumber < 6) {
+      setIsLocked(false);
+    }
+  }, [fileData]);
 
   const handleTabChange = (value: string) => {
     // Only allow changing tabs if not locked
@@ -34,36 +35,6 @@ function EliminationTree() {
       setTabValue(value);
     }
   };
-
-  // Update the type definition to match StepByStepView's expected type
-  const { multiWinner } = useMultiWinnerDataStore() as {
-    multiWinner: OneWinnerTree[] | null;
-  };
-
-  // Define loading state
-  const isLoading = multiWinner === null;
-
-  // Use useEffect to initialize selectedWinnerId when multiWinner loads
-  useEffect(() => {
-    if (multiWinner && multiWinner.length > 0) {
-      setSelectedWinnerId(multiWinner[0].winnerInfo.id);
-    }
-  }, [multiWinner]);
-
-  // Memoize the possible winner list from multiWinner
-  const possibleWinnerList = useMemo(() => {
-    return Array.isArray(multiWinner)
-      ? multiWinner.map((cur) => cur.winnerInfo)
-      : []; // Default to an empty array if multiWinner is not an array
-  }, [multiWinner]); // Ensure this value does not change between renders
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        loading {/* Replace with your loading component */}
-      </div>
-    );
-  }
 
   return (
     <div className="border border-gray-300 rounded-lg p-6 h-auto flex flex-col justify-between pl-10">
@@ -114,12 +85,10 @@ function EliminationTree() {
         </Tabs>
       </div>
 
-      {tabValue === "default" ? (
-        <div>default</div>
+      {isLocked || tabValue === "default" ? (
+        <LazyLoadView />
       ) : (
         <StepByStepView
-          possibleWinnerList={possibleWinnerList}
-          multiWinner={multiWinner}
           selectedWinnerId={selectedWinnerId}
           setSelectedWinnerId={setSelectedWinnerId}
         />
