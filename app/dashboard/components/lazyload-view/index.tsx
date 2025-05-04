@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, ExpandIcon, Maximize, Minimize } from "lucide-react";
@@ -27,11 +27,24 @@ const NODE_RADIUS = 18;
 const NODE_MARGIN = 15; // Minimum margin between nodes
 const dimensions = { width: 800, height: 500 }; // Increased dimensions for better spacing
 
+// TypeScript interfaces
+interface CountsObject {
+  [depth: number]: number;
+}
+
+// Define D3 specific types with SVGSVGElement instead of Element
+type D3ZoomBehavior = d3.ZoomBehavior<SVGSVGElement, unknown>;
+type D3ZoomEvent = d3.D3ZoomEvent<SVGSVGElement, unknown>;
+
 function LazyLoadView() {
-  const svgRef = useRef<SVGSVGElement>(null);
-  const gRef = useRef<SVGGElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const zoomBehaviorRef = useRef(null);
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const gRef = useRef<SVGGElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  // Updated to use SVGSVGElement instead of Element
+  const zoomBehaviorRef = useRef<d3.ZoomBehavior<
+    SVGSVGElement,
+    unknown
+  > | null>(null);
 
   const [selectedTreeId, setSelectedTreeId] = useState(0);
   const [currentZoom, setCurrentZoom] = useState(1);
@@ -176,13 +189,10 @@ function LazyLoadView() {
 
     // Set this to true if you want to stop the expansion when no more expandable nodes are found
     let shouldStopEarly = true;
-
-    // Start expansion layer by layer
-    let currentLayer = 0;
-    let continuingExpansion = true;
-
     // This will be our current tree state that gets updated after each layer expansion
     let workingTree = JSON.parse(JSON.stringify(currentTree));
+    let currentLayer = 0;
+    let continuingExpansion = true;
 
     const expandNextLayer = async () => {
       // Find all expandable nodes at the current layer
@@ -264,7 +274,11 @@ function LazyLoadView() {
   };
 
   // Count visible nodes at each depth for better spacing
-  const countVisibleNodesAtDepth = (node: TreeNode, depth = 0, counts = {}) => {
+  const countVisibleNodesAtDepth = (
+    node: TreeNode,
+    depth = 0,
+    counts: CountsObject = {},
+  ): CountsObject => {
     counts[depth] = (counts[depth] || 0) + 1;
 
     if (node.children) {
@@ -319,10 +333,10 @@ function LazyLoadView() {
       return { type: "NEN", color: "#ff6b6b" }; // Default for safety
     }
 
-    // 最可靠的检测方法：将整个 prunedBy 对象转为字符串，然后检查是否包含 "neb"
+    // Most reliable detection method: convert the entire prunedBy object to a string and check if it contains "neb"
     const prunedByString = JSON.stringify(node.prunedBy || {}).toLowerCase();
 
-    // 如果字符串中包含 "neb"，则判定为 NEB 类型
+    // If the string contains "neb", determine it as NEB type
     if (prunedByString.includes("neb")) {
       return { type: "NEB", color: "#4dabf7" }; // Blue color for NEB
     } else {
@@ -334,7 +348,8 @@ function LazyLoadView() {
   const renderTree = () => {
     if (!svgRef.current) return;
 
-    const svgElement = d3.select(svgRef.current);
+    // Use proper typing for SVG selection
+    const svgElement = d3.select<SVGSVGElement, unknown>(svgRef.current);
     svgElement.selectAll("*").remove();
 
     // Automatically re-render when fullscreen state changes
@@ -405,7 +420,11 @@ function LazyLoadView() {
     const g: d3.Selection<SVGGElement, unknown, null, undefined> = svgElement
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
-    gRef.current = g.node();
+
+    // Update gRef safely
+    if (g.node()) {
+      gRef.current = g.node();
+    }
 
     // Draw links
     g.selectAll("line")
@@ -471,14 +490,14 @@ function LazyLoadView() {
 
         // Create temporary text element to measure width
         let textElement = d3.select(this).text(text);
+        const node = textElement.node();
 
-        // Check if text width exceeds maximum width
-        while (
-          textElement.node().getComputedTextLength() > maxWidth &&
-          text.length > 0
-        ) {
-          text = text.slice(0, -1);
-          textElement.text(text + ellipsis);
+        // Check if text width exceeds maximum width and node exists
+        if (node) {
+          while (node.getComputedTextLength() > maxWidth && text.length > 0) {
+            text = text.slice(0, -1);
+            textElement.text(text + ellipsis);
+          }
         }
 
         return textElement.text();
@@ -552,37 +571,42 @@ function LazyLoadView() {
       .attr("class", "text-lg text-black")
       .text((d) => `${d.data.remaining.length}`);
 
-    // Add zoom behavior
-    const zoom: D3ZoomBehavior = d3
-      .zoom()
+    // Add zoom behavior with correct SVGSVGElement typing
+    const zoom = d3
+      .zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.25, 2])
-      .on("zoom", (event: D3ZoomEvent) => {
+      .on("zoom", (event) => {
         g.attr("transform", event.transform.toString());
         setCurrentZoom(event.transform.k);
         setCurrentTransform(event.transform);
       });
 
     zoomBehaviorRef.current = zoom;
-    svgElement.call(zoom);
 
-    // Apply previous transform if available, or calculate a default one
-    if (currentTransform) {
-      // Restore previous transform
-      svgElement.call(zoom.transform, currentTransform);
-    } else {
-      // Initial transform to fit the tree in view
-      const initialScale = Math.min(
-        innerWidth / (root.descendants().length * nodeSpacing * 0.8),
-        0.9, // Cap at 90% to leave some margin
-      );
+    // Apply zoom safely
+    if (svgRef.current) {
+      svgElement.call(zoom);
 
-      // Center the tree in the view
-      const initialTransform = d3.zoomIdentity
-        .translate(width / 5, 30)
-        .scale(initialScale);
+      // Apply previous transform if available, or calculate a default one
+      if (currentTransform) {
+        // Use type assertion to resolve compatibility with transition
+        svgElement.call(zoom.transform as any, currentTransform);
+      } else {
+        // Initial transform to fit the tree in view
+        const initialScale = Math.min(
+          innerWidth / (root.descendants().length * nodeSpacing * 0.8),
+          0.9, // Cap at 90% to leave some margin
+        );
 
-      svgElement.call(zoom.transform, initialTransform);
-      setCurrentZoom(initialScale);
+        // Center the tree in the view
+        const initialTransform = d3.zoomIdentity
+          .translate(width / 5, 30)
+          .scale(initialScale);
+
+        // Use type assertion to resolve compatibility with transition
+        svgElement.call(zoom.transform as any, initialTransform);
+        setCurrentZoom(initialScale);
+      }
     }
   };
 
@@ -610,30 +634,36 @@ function LazyLoadView() {
   // Handle zoom level changes
   const handleZoomChange = (scaleFactor: number) => {
     if (zoomBehaviorRef.current && svgRef.current) {
-      const svgElement = d3.select(svgRef.current);
+      // Use proper typing for SVG selection
+      const svgElement = d3.select<SVGSVGElement, unknown>(svgRef.current);
+      const node = svgElement.node();
 
-      // Get current transform to maintain center point during zoom
-      const transform = d3.zoomTransform(svgElement.node());
+      if (node) {
+        // Get current transform to maintain center point during zoom
+        const transform = d3.zoomTransform(node);
 
-      // Calculate new transform with adjusted scale but maintaining center
-      const newTransform = d3.zoomIdentity
-        .translate(transform.x, transform.y)
-        .scale(scaleFactor);
+        // Calculate new transform with adjusted scale but maintaining center
+        const newTransform = d3.zoomIdentity
+          .translate(transform.x, transform.y)
+          .scale(scaleFactor);
 
-      svgElement
-        .transition()
-        .duration(500)
-        .call(zoomBehaviorRef.current.transform, newTransform);
+        // Use type assertion to resolve the incompatibility with transition
+        svgElement
+          .transition()
+          .duration(500)
+          .call(zoomBehaviorRef.current.transform as any, newTransform);
 
-      setCurrentZoom(scaleFactor);
-      setCurrentTransform(newTransform);
+        setCurrentZoom(scaleFactor);
+        setCurrentTransform(newTransform);
+      }
     }
   };
 
   // Reset view to fit all nodes
   const handleResetView = () => {
     if (zoomBehaviorRef.current && svgRef.current) {
-      const svgElement = d3.select(svgRef.current);
+      // Use proper typing for SVG selection
+      const svgElement = d3.select<SVGSVGElement, unknown>(svgRef.current);
       const width = containerDimensions.width || dimensions.width;
       const height = containerDimensions.height || dimensions.height;
 
@@ -669,11 +699,11 @@ function LazyLoadView() {
         .translate(width / 5, 30)
         .scale(initialScale);
 
-      // Apply the transform with a transition for better UX
+      // Use type assertion to resolve the incompatibility with transition
       svgElement
         .transition()
         .duration(750)
-        .call(zoomBehaviorRef.current.transform, initialTransform);
+        .call(zoomBehaviorRef.current.transform as any, initialTransform);
 
       setCurrentZoom(initialScale);
       setCurrentTransform(initialTransform);
@@ -689,12 +719,10 @@ function LazyLoadView() {
       try {
         if (containerRef.current.requestFullscreen) {
           containerRef.current.requestFullscreen();
-        } else if (containerRef.current.webkitRequestFullscreen) {
-          containerRef.current.webkitRequestFullscreen();
-        } else if (containerRef.current.mozRequestFullScreen) {
-          containerRef.current.mozRequestFullScreen();
-        } else if (containerRef.current.msRequestFullscreen) {
-          containerRef.current.msRequestFullscreen();
+        } else if ((containerRef.current as any).mozRequestFullScreen) {
+          (containerRef.current as any).mozRequestFullScreen();
+        } else if ((containerRef.current as any).msRequestFullscreen) {
+          (containerRef.current as any).msRequestFullscreen();
         }
       } catch (err: unknown) {
         const error = err as Error;
@@ -707,12 +735,10 @@ function LazyLoadView() {
       try {
         if (document.exitFullscreen) {
           document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-          document.webkitExitFullscreen();
-        } else if (document.mozCancelFullScreen) {
-          document.mozCancelFullScreen();
-        } else if (document.msExitFullscreen) {
-          document.msExitFullscreen();
+        } else if ((document as any).mozCancelFullScreen) {
+          (document as any).mozCancelFullScreen();
+        } else if ((document as any).msExitFullscreen) {
+          (document as any).msExitFullscreen();
         }
       } catch (err: unknown) {
         const error = err as Error;
@@ -729,9 +755,8 @@ function LazyLoadView() {
       // Check for fullscreen element across different browsers
       const isInFullScreen = !!(
         document.fullscreenElement ||
-        document.webkitFullscreenElement ||
-        document.mozFullScreenElement ||
-        document.msFullscreenElement
+        (document as any).mozFullScreenElement ||
+        (document as any).msFullscreenElement
       );
 
       setIsFullScreen(isInFullScreen);

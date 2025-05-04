@@ -340,8 +340,11 @@ export default function Tree({
         .append("title")
         .text(function (d) {
           const { candidateList } = useMultiWinnerDataStore.getState();
-          const { explanation } = getSmartDisplayName(d.data.id, candidateList);
-          return explanation || d.data.name;
+          const { explanation, name } = getSmartDisplayName(
+            d.data.id,
+            candidateList,
+          );
+          return explanation || name;
         });
 
       // Add collapsed node count indicator
@@ -365,8 +368,10 @@ export default function Tree({
       groups
         .filter(
           (d) =>
-            (d.data.children && d.data.children.length > 0) ||
-            (d.data._children && d.data._children.length > 0),
+            !!(
+              (d.data.children && d.data.children.length > 0) ||
+              (d.data._children && d.data._children.length > 0)
+            ),
         )
         .append("circle")
         .attr("r", 8)
@@ -376,7 +381,7 @@ export default function Tree({
         .attr("stroke-width", 1);
 
       groups
-        .filter((d) => d.data.children && d.data.children.length > 0)
+        .filter((d) => !!d.data.children && d.data.children.length > 0)
         .append("text")
         .attr("text-anchor", "middle")
         .attr("y", NODE_RADIUS + 18)
@@ -384,7 +389,7 @@ export default function Tree({
         .text("-");
 
       groups
-        .filter((d) => d.data._children && d.data._children.length > 0)
+        .filter((d) => !!d.data._children && d.data._children.length > 0)
         .append("text")
         .attr("text-anchor", "middle")
         .attr("y", NODE_RADIUS + 18)
