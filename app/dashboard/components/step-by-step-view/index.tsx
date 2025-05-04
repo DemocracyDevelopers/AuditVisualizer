@@ -9,9 +9,10 @@ import useMultiWinnerDataStore from "@/store/multi-winner-data";
 import { AvatarColor } from "@/utils/avatar-color";
 import { explainAssertions } from "@/app/explain-assertions/components/explain-process";
 import { useFileDataStore } from "@/store/fileData";
+import OneClickAnimation from "./one-click-animation";
 
 interface ProcessStep {
-  before: any;
+  before: OneWinnerTree;
   assertion: string;
 }
 
@@ -127,7 +128,12 @@ function StepByStepView({
   );
 
   return (
-    <>
+    <div className="relative">
+      {/* Pass selectedWinnerId to OneClickAnimation */}
+      <OneClickAnimation
+        process={data.process}
+        selectedWinnerId={selectedWinnerId}
+      />
       <div>
         <CandidateListBar
           selectedWinnerId={selectedWinnerId}
@@ -173,7 +179,7 @@ function StepByStepView({
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

@@ -4,15 +4,7 @@ import * as d3 from "d3";
 import { Switch } from "@/components/ui/switch";
 import { toggleChildren, TreeNode } from "./helper";
 import { Button } from "../ui/button";
-import {
-  ArrowRight,
-  ChevronLeft,
-  ChevronRight,
-  Maximize,
-  Minimize,
-  Minus,
-  Plus,
-} from "lucide-react";
+import { Maximize, Minimize, Minus, Plus } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,7 +29,7 @@ const dimensions = { width: 800, height: 500 };
 
 // Node sizing constants
 const NODE_RADIUS = 18;
-const NODE_MARGIN = 15; // Minimum margin between nodes
+const NODE_MARGIN = 15;
 
 export default function Tree({
   data,
