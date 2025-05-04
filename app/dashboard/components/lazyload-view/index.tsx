@@ -1,4 +1,11 @@
-import { MutableRefObject, useEffect, useRef, useState } from "react";
+import {
+  MutableRefObject,
+  useEffect,
+  useRef,
+  useState,
+  useLayoutEffect,
+  useCallback,
+} from "react";
 import * as d3 from "d3";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, ExpandIcon, Maximize, Minimize } from "lucide-react";
@@ -21,6 +28,7 @@ import { getSmartDisplayName } from "@/components/ui/avatar";
 import DefaultCandidateListBar from "../elimination-tree/default-candidate-list-bar";
 import useDefaultTree from "@/store/use-default-tree";
 import { getContentFromAssertion } from "@/utils/candidateTools";
+import { getCandidateNumber } from "@/app/explain-assertions/components/explain-process";
 
 // Node sizing constants
 const NODE_RADIUS = 18;
@@ -55,13 +63,98 @@ function LazyLoadView() {
     height: 0,
   });
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [renderKey, setRenderKey] = useState(0);
+  const [isInitialRender, setIsInitialRender] = useState(true);
 
   const fileData = useFileDataStore((state) => state.fileData);
   const { candidateList, winnerInfo } = useMultiWinnerDataStore();
   const { defaultTrees, setDefaultTrees } = useDefaultTree();
 
+  // 计算树布局数据并居中 - 提取为复用函数
+  const calculateTreeLayout = useCallback(
+    (treeData: TreeNode, width: number, height: number) => {
+      // Create hierarchy
+      const root = d3.hierarchy(treeData);
+
+      // Count visible nodes at each depth
+      const nodeCounts: Record<number, number> = {};
+      root.each((node) => {
+        // Count each node by depth
+        nodeCounts[node.depth] = (nodeCounts[node.depth] || 0) + 1;
+      });
+
+      const maxNodesAtAnyLevel = Math.max(...Object.values(nodeCounts), 1);
+      const nodeSpacing = Math.max(
+        width / (maxNodesAtAnyLevel + 2),
+        NODE_RADIUS * 2 + NODE_MARGIN,
+      );
+
+      // Create tree layout
+      const treeLayout = d3
+        .tree<TreeNode>()
+        .size([width, height])
+        .nodeSize([nodeSpacing * 0.8, 70])
+        .separation((a, b) => (a.parent === b.parent ? 1 : 1.5));
+
+      // Generate layout
+      const treeDataLayout = treeLayout(root);
+
+      // Adjust y coordinates for top-down orientation
+      treeDataLayout.descendants().forEach((node) => {
+        node.y = node.depth * 100 - 20; // Move the entire tree up by 20 units
+      });
+
+      // Calculate the min and max x values to determine horizontal bounds
+      const descendants = treeDataLayout.descendants();
+      if (descendants.length === 0)
+        return {
+          nodes: [],
+          links: [],
+          width: 0,
+          center: { x: 0, y: 0 },
+        };
+
+      const xValues = descendants.map((d) => d.x);
+      const minX = Math.min(...xValues);
+      const maxX = Math.max(...xValues);
+      const treeWidth = maxX - minX;
+
+      // Center the tree horizontally - calculate correct offset
+      const xOffset = -((maxX + minX) / 2); // Center the tree at the origin (0,0)
+
+      // Apply offset to all nodes
+      descendants.forEach((node) => {
+        node.x += xOffset;
+      });
+
+      return {
+        nodes: descendants,
+        links: treeDataLayout.links(),
+        width: treeWidth, // Tree width for scaling calculation
+        center: { x: 0, y: 0 }, // Tree center is now at the origin
+      };
+    },
+    [],
+  );
+
+  // 计算最佳缩放比例 - 提取为复用函数
+  const calculateOptimalScale = useCallback(
+    (treeWidth: number, viewportWidth: number) => {
+      if (treeWidth <= 0) return 0.8; // 默认缩放
+      return Math.min(viewportWidth / (treeWidth * 1.2), 0.9);
+    },
+    [],
+  );
+
+  // 创建初始化变换 - 提取为复用函数
+  const createInitialTransform = useCallback((optimalScale: number) => {
+    return d3.zoomIdentity.translate(0, 10).scale(optimalScale);
+  }, []);
+
   // Initialize the tree data when fileData changes
-  const initializeTree = () => {
+  const initializeTree = useCallback(() => {
     if (fileData) {
       const trees = candidateList.map((candidate) => ({
         rootId: candidate.id,
@@ -71,55 +164,74 @@ function LazyLoadView() {
       setDefaultTrees(trees);
       console.log("Initial tree data:", trees, winnerInfo);
     }
-  };
+  }, [fileData, candidateList, winnerInfo, setDefaultTrees]);
 
   // Initialize tree when fileData, candidateList, or winnerInfo changes
   useEffect(() => {
     initializeTree();
-  }, [fileData, candidateList, winnerInfo]);
+  }, [initializeTree]);
+
+  // Resize observer to adjust tree size based on container
+  useEffect(() => {
+    if (containerRef.current) {
+      const resizeObserver = new ResizeObserver((entries) => {
+        for (let entry of entries) {
+          const { width, height } = entry.contentRect;
+          setContainerDimensions({ width, height });
+        }
+      });
+
+      resizeObserver.observe(containerRef.current);
+
+      // Also handle window resize events for fullscreen mode
+      const handleResize = () => {
+        if (isFullScreen) {
+          // Force redraw with new dimensions when in fullscreen mode
+          setContainerDimensions({
+            width: window.innerWidth,
+            height: window.innerHeight - 60, // Leave room for controls
+          });
+        }
+      };
+
+      window.addEventListener("resize", handleResize);
+
+      return () => {
+        resizeObserver.disconnect();
+        window.removeEventListener("resize", handleResize);
+      };
+    }
+  }, [isFullScreen]);
 
   // Handle node click to expand children
-  const handleNodeClick = (node: TreeNode, rootId: number) => {
-    // If node is pruned, don't expand
-    if (node.pruned) {
-      console.log("Node is pruned, cannot expand");
-      return;
-    }
-
-    try {
-      const treeIndex = defaultTrees.findIndex(
-        (tree) => tree.rootId === rootId,
-      );
-
-      if (treeIndex === -1) {
-        console.log("No matching tree found:", rootId);
+  const handleNodeClick = useCallback(
+    (node: TreeNode, rootId: number) => {
+      // If node is pruned, don't expand
+      if (node.pruned) {
+        console.log("Node is pruned, cannot expand");
         return;
       }
 
-      // Clone the trees array and the specific tree to update
-      const newDefaultTrees = [...defaultTrees];
-      const treeToUpdate = { ...newDefaultTrees[treeIndex] };
-      const wantUpdateTree = { ...treeToUpdate.tree };
+      try {
+        const treeIndex = defaultTrees.findIndex(
+          (tree) => tree.rootId === rootId,
+        );
 
-      // Check if the node is already expanded
-      if (isNodeExpanded(node)) {
-        // Node is expanded, so collapse it
-        console.log("Collapsing node:", node.path);
-        const newTree = collapseTreeByNode(wantUpdateTree, node.path);
+        if (treeIndex === -1) {
+          console.log("No matching tree found:", rootId);
+          return;
+        }
 
-        // Update the specific tree in the array
-        newDefaultTrees[treeIndex] = {
-          ...treeToUpdate,
-          tree: newTree,
-        };
+        // Clone the trees array and the specific tree to update
+        const newDefaultTrees = [...defaultTrees];
+        const treeToUpdate = { ...newDefaultTrees[treeIndex] };
+        const wantUpdateTree = { ...treeToUpdate.tree };
 
-        // Update state
-        setDefaultTrees(newDefaultTrees);
-      } else {
-        // If node has remaining candidates, expand it
-        if (node.remaining && node.remaining.length > 0) {
-          console.log("Expanding node:", node.path);
-          const newTree = expandTreeByNode(wantUpdateTree, node.path);
+        // Check if the node is already expanded
+        if (isNodeExpanded(node)) {
+          // Node is expanded, so collapse it
+          console.log("Collapsing node:", node.path);
+          const newTree = collapseTreeByNode(wantUpdateTree, node.path);
 
           // Update the specific tree in the array
           newDefaultTrees[treeIndex] = {
@@ -130,16 +242,48 @@ function LazyLoadView() {
           // Update state
           setDefaultTrees(newDefaultTrees);
         } else {
-          console.log("Node has no expandable candidates");
+          // If node has remaining candidates, expand it
+          if (node.remaining && node.remaining.length > 0) {
+            console.log("Expanding node:", node.path);
+            const newTree = expandTreeByNode(wantUpdateTree, node.path);
+
+            // Update the specific tree in the array
+            newDefaultTrees[treeIndex] = {
+              ...treeToUpdate,
+              tree: newTree,
+            };
+
+            // Update state
+            setDefaultTrees(newDefaultTrees);
+          } else {
+            console.log("Node has no expandable candidates");
+          }
         }
+      } catch (error) {
+        console.error("Error toggling node:", error);
       }
-    } catch (error) {
-      console.error("Error toggling node:", error);
-    }
-  };
+    },
+    [defaultTrees, setDefaultTrees],
+  );
+
+  // Count visible nodes at each depth for better spacing
+  const countVisibleNodesAtDepth = useCallback(
+    (node: TreeNode, depth = 0, counts: CountsObject = {}): CountsObject => {
+      counts[depth] = (counts[depth] || 0) + 1;
+
+      if (node.children) {
+        node.children.forEach((child) =>
+          countVisibleNodesAtDepth(child, depth + 1, counts),
+        );
+      }
+
+      return counts;
+    },
+    [],
+  );
 
   // Expand all nodes layer by layer
-  const expandAllNodes = async () => {
+  const expandAllNodes = useCallback(async () => {
     if (!fileData) return;
 
     // Get the current tree
@@ -271,64 +415,19 @@ function LazyLoadView() {
 
     // Start the expansion process
     expandNextLayer();
-  };
-
-  // Count visible nodes at each depth for better spacing
-  const countVisibleNodesAtDepth = (
-    node: TreeNode,
-    depth = 0,
-    counts: CountsObject = {},
-  ): CountsObject => {
-    counts[depth] = (counts[depth] || 0) + 1;
-
-    if (node.children) {
-      node.children.forEach((child) =>
-        countVisibleNodesAtDepth(child, depth + 1, counts),
-      );
-    }
-
-    return counts;
-  };
-
-  // Resize observer to adjust tree size based on container
-  useEffect(() => {
-    if (containerRef.current) {
-      const resizeObserver = new ResizeObserver((entries) => {
-        for (let entry of entries) {
-          const { width, height } = entry.contentRect;
-          setContainerDimensions({ width, height });
-        }
-      });
-
-      resizeObserver.observe(containerRef.current);
-
-      // Also handle window resize events for fullscreen mode
-      const handleResize = () => {
-        if (isFullScreen) {
-          // Force redraw with new dimensions when in fullscreen mode
-          setContainerDimensions({
-            width: window.innerWidth,
-            height: window.innerHeight - 60, // Leave room for controls
-          });
-        }
-      };
-
-      window.addEventListener("resize", handleResize);
-
-      return () => {
-        resizeObserver.disconnect();
-        window.removeEventListener("resize", handleResize);
-      };
-    }
-  }, [isFullScreen]);
+  }, [fileData, defaultTrees, selectedTreeId, setDefaultTrees]);
 
   // Check if selected tree is the winner
-  const isWinnerSelected = () => {
-    return winnerInfo && selectedTreeId === winnerInfo.id;
-  };
+  const isBigDataWinnerSelected = useCallback(() => {
+    return (
+      winnerInfo &&
+      selectedTreeId === winnerInfo.id &&
+      getCandidateNumber(fileData) >= 6
+    );
+  }, [winnerInfo, selectedTreeId, fileData]);
 
   // Helper function to determine pruning type and color
-  const getPruningInfo = (node: TreeNode) => {
+  const getPruningInfo = useCallback((node: TreeNode) => {
     if (!node.pruned) {
       return { type: "NEN", color: "#ff6b6b" }; // Default for safety
     }
@@ -342,10 +441,137 @@ function LazyLoadView() {
     } else {
       return { type: "NEN", color: "#ff6b6b" }; // Red color for NEN
     }
-  };
+  }, []);
 
-  // Render the tree visualization
-  const renderTree = () => {
+  // 修复拖拽功能并添加滚轮缩放
+  const setupDragHandling = useCallback(
+    (svgElement: d3.Selection<SVGSVGElement, unknown, null, undefined>) => {
+      const g = d3.select(gRef.current);
+
+      // 获取中心坐标
+      const width = containerDimensions.width || dimensions.width;
+      const centerX = width / 2;
+      const margin = { top: 30, right: 40, bottom: 30, left: 40 };
+
+      // 设置拖拽开始处理函数
+      const handleMouseDown = (event: MouseEvent) => {
+        if (event.button !== 0) return; // 只处理左键点击
+
+        setIsDragging(true);
+        setDragStart({
+          x: event.clientX,
+          y: event.clientY,
+        });
+
+        svgElement.style("cursor", "grabbing");
+      };
+
+      // 设置拖拽移动处理函数
+      const handleMouseMove = (event: MouseEvent) => {
+        if (!isDragging || !currentTransform) return;
+
+        const dx = event.clientX - dragStart.x;
+        const dy = event.clientY - dragStart.y;
+
+        // 更新变换参数
+        const newTransform = d3.zoomIdentity
+          .translate(currentTransform.x + dx, currentTransform.y + dy)
+          .scale(currentTransform.k);
+
+        // 应用新的变换
+        g.attr(
+          "transform",
+          `translate(${centerX}, ${margin.top}) translate(${newTransform.x}, ${newTransform.y}) scale(${newTransform.k})`,
+        );
+
+        // 更新拖拽起始点和当前变换
+        setDragStart({
+          x: event.clientX,
+          y: event.clientY,
+        });
+        setCurrentTransform(newTransform);
+      };
+
+      // 设置拖拽结束处理函数
+      const handleMouseUp = () => {
+        setIsDragging(false);
+        svgElement.style("cursor", "grab");
+      };
+
+      // 处理滚轮缩放事件
+      const handleWheel = (event: WheelEvent) => {
+        event.preventDefault();
+
+        if (!currentTransform) return;
+
+        // 计算缩放因子
+        const delta = -event.deltaY;
+        const zoomFactor = 0.05;
+        const scale =
+          currentTransform.k * (1 + (delta > 0 ? zoomFactor : -zoomFactor));
+
+        // 限制缩放范围在0.25到2之间
+        const newScale = Math.max(0.25, Math.min(2, scale));
+
+        // 获取鼠标相对于SVG的位置
+        const svgRect = svgRef.current!.getBoundingClientRect();
+        const mouseX = event.clientX - svgRect.left;
+        const mouseY = event.clientY - svgRect.top;
+
+        // 向鼠标位置缩放
+        const x = mouseX - centerX;
+        const y = mouseY - margin.top;
+
+        // 根据缩放比例变化调整平移
+        if (newScale !== currentTransform.k) {
+          const scaleRatio = newScale / currentTransform.k;
+
+          // 创建新变换
+          const newTransform = d3.zoomIdentity
+            .translate(
+              x - (x - currentTransform.x) * scaleRatio,
+              y - (y - currentTransform.y) * scaleRatio,
+            )
+            .scale(newScale);
+
+          // 应用新变换
+          g.attr(
+            "transform",
+            `translate(${centerX}, ${margin.top}) translate(${newTransform.x}, ${newTransform.y}) scale(${newTransform.k})`,
+          );
+
+          // 更新状态
+          setCurrentZoom(newScale);
+          setCurrentTransform(newTransform);
+        }
+      };
+
+      // 添加事件监听器
+      svgElement
+        .on("mousedown", handleMouseDown)
+        .on("mousemove", handleMouseMove)
+        .on("mouseup", handleMouseUp)
+        .on("mouseleave", handleMouseUp)
+        .on("wheel", handleWheel);
+
+      // 设置初始光标样式
+      svgElement.style("cursor", "grab");
+
+      // 返回清理函数
+      return () => {
+        svgElement
+          .on("mousedown", null)
+          .on("mousemove", null)
+          .on("mouseup", null)
+          .on("mouseleave", null)
+          .on("wheel", null);
+      };
+    },
+    [containerDimensions, isDragging, dragStart, currentTransform],
+  );
+
+  // Render the tree visualization with much better positioning
+  const renderTree = useCallback(() => {
     if (!svgRef.current) return;
 
     // Use proper typing for SVG selection
@@ -373,68 +599,38 @@ function LazyLoadView() {
       return;
     }
 
-    // Count number of visible nodes at each level for better spacing
-    const nodeCounts = countVisibleNodesAtDepth(targetTree.tree);
-    const maxNodesAtAnyLevel = Math.max(
-      ...(Object.values(nodeCounts) as number[]),
-      1,
+    // Use improved layout calculation function
+    const layout = calculateTreeLayout(
+      targetTree.tree,
+      innerWidth,
+      innerHeight,
     );
 
-    // Calculate dynamic node spacing based on tree width and node count
-    const nodeSpacing = Math.max(
-      innerWidth / (maxNodesAtAnyLevel + 2),
-      NODE_RADIUS * 2 + NODE_MARGIN, // Ensure minimum spacing
-    );
+    // Calculate the center position in the container
+    const centerX = width / 2;
 
-    // Create tree layout with improved spacing
-    const treeLayout = d3
-      .tree<TreeNode>()
-      .size([innerWidth, innerHeight])
-      .nodeSize([nodeSpacing * 0.8, 70]) // Set minimum node size to prevent overlap
-      .separation((a, b) => {
-        // Return a larger separation value between non-sibling nodes
-        return a.parent === b.parent ? 1 : 1.5;
-      });
-
-    const root = d3.hierarchy(targetTree.tree);
-
-    // Center the root node
-    const treeDataLayout = treeLayout(root);
-
-    // Adjust y-coordinate to ensure top-down orientation with root at top
-    treeDataLayout.descendants().forEach((node) => {
-      node.y = node.depth * 100; // Fixed vertical spacing
-    });
-
-    // Recenter the root node horizontally
-    const rootNode = treeDataLayout.descendants()[0];
-    const xOffset = innerWidth / 2 - rootNode.x;
-
-    treeDataLayout.descendants().forEach((node) => {
-      node.x += xOffset;
-    });
-
-    const nodes = treeDataLayout.descendants();
-    const links = treeDataLayout.links();
-
-    const g: d3.Selection<SVGGElement, unknown, null, undefined> = svgElement
+    // Create main SVG group with transform already applied
+    const g = svgElement
       .append("g")
-      .attr("transform", `translate(${margin.left},${margin.top})`);
+      .attr("transform", `translate(${centerX}, ${margin.top})`);
 
     // Update gRef safely
     if (g.node()) {
       gRef.current = g.node();
     }
 
-    // Draw links
+    // 设置拖拽处理
+    setupDragHandling(svgElement);
+
+    // Draw links with proper positioning
     g.selectAll("line")
-      .data(links)
+      .data(layout.links)
       .enter()
       .append("line")
-      .attr("x1", (d) => d.source.x)
-      .attr("y1", (d) => d.source.y)
-      .attr("x2", (d) => d.target.x)
-      .attr("y2", (d) => d.target.y)
+      .attr("x1", (d) => (d.source as d3.HierarchyPointNode<TreeNode>).x)
+      .attr("y1", (d) => (d.source as d3.HierarchyPointNode<TreeNode>).y)
+      .attr("x2", (d) => (d.target as d3.HierarchyPointNode<TreeNode>).x)
+      .attr("y2", (d) => (d.target as d3.HierarchyPointNode<TreeNode>).y)
       .attr("stroke", (d) => {
         // If target node is pruned, use red
         if (d.target.data.pruned) {
@@ -444,10 +640,10 @@ function LazyLoadView() {
       })
       .attr("stroke-width", 3);
 
-    // Create node groups
+    // Create node groups with proper positioning
     const groups = g
       .selectAll("g.node")
-      .data(nodes)
+      .data(layout.nodes)
       .enter()
       .append("g")
       .attr("class", "node")
@@ -571,48 +767,55 @@ function LazyLoadView() {
       .attr("class", "text-lg text-black")
       .text((d) => `${d.data.remaining.length}`);
 
-    // Add zoom behavior with correct SVGSVGElement typing
-    const zoom = d3
-      .zoom<SVGSVGElement, unknown>()
-      .scaleExtent([0.25, 2])
-      .on("zoom", (event) => {
-        g.attr("transform", event.transform.toString());
-        setCurrentZoom(event.transform.k);
-        setCurrentTransform(event.transform);
-      });
+    // 设置初始变换
+    if (isInitialRender) {
+      // 计算最佳缩放比例
+      const optimalScale = calculateOptimalScale(layout.width, innerWidth);
+      // 创建初始变换
+      const initialTransform = createInitialTransform(optimalScale);
 
-    zoomBehaviorRef.current = zoom;
-
-    // Apply zoom safely
-    if (svgRef.current) {
-      svgElement.call(zoom);
-
-      // Apply previous transform if available, or calculate a default one
+      // 应用初始变换
       if (currentTransform) {
-        // Use type assertion to resolve compatibility with transition
-        svgElement.call(zoom.transform as any, currentTransform);
-      } else {
-        // Initial transform to fit the tree in view
-        const initialScale = Math.min(
-          innerWidth / (root.descendants().length * nodeSpacing * 0.8),
-          0.9, // Cap at 90% to leave some margin
+        g.attr(
+          "transform",
+          `translate(${centerX}, ${margin.top}) translate(${currentTransform.x}, ${currentTransform.y}) scale(${currentTransform.k})`,
         );
-
-        // Center the tree in the view
-        const initialTransform = d3.zoomIdentity
-          .translate(width / 5, 30)
-          .scale(initialScale);
-
-        // Use type assertion to resolve compatibility with transition
-        svgElement.call(zoom.transform as any, initialTransform);
-        setCurrentZoom(initialScale);
+      } else {
+        g.attr(
+          "transform",
+          `translate(${centerX}, ${margin.top}) translate(${initialTransform.x}, ${initialTransform.y}) scale(${initialTransform.k})`,
+        );
+        setCurrentTransform(initialTransform);
+        setCurrentZoom(initialTransform.k);
       }
+
+      setIsInitialRender(false);
+    } else if (currentTransform) {
+      // 应用已有的变换
+      g.attr(
+        "transform",
+        `translate(${centerX}, ${margin.top}) translate(${currentTransform.x}, ${currentTransform.y}) scale(${currentTransform.k})`,
+      );
     }
-  };
+  }, [
+    containerDimensions,
+    defaultTrees,
+    selectedTreeId,
+    isFullScreen,
+    calculateTreeLayout,
+    handleNodeClick,
+    getPruningInfo,
+    candidateList,
+    isInitialRender,
+    currentTransform,
+    calculateOptimalScale,
+    createInitialTransform,
+    setupDragHandling,
+  ]);
 
   // Render tree or message when dependencies change
-  useEffect(() => {
-    if (defaultTrees.length > 0 && !isWinnerSelected()) {
+  useLayoutEffect(() => {
+    if (defaultTrees.length > 0 && !isBigDataWinnerSelected()) {
       renderTree();
     }
 
@@ -622,96 +825,99 @@ function LazyLoadView() {
         d3.select(svgRef.current).on(".zoom", null);
       }
     };
-  }, [
-    selectedTreeId,
-    defaultTrees,
-    candidateList,
-    containerDimensions,
-    isFullScreen,
-    winnerInfo,
-  ]);
+  }, [renderTree, defaultTrees.length, isBigDataWinnerSelected, renderKey]);
 
   // Handle zoom level changes
-  const handleZoomChange = (scaleFactor: number) => {
-    if (zoomBehaviorRef.current && svgRef.current) {
-      // Use proper typing for SVG selection
-      const svgElement = d3.select<SVGSVGElement, unknown>(svgRef.current);
-      const node = svgElement.node();
+  const handleZoomChange = useCallback(
+    (scaleFactor: number) => {
+      if (!currentTransform || !gRef.current) return;
 
-      if (node) {
-        // Get current transform to maintain center point during zoom
-        const transform = d3.zoomTransform(node);
+      // 获取当前变换的位置，保持位置不变，只改变缩放比例
+      const newTransform = d3.zoomIdentity
+        .translate(currentTransform.x, currentTransform.y)
+        .scale(scaleFactor);
 
-        // Calculate new transform with adjusted scale but maintaining center
-        const newTransform = d3.zoomIdentity
-          .translate(transform.x, transform.y)
-          .scale(scaleFactor);
+      // 应用新变换
+      const width = containerDimensions.width || dimensions.width;
+      const centerX = width / 2;
+      const margin = { top: 30, right: 40, bottom: 30, left: 40 };
 
-        // Use type assertion to resolve the incompatibility with transition
-        svgElement
-          .transition()
-          .duration(500)
-          .call(zoomBehaviorRef.current.transform as any, newTransform);
+      d3.select(gRef.current)
+        .transition()
+        .duration(300)
+        .attr(
+          "transform",
+          `translate(${centerX}, ${margin.top}) translate(${newTransform.x}, ${newTransform.y}) scale(${newTransform.k})`,
+        );
 
-        setCurrentZoom(scaleFactor);
-        setCurrentTransform(newTransform);
-      }
-    }
-  };
+      // 更新状态
+      setCurrentZoom(scaleFactor);
+      setCurrentTransform(newTransform);
+    },
+    [currentTransform, containerDimensions],
+  );
+
+  // Function to handle double click for resetting view
+  const handleDoubleClick = useCallback(() => {
+    handleResetView();
+  }, []);
 
   // Reset view to fit all nodes
-  const handleResetView = () => {
-    if (zoomBehaviorRef.current && svgRef.current) {
-      // Use proper typing for SVG selection
-      const svgElement = d3.select<SVGSVGElement, unknown>(svgRef.current);
-      const width = containerDimensions.width || dimensions.width;
-      const height = containerDimensions.height || dimensions.height;
+  const handleResetView = useCallback(() => {
+    if (!gRef.current) return;
 
-      // Use the same margin configuration as in the rendering effect
-      const margin = { top: 30, right: 40, bottom: 30, left: 40 };
-      const innerWidth = width - margin.left - margin.right;
+    const width = containerDimensions.width || dimensions.width;
+    const height = containerDimensions.height || dimensions.height;
+    const margin = { top: 30, right: 40, bottom: 30, left: 40 };
+    const innerWidth = width - margin.left - margin.right;
+    const centerX = width / 2;
 
-      // Get the target tree
-      const targetTree = defaultTrees.find(
-        (tree) => tree.rootId === selectedTreeId,
+    // 获取当前树
+    const targetTree = defaultTrees.find(
+      (tree) => tree.rootId === selectedTreeId,
+    );
+
+    if (!targetTree) return;
+
+    // 计算树布局
+    const layout = calculateTreeLayout(
+      targetTree.tree,
+      innerWidth,
+      height - margin.top - margin.bottom,
+    );
+
+    // 计算最佳缩放比例
+    const optimalScale = calculateOptimalScale(layout.width, innerWidth);
+
+    // 创建初始变换
+    const initialTransform = createInitialTransform(optimalScale);
+
+    // 应用变换
+    d3.select(gRef.current)
+      .transition()
+      .duration(500)
+      .attr(
+        "transform",
+        `translate(${centerX}, ${margin.top}) translate(${initialTransform.x}, ${initialTransform.y}) scale(${initialTransform.k})`,
       );
-      if (!targetTree) return;
 
-      // Create hierarchy for the current tree state
-      const root = d3.hierarchy(targetTree.tree);
+    // 更新状态
+    setCurrentZoom(optimalScale);
+    setCurrentTransform(initialTransform);
 
-      // Calculate the node spacing exactly as in the rendering logic
-      const nodeCounts = countVisibleNodesAtDepth(targetTree.tree);
-      const maxNodesAtAnyLevel = Math.max(...Object.values(nodeCounts), 1);
-      const nodeSpacing = Math.max(
-        innerWidth / (maxNodesAtAnyLevel + 1),
-        NODE_RADIUS * 2 + NODE_MARGIN,
-      );
-
-      // Use the exact same scale calculation as the initial render
-      const initialScale = Math.min(
-        innerWidth / (root.descendants().length * nodeSpacing * 0.8),
-        0.9,
-      );
-
-      // Create the transform exactly as in the initial setup
-      const initialTransform = d3.zoomIdentity
-        .translate(width / 5, 30)
-        .scale(initialScale);
-
-      // Use type assertion to resolve the incompatibility with transition
-      svgElement
-        .transition()
-        .duration(750)
-        .call(zoomBehaviorRef.current.transform as any, initialTransform);
-
-      setCurrentZoom(initialScale);
-      setCurrentTransform(initialTransform);
-    }
-  };
+    // 强制重新渲染视图
+    setRenderKey((prev) => prev + 1);
+  }, [
+    containerDimensions,
+    calculateTreeLayout,
+    defaultTrees,
+    selectedTreeId,
+    calculateOptimalScale,
+    createInitialTransform,
+  ]);
 
   // Toggle fullscreen with improved handling
-  const toggleFullScreen = () => {
+  const toggleFullScreen = useCallback(() => {
     if (!containerRef.current) return;
 
     if (!isFullScreen) {
@@ -721,6 +927,8 @@ function LazyLoadView() {
           containerRef.current.requestFullscreen();
         } else if ((containerRef.current as any).mozRequestFullScreen) {
           (containerRef.current as any).mozRequestFullScreen();
+        } else if ((containerRef.current as any).webkitRequestFullscreen) {
+          (containerRef.current as any).webkitRequestFullscreen();
         } else if ((containerRef.current as any).msRequestFullscreen) {
           (containerRef.current as any).msRequestFullscreen();
         }
@@ -737,6 +945,8 @@ function LazyLoadView() {
           document.exitFullscreen();
         } else if ((document as any).mozCancelFullScreen) {
           (document as any).mozCancelFullScreen();
+        } else if ((document as any).webkitExitFullscreen) {
+          (document as any).webkitExitFullscreen();
         } else if ((document as any).msExitFullscreen) {
           (document as any).msExitFullscreen();
         }
@@ -747,7 +957,7 @@ function LazyLoadView() {
         setIsFullScreen(false);
       }
     }
-  };
+  }, [isFullScreen]);
 
   // Listen for fullscreen change events with improved handling
   useEffect(() => {
@@ -756,6 +966,7 @@ function LazyLoadView() {
       const isInFullScreen = !!(
         document.fullscreenElement ||
         (document as any).mozFullScreenElement ||
+        (document as any).webkitFullscreenElement ||
         (document as any).msFullscreenElement
       );
 
@@ -802,7 +1013,7 @@ function LazyLoadView() {
   }, [isFullScreen]);
 
   // Render the winner message when the winner is selected
-  const renderWinnerMessage = () => {
+  const renderWinnerMessage = useCallback(() => {
     if (!winnerInfo) return null;
 
     const { name, shortName } = getSmartDisplayName(
@@ -844,7 +1055,7 @@ function LazyLoadView() {
         </div>
       </div>
     );
-  };
+  }, [winnerInfo, candidateList, setSelectedTreeId]);
 
   return (
     <div className="flex flex-col h-full">
@@ -861,8 +1072,9 @@ function LazyLoadView() {
             : "w-full h-96 flex-grow overflow-hidden"
         }`}
         data-tour="tree-view"
+        onDoubleClick={handleDoubleClick}
       >
-        {isWinnerSelected() ? (
+        {isBigDataWinnerSelected() ? (
           renderWinnerMessage()
         ) : (
           <svg
@@ -874,7 +1086,7 @@ function LazyLoadView() {
           />
         )}
 
-        {isFullScreen && !isWinnerSelected() && (
+        {isFullScreen && !isBigDataWinnerSelected() && (
           <div className="fixed bottom-0 left-0 right-0 flex justify-between items-center px-4 py-2 border-t bg-white z-20">
             <div></div>
             <div className="flex items-center space-x-2">
@@ -948,7 +1160,7 @@ function LazyLoadView() {
       </div>
 
       {/* Controls when not in fullscreen mode */}
-      {!isFullScreen && !isWinnerSelected() && (
+      {!isFullScreen && !isBigDataWinnerSelected() && (
         <div className="flex justify-between items-center mt-2 px-4 py-2 border-t bg-white">
           <div></div>
           <div className="flex items-center space-x-2">
