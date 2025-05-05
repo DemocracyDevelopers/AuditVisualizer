@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Tooltip,
   TooltipTrigger,
@@ -26,15 +25,18 @@ const TooltipWithIcon: React.FC<TooltipWithIconProps> = ({
       <Tooltip>
         <TooltipTrigger asChild>
           <span className="ml-2 relative">
-            {/* Information Icon */}
-            <FaInfoCircle className="text-black cursor-pointer" size={18} />
+            {/* Automatically adapts to dark mode */}
+            <FaInfoCircle
+              className="text-foreground dark:text-foreground cursor-pointer"
+              size={18}
+            />
           </span>
         </TooltipTrigger>
 
         <TooltipContent
           side="right"
           align="center"
-          className="bg-white text-black rounded-lg shadow-lg p-4 w-64"
+          className="bg-popover text-popover-foreground rounded-lg shadow-lg p-4 w-64"
         >
           <div className="font-bold mb-2">{title}</div>
           <div className="font-normal">
@@ -43,7 +45,7 @@ const TooltipWithIcon: React.FC<TooltipWithIconProps> = ({
               href={linkHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-500 hover:underline"
+              className="text-primary underline hover:opacity-80"
             >
               {linkText}
             </Link>
