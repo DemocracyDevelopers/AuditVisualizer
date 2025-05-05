@@ -17,7 +17,6 @@ const Avatar = React.forwardRef<
 >(({ className, candidateId, displayStyle = "auto", ...props }, ref) => {
   const { candidateList } = useMultiWinnerDataStore();
   const candidate = candidateList.find((c) => c.id === candidateId);
-  const imageSrc = candidate?.imageSrc;
 
   return (
     <AvatarPrimitive.Root
@@ -28,7 +27,6 @@ const Avatar = React.forwardRef<
       )}
       {...props}
     >
-      <AvatarImage src={imageSrc} alt={candidate?.name || "Avatar"} />
       <AvatarFallback
         name={candidate?.name || "Unknown"}
         candidateId={candidateId}
@@ -103,9 +101,10 @@ function getSmartDisplayName(
   currentId: number,
   candidateList: { id: number; name: string }[],
   maxLength: number = 7,
-): { shortName: string; explanation?: string } {
+): { shortName: string; explanation: string; name: string } {
   const current = candidateList.find((c) => c.id === currentId);
-  if (!current || !current.name) return { shortName: "???" };
+  if (!current || !current.name)
+    return { shortName: "???", explanation: "???", name: "???" };
 
   const parts = current.name.trim().split(/\s+/);
   const firstName = parts[0];
@@ -126,12 +125,14 @@ function getSmartDisplayName(
       return {
         shortName: `${truncateWithDots(firstName)}${circledNumber}`,
         explanation: `${current.name} (${index + 1})`,
+        name: current.name,
       };
     }
 
     return {
       shortName: truncateWithDots(firstName),
       explanation: current.name,
+      name: current.name,
     };
   }
 
@@ -151,6 +152,7 @@ function getSmartDisplayName(
         ? `${firstName} ${lastInitial}.`
         : truncateWithDots(firstName),
       explanation: current.name,
+      name: current.name,
     };
   }
 
@@ -164,6 +166,7 @@ function getSmartDisplayName(
       shortName:
         display.length > maxLength ? display.slice(0, maxLength) : display,
       explanation: `${current.name} (${index + 1})`,
+      name: current.name,
     };
   }
 
@@ -171,6 +174,7 @@ function getSmartDisplayName(
     shortName:
       display.length > maxLength ? display.slice(0, maxLength) : display,
     explanation: current.name,
+    name: current.name,
   };
 }
 

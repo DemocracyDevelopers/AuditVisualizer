@@ -1,10 +1,7 @@
 // components/describe-raire-result.tsx
 
 import React from "react";
-import {
-  assertion_description_with_triangles,
-  Assertion,
-} from "../../../lib/explain/prettyprint_assertions_and_pictures";
+import { Assertion } from "../../../lib/explain/prettyprint_assertions_and_pictures";
 // ... import other necessary functions ...
 
 interface DescribeRaireResultProps {

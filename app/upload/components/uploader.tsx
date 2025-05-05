@@ -3,9 +3,11 @@ import { CloudUpload, File, ArrowLeft, Link } from "lucide-react";
 import CustomAlertDialog from "./alert-dialog";
 import UploadProgress from "./progress";
 import useMultiWinnerDataStore from "../../../store/multi-winner-data";
-import { explainAssertions } from "../../explain-assertions/components/explain-process";
+import { validateInputData } from "../../explain-assertions/components/explain-process";
 import { useRouter } from "next/navigation";
 import { AvatarColor } from "@/utils/avatar-color";
+import { useFileDataStore } from "@/store/fileData";
+import { getContentFromAssertion } from "@/utils/candidateTools";
 
 interface UploaderProps {
   className?: string;
@@ -135,12 +137,16 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
         const result = e.target?.result;
 
         if (typeof result === "string") {
+          // 存储内容
+          useFileDataStore.setState({ fileData: result });
+
           // 调用核心库中的 explainAssertions 函数进行解析和校验
-          const response = explainAssertions(result); // 直接将文件内容传递给核心库
+          // const response = explainAssertions(result); // 直接将文件内容传递给核心库
+          const response = validateInputData(result);
           // 根据核心库返回的 response 进行处理
           if (response.success) {
             // 成功解析并校验，将数据存储到全局状态中
-            setMultiWinner(response.data);
+            // setMultiWinner(response.data);
             const jsonData = JSON.parse(result);
             const candidateList = jsonData.metadata.candidates.map(
               (name: string, index: number) => ({
@@ -151,18 +157,6 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
             );
 
             setCandidateList(candidateList);
-
-            // 将候选人列表转换为字典，以便更快地查找名字
-            const candidateMap = candidateList.reduce(
-              (
-                acc: { [key: number]: string },
-                candidate: { id: number; name: string; color: string },
-              ) => {
-                acc[candidate.id] = candidate.name;
-                return acc;
-              },
-              {} as { [key: number]: string },
-            );
 
             // 从 jsonData 中提取 assertions
             const assertions = jsonData.solution.Ok.assertions;
@@ -183,28 +177,16 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
                 index: number,
               ) => {
                 const { assertion, difficulty, margin } = assertionObj;
-                const { type, winner, loser, continuing } = assertion;
-
-                // 获取 winner 和 loser 的名字
-                const winnerName = candidateMap[winner];
-                const loserName = candidateMap[loser];
-
-                // 根据不同类型生成 content 字段
-                let content = "";
-                if (type === "NEN") {
-                  const continuingNames = continuing
-                    .map((id) => candidateMap[id])
-                    .join(", ");
-                  content = `${winnerName} > ${loserName} if only {${continuingNames}} remain`;
-                } else if (type === "NEB") {
-                  content = `${winnerName} NEB ${loserName}`;
-                }
+                const { type, winner } = assertion;
 
                 // 返回 assertionList 的每一项
                 return {
                   index: index + 1, // index 从 1 开始
                   winner: winner, // 将 winner 转化为名字
-                  content, // 生成的内容
+                  content: getContentFromAssertion({
+                    assertion,
+                    candidateList,
+                  }), // 生成的内容
                   type, // 保持 type 不变
                   difficulty, // 保持 difficulty 不变
                   margin, // 保持 margin 不变

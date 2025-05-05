@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import { FC, useEffect, useState } from "react";
 import Card from "./components/card";
 import AssertionTable from "./components/assertion-table";
 import AssertionsDetailsModal from "./components/assertions-details-modal";
@@ -11,14 +11,20 @@ import AuditProgressAnimation from "./components/audit-progress-animation"; // E
 import EliminationTree from "./components/elimination-tree";
 import AvatarAssignColor from "./components/avatar-assign-color"; // 引入 Avatar 组件
 import useMultiWinnerDataStore from "@/store/multi-winner-data";
-// import multiWinnerData from "@/store/multi-winner-data"; // 引入 zustand store
+import VerificationProgress from "@/components/verification-progress";
 
 import { useTour } from "@reactour/tour";
 
-import { useEffect } from "react";
 import { Workflow } from "lucide-react";
+import { useFileDataStore } from "@/store/fileData";
+import {
+  explainAssertions,
+  getAssertions,
+} from "../explain-assertions/components/explain-process";
+import { AvatarColor } from "@/utils/avatar-color";
+import { useRouter } from "next/navigation";
 
-const Dashboard: React.FC = () => {
+const Dashboard: FC = () => {
   const { setIsOpen } = useTour();
 
   const startTour = () => {
@@ -26,6 +32,7 @@ const Dashboard: React.FC = () => {
       setIsOpen(true);
     }
   };
+  const fileData = useFileDataStore((state) => state.fileData);
 
   const tour = useTour();
 
@@ -37,8 +44,98 @@ const Dashboard: React.FC = () => {
     }
   }, [tour]);
 
-  const { candidateList, assertionList, winnerInfo } =
-    useMultiWinnerDataStore();
+  const {
+    candidateList,
+    assertionList,
+    winnerInfo,
+    setWinnerInfo,
+    setCandidateList,
+    setAssertionList,
+  } = useMultiWinnerDataStore();
+  const router = useRouter();
+  useEffect(() => {
+    const avatarColor = new AvatarColor();
+    // 成功解析并校验，将数据存储到全局状态中
+    if (!fileData) {
+      router.push("/upload");
+      return;
+    }
+    const jsonData = JSON.parse(fileData);
+    const candidateList = jsonData.metadata.candidates.map(
+      (name: string, index: number) => ({
+        id: index,
+        name: name,
+        color: avatarColor.getColor(index),
+      }),
+    );
+
+    setCandidateList(candidateList);
+
+    // 将候选人列表转换为字典，以便更快地查找名字
+    const candidateMap = candidateList.reduce(
+      (
+        acc: { [key: number]: string },
+        candidate: { id: number; name: string; color: string },
+      ) => {
+        acc[candidate.id] = candidate.name;
+        return acc;
+      },
+      {} as { [key: number]: string },
+    );
+
+    // 从 jsonData 中提取 assertions
+    const assertions = getAssertions(fileData);
+
+    // 根据 assertions 生成 assertionList
+    const assertionList = assertions.map(
+      (
+        assertionObj: {
+          assertion: {
+            type: string;
+            winner: number;
+            loser: number;
+            continuing: number[];
+          };
+          difficulty: number;
+          margin: number;
+        },
+        index: number,
+      ) => {
+        const { assertion, difficulty, margin } = assertionObj;
+        const { type, winner, loser, continuing } = assertion;
+
+        // 获取 winner 和 loser 的名字
+        const winnerName = candidateMap[winner];
+        const loserName = candidateMap[loser];
+
+        // 根据不同类型生成 content 字段
+        let content = "";
+        if (type === "NEN") {
+          const continuingNames = continuing
+            .map((id) => candidateMap[id])
+            .join(", ");
+          content = `${winnerName} > ${loserName} if only {${continuingNames}} remain`;
+        } else if (type === "NEB") {
+          content = `${winnerName} NEB ${loserName}`;
+        }
+
+        // 返回 assertionList 的每一项
+        return {
+          index: index + 1, // index 从 1 开始
+          winner: winner, // 将 winner 转化为名字
+          content, // 生成的内容
+          type, // 保持 type 不变
+          difficulty, // 保持 difficulty 不变
+          margin, // 保持 margin 不变
+        };
+      },
+    );
+    setAssertionList(assertionList);
+
+    const winnerId = jsonData.solution.Ok.winner;
+    const winnerName = jsonData.metadata.candidates[winnerId];
+    setWinnerInfo({ id: winnerId, name: winnerName });
+  }, [fileData]);
 
   // 将所有 Hooks 移到顶层
   const [isAvatarReady, setIsAvatarReady] = useState(false);
@@ -78,17 +175,6 @@ const Dashboard: React.FC = () => {
   // 获取候选人的数量
   const candidateNum = candidateList.length;
 
-  // // 获取胜利者的信息
-  // const winner =
-  //   assertionList.length > 0
-  //     ? candidateList.find(
-  //         (candidate) => candidate.id === assertionList[0].winner,
-  //       ) || {
-  //         id: -1,
-  //         name: "Unknown",
-  //       }
-  //     : { id: -1, name: "Unknown" };
-
   // 获取断言的数量
   const assertionNum = assertionList.length;
 
@@ -99,7 +185,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="p-4">
       <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-12 flex justify-end gap-4 mb-2 pr-6">
+        <div className="absolute right-4 top-8 col-span-12 flex justify-end gap-4 mb-2 pr-6">
           <Link href="/upload">
             <Button size="sm">
               Change File
@@ -111,38 +197,37 @@ const Dashboard: React.FC = () => {
             <Workflow className="ml-2" size={16} />
           </Button>
         </div>
-        {/* 其他内容 */}
       </div>
-      {/* 文件上传按钮
-      <div className="flex justify-end mb-4 mt-[-20px] pr-6">
-        <Link href="/upload">
-          <Button size="sm">
-            Change File
-            <FilePenLine className="ml-2" size={16} />
-          </Button>
-        </Link>
-      </div> */}
 
       {/* Grid 布局 */}
       <div className="grid grid-cols-12 gap-6 p-6">
         {/* 左侧区域 */}
         <div className="col-span-12 md:col-span-8 space-y-6">
           {/* 数据卡片 */}
-          <div
-            data-tour="first-step"
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
-          >
-            <Card
-              title="Candidate"
-              value={candidateNum}
-              icon={<FaUserFriends />}
-            />
-            <Card
-              title="Winner"
-              value={winnerInfo ? winnerInfo.name : "Unknown"} // 渲染 winnerInfo 的 name 字段
-              icon={<FaTrophy />}
-            />
-            <Card title="Assertion" value={assertionNum} icon={<FaList />} />
+          <div className="w-full overflow-x-auto">
+            <div className="flex flex-nowrap gap-2 md:gap-6 min-w-full pb-2">
+              <div className="flex-1 min-w-max">
+                <Card
+                  title="Candidate"
+                  value={candidateNum}
+                  icon={<FaUserFriends />}
+                />
+              </div>
+              <div className="flex-1 min-w-max">
+                <Card
+                  title="Winner"
+                  value={winnerInfo ? winnerInfo.name : "Unknown"}
+                  icon={<FaTrophy />}
+                />
+              </div>
+              <div className="flex-1 min-w-max">
+                <Card
+                  title="Assertion"
+                  value={assertionNum}
+                  icon={<FaList />}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Elimination Tree section */}
@@ -170,6 +255,8 @@ const Dashboard: React.FC = () => {
           <AssertionTable assertions={assertionsWithNames} />
         </div>
       </div>
+      {/* verification */}
+      {/* <VerificationProgress /> */}
 
       {/* Modal 组件 */}
       <AssertionsDetailsModal
