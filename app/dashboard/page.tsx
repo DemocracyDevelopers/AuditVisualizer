@@ -29,11 +29,23 @@ import {
 import { AvatarColor } from "@/utils/avatar-color";
 import { useRouter } from "next/navigation";
 
+import useTreeTabStore from "@/store/use-tree-tab-store";
+
 const Dashboard: FC = () => {
   const { setIsOpen } = useTour();
 
+  const startStepByStepTab = () => {
+    useTreeTabStore.getState().setCurrentTab("step-by-step");
+  };
+
+  const storeTabState = () => {
+    useTreeTabStore.getState().backupTab();
+  };
+
   const startTour = () => {
     if (setIsOpen) {
+      storeTabState();
+      startStepByStepTab();
       setIsOpen(true);
     }
   };
@@ -44,6 +56,7 @@ const Dashboard: FC = () => {
   useEffect(() => {
     const shouldStart = sessionStorage.getItem("startTour");
     if (shouldStart === "true" && tour.setIsOpen) {
+      startStepByStepTab();
       tour.setIsOpen(true);
       sessionStorage.removeItem("startTour");
     }
