@@ -48,17 +48,13 @@ const Dashboard: FC = () => {
       sessionStorage.removeItem("startTour");
     }
   }, [tour]);
-  
-  const { candidateList, assertionList, winnerInfo, multiWinner } =
+
+  const { candidateList, assertionList, winnerInfo } =
     useMultiWinnerDataStore();
 
   // Ensure hooks are always called in the same order
   const [isAvatarReady, setIsAvatarReady] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  if (!multiWinner) {
-    return <div>Please Re-Upload File</div>;
-  }
 
   // 1. 拿到 name 列表，等价于 metadata.candidates
   const names = candidateList.map((c) => c.name);
