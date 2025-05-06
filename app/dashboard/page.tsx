@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import { FC, useEffect, useState } from "react";
 import Card from "./components/card";
 import AssertionTable from "./components/assertion-table";
 import AssertionsDetailsModal from "./components/assertions-details-modal";
@@ -20,10 +20,16 @@ import {
 
 import { useTour } from "@reactour/tour";
 
-import { useEffect } from "react";
 import { Workflow } from "lucide-react";
+import { useFileDataStore } from "@/store/fileData";
+import {
+  explainAssertions,
+  getAssertions,
+} from "../explain-assertions/components/explain-process";
+import { AvatarColor } from "@/utils/avatar-color";
+import { useRouter } from "next/navigation";
 
-const Dashboard: React.FC = () => {
+const Dashboard: FC = () => {
   const { setIsOpen } = useTour();
 
   const startTour = () => {
@@ -31,6 +37,7 @@ const Dashboard: React.FC = () => {
       setIsOpen(true);
     }
   };
+  const fileData = useFileDataStore((state) => state.fileData);
 
   const tour = useTour();
 
@@ -41,7 +48,7 @@ const Dashboard: React.FC = () => {
       sessionStorage.removeItem("startTour");
     }
   }, [tour]);
-
+  
   const { candidateList, assertionList, winnerInfo, multiWinner } =
     useMultiWinnerDataStore();
 
@@ -124,17 +131,6 @@ const Dashboard: React.FC = () => {
   // 获取候选人的数量
   const candidateNum = candidateList.length;
 
-  // // 获取胜利者的信息
-  // const winner =
-  //   assertionList.length > 0
-  //     ? candidateList.find(
-  //         (candidate) => candidate.id === assertionList[0].winner,
-  //       ) || {
-  //         id: -1,
-  //         name: "Unknown",
-  //       }
-  //     : { id: -1, name: "Unknown" };
-
   // 获取断言的数量
   const assertionNum = assertionList.length;
 
@@ -145,7 +141,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="p-4">
       <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-12 flex justify-end gap-4 mb-2 pr-6">
+        <div className="absolute right-4 top-8 col-span-12 flex justify-end gap-4 mb-2 pr-6">
           <Link href="/upload">
             <Button size="sm">
               Change File
@@ -157,38 +153,37 @@ const Dashboard: React.FC = () => {
             <Workflow className="ml-2" size={16} />
           </Button>
         </div>
-        {/* 其他内容 */}
       </div>
-      {/* 文件上传按钮
-      <div className="flex justify-end mb-4 mt-[-20px] pr-6">
-        <Link href="/upload">
-          <Button size="sm">
-            Change File
-            <FilePenLine className="ml-2" size={16} />
-          </Button>
-        </Link>
-      </div> */}
 
       {/* Grid 布局 */}
       <div className="grid grid-cols-12 gap-6 p-6">
         {/* 左侧区域 */}
         <div className="col-span-12 md:col-span-8 space-y-6">
           {/* 数据卡片 */}
-          <div
-            data-tour="first-step"
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
-          >
-            <Card
-              title="Candidate"
-              value={candidateNum}
-              icon={<FaUserFriends />}
-            />
-            <Card
-              title="Winner"
-              value={winnerInfo ? winnerInfo.name : "Unknown"} // 渲染 winnerInfo 的 name 字段
-              icon={<FaTrophy />}
-            />
-            <Card title="Assertion" value={assertionNum} icon={<FaList />} />
+          <div className="w-full overflow-x-auto">
+            <div className="flex flex-nowrap gap-2 md:gap-6 min-w-full pb-2">
+              <div className="flex-1 min-w-max">
+                <Card
+                  title="Candidate"
+                  value={candidateNum}
+                  icon={<FaUserFriends />}
+                />
+              </div>
+              <div className="flex-1 min-w-max">
+                <Card
+                  title="Winner"
+                  value={winnerInfo ? winnerInfo.name : "Unknown"}
+                  icon={<FaTrophy />}
+                />
+              </div>
+              <div className="flex-1 min-w-max">
+                <Card
+                  title="Assertion"
+                  value={assertionNum}
+                  icon={<FaList />}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Elimination Tree section */}
@@ -221,6 +216,8 @@ const Dashboard: React.FC = () => {
           />
         </div>
       </div>
+      {/* verification */}
+      {/* <VerificationProgress /> */}
 
       {/* Modal 组件 */}
       <AssertionsDetailsModal

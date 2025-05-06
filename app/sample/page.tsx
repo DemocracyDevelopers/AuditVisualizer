@@ -2,7 +2,6 @@
 
 import React from "react";
 import SampleSelector from "./components/sample-selector";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import TermsAndPrivacy from "@/app/upload/components/terms-and-privacy";
 import TutorialLink from "@/app/upload/components/tutorial-link";

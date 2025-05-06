@@ -1,13 +1,11 @@
 "use strict";
 import { add, getWebJSON, removeAllChildElements } from "./explain_utils";
 import {
-  checkOptionVisibility,
   describe_raire_result,
   // 以及其他需要的函数和变量
 } from "./prettyprint_assertions_and_pictures";
 // 这里是核心业务的开始
 export function explain_assertions(): void {
-  checkOptionVisibility();
   const inputElement = document.getElementById("Input") as HTMLInputElement;
   const input = inputElement.value;
 
@@ -236,7 +234,6 @@ export function make_examples(): void {
 
 window.onload = function () {
   make_examples();
-  checkOptionVisibility();
   const inputFileElement = document.getElementById(
     "InputFile",
   ) as HTMLInputElement;
