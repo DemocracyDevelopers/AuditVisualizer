@@ -1,34 +1,43 @@
+// components/AuditProgressAnimation.tsx
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import anime from "animejs";
 import { X } from "lucide-react";
 
-interface EnhancedAuditAnimationProps {
+interface AuditProgressAnimationProps {
   championName: string;
+  isValid: boolean;
 }
 
-const EnhancedAuditAnimation = ({
+const AuditProgressAnimation = ({
   championName,
-}: EnhancedAuditAnimationProps) => {
+  isValid,
+}: AuditProgressAnimationProps) => {
   const [isVisible, setIsVisible] = useState(true);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const confirmationRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!isVisible) return; // 如果组件不可见则不执行动画
+    if (!isVisible) return;
+
+    // 动态配色和图标
+    const fromColor = isValid ? "#4caf50" : "#e53e3e";
+    const toColor = isValid ? "#81c784" : "#fc8181";
+    const icon = isValid ? "🏆" : "❌";
+    const message = isValid
+      ? `Verification Pass: ${championName} is the Champion!`
+      : `Verification Failed: ${championName} is not the Champion`;
+
     anime
-      .timeline({
-        easing: "easeInOutQuad",
-        duration: 2000,
-      })
-      // 第一步：渐变进度条动画
+      .timeline({ easing: "easeInOutQuad", duration: 2000 })
+      // 进度条从 0 到 100%
       .add({
         targets: progressBarRef.current,
         width: ["0%", "100%"],
-        backgroundPosition: ["0% 0%", "100% 0%"],
-        // begin: () => console.log("Verification Begin"),
+        background: [`linear-gradient(90deg, ${fromColor}, ${toColor})`],
+        backgroundSize: ["200% 100%", "200% 100%"],
       })
-      // 第二步：淡入并弹出冠军确认信息
+      // 弹出验证信息
       .add({
         targets: confirmationRef.current,
         opacity: [0, 1],
@@ -37,47 +46,54 @@ const EnhancedAuditAnimation = ({
         easing: "easeOutExpo",
         begin: () => {
           if (confirmationRef.current) {
-            confirmationRef.current.innerHTML = `<div class="flex items-center justify-center">
-              <span class="mr-2 text-2xl">🏆</span>
-              <span>Verification Pass!<strong>${championName}</strong> is the Champion!</span>
-            </div>`;
+            confirmationRef.current.innerHTML = `
+              <div class="flex items-center justify-center">
+                <span class="mr-2 text-2xl">${icon}</span>
+                <span>${message}</span>
+              </div>`;
           }
         },
       })
-      // 第三步：轻微抖动，提升动感
+      // 轻微抖动
       .add({
         targets: confirmationRef.current,
         translateY: [0, -5, 0],
         duration: 500,
         easing: "easeInOutSine",
       });
-  }, [championName, isVisible]);
+  }, [championName, isValid, isVisible]);
 
   if (!isVisible) return null;
 
   return (
-    <div className="fixed right-5 bottom-5 w-[300px] p-[15px] bg-white shadow-[0_0_15px_rgba(0,0,0,0.15)] rounded-[10px] overflow-hidden z-[9999]">
-      {/* 关闭按钮 */}
-      <button
-        onClick={() => setIsVisible(false)}
-        className="absolute top-[5px] right-[5px] border-0 bg-transparent text-[16px] cursor-pointer"
-        aria-label="Close Animation"
-      >
-        <X size={16} />
-      </button>
-      <div className="mb-[12px] text-[15px] font-bold">Audit Progress</div>
-      <div className="h-[12px] w-full rounded-[6px] overflow-hidden bg-gradient-to-r from-[#4caf50] to-[#81c784] [background-size:200%_100%]">
+    <div className="absolute bottom-0 left-0 w-full border-t border-b border-gray-300 bg-white p-4 rounded-b-lg z-50">
+      <div className="flex justify-between items-center mb-2">
+        <div className="text-sm font-bold text-gray-600">Audit Progress</div>
+        <button
+          onClick={() => setIsVisible(false)}
+          className="p-1 bg-transparent hover:bg-gray-100 rounded"
+          aria-label="Close Animation"
+        >
+          <X size={16} className="text-gray-500" />
+        </button>
+      </div>
+      <div className="h-3 w-full rounded bg-gray-100 overflow-hidden">
         <div
           ref={progressBarRef}
-          className="h-full w-0 bg-gradient-to-r from-[#4caf50] to-[#81c784] [background-size:200%_100%]"
+          className="h-full w-0"
+          // 初始背景色，动画时会被覆盖
+          style={{
+            background: `linear-gradient(90deg, ${isValid ? "#4caf50" : "#e53e3e"}, ${isValid ? "#81c784" : "#fc8181"})`,
+            backgroundSize: "200% 100%",
+          }}
         />
       </div>
       <div
         ref={confirmationRef}
-        className="mt-[15px] text-center opacity-0 scale-[0.8] text-[16px] text-[#4caf50]"
-      ></div>
+        className="mt-[15px] text-center opacity-0 scale-[0.8] text-[#4caf50] text-[16px]"
+      />
     </div>
   );
 };
 
-export default EnhancedAuditAnimation;
+export default AuditProgressAnimation;

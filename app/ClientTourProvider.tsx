@@ -17,6 +17,12 @@ export default function ClientTourProvider({
       onClickClose={({ setIsOpen }) => {
         setIsOpen(false);
       }}
+      styles={{
+        popover: (base) => ({
+          ...base,
+          borderRadius: "12px",
+        }),
+      }}
     >
       {children}
     </TourProvider>
