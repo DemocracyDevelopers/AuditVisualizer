@@ -156,7 +156,7 @@ const Dashboard: FC = () => {
         {/* 左侧区域 */}
         <div className="col-span-12 md:col-span-8 space-y-6">
           {/* 数据卡片 */}
-          <div className="w-full overflow-x-auto">
+          <div data-tour="first-step" className="w-full overflow-x-auto">
             <div className="flex flex-nowrap gap-2 md:gap-6 min-w-full pb-2">
               <div className="flex-1 min-w-max">
                 <Card
