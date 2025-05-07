@@ -17,7 +17,6 @@ const Avatar = React.forwardRef<
 >(({ className, candidateId, displayStyle = "auto", ...props }, ref) => {
   const { candidateList } = useMultiWinnerDataStore();
   const candidate = candidateList.find((c) => c.id === candidateId);
-  const imageSrc = candidate?.imageSrc;
 
   return (
     <AvatarPrimitive.Root
@@ -28,7 +27,6 @@ const Avatar = React.forwardRef<
       )}
       {...props}
     >
-      <AvatarImage src={imageSrc} alt={candidate?.name || "Avatar"} />
       <AvatarFallback
         name={candidate?.name || "Unknown"}
         candidateId={candidateId}

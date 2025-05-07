@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import { FC, useEffect, useState } from "react";
 import Card from "./components/card";
 import AssertionTable from "./components/assertion-table";
 import AssertionsDetailsModal from "./components/assertions-details-modal";
@@ -11,14 +11,25 @@ import AuditProgressAnimation from "./components/audit-progress-animation"; // E
 import EliminationTree from "./components/elimination-tree";
 import AvatarAssignColor from "./components/avatar-assign-color"; // 引入 Avatar 组件
 import useMultiWinnerDataStore from "@/store/multi-winner-data";
+import {
+  // inferEliminationPathWithDetails,
+  AssertionInternal,
+  verifyWinnerByDP,
+} from "@/lib/explain/judge_winner";
 // import multiWinnerData from "@/store/multi-winner-data"; // 引入 zustand store
 
 import { useTour } from "@reactour/tour";
 
-import { useEffect } from "react";
 import { Workflow } from "lucide-react";
+import { useFileDataStore } from "@/store/fileData";
+import {
+  explainAssertions,
+  getAssertions,
+} from "../explain-assertions/components/explain-process";
+import { AvatarColor } from "@/utils/avatar-color";
+import { useRouter } from "next/navigation";
 
-const Dashboard: React.FC = () => {
+const Dashboard: FC = () => {
   const { setIsOpen } = useTour();
 
   const startTour = () => {
@@ -26,6 +37,7 @@ const Dashboard: React.FC = () => {
       setIsOpen(true);
     }
   };
+  const fileData = useFileDataStore((state) => state.fileData);
 
   const tour = useTour();
 
@@ -37,12 +49,53 @@ const Dashboard: React.FC = () => {
     }
   }, [tour]);
 
-  const { candidateList, assertionList, winnerInfo } =
+  const { candidateList, assertionList, winnerInfo, multiWinner } =
     useMultiWinnerDataStore();
 
-  // 将所有 Hooks 移到顶层
+  // Ensure hooks are always called in the same order
   const [isAvatarReady, setIsAvatarReady] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false); // 移到这里
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  if (!multiWinner) {
+    return <div>Please Re-Upload File</div>;
+  }
+
+  // 1. 拿到 name 列表，等价于 metadata.candidates
+  const names = candidateList.map((c) => c.name);
+
+  // 2. 利用 content 字符串解析 loser & context
+  const internalAssertions: AssertionInternal[] = assertionList.map((a) => {
+    const high = names[a.winner];
+    let low: string;
+    let context: string[];
+
+    if (a.type === "NEB") {
+      // 格式: "WinnerName NEB LoserName"
+      const parts = a.content.split(" NEB ");
+      low = parts[1].trim();
+      context = [...names];
+    } else {
+      // 格式: "WinnerName > LoserName if only {A, B, ...} remain"
+      // 先提取 "WinnerName > LoserName"
+      const beforeIf = a.content.split(" if only")[0];
+      low = beforeIf.split(" > ")[1].trim();
+
+      // 再提取花括号内的名字列表
+      const m = a.content.match(/\{([^}]+)\}/);
+      context = m ? m[1].split(",").map((s: string) => s.trim()) : []; // 如果解析失败，就空数组
+    }
+
+    return { high, low, context };
+  });
+
+  // 3. 真正的冠军名字
+  const trueWinner = winnerInfo?.name ?? "Unknown";
+
+  // 4. 推导并验证
+  const result = winnerInfo
+    ? verifyWinnerByDP(internalAssertions, names, winnerInfo.name)
+    : null;
+  const isValid = result !== null;
 
   // Avatar 完成后调用的函数
   const handleAvatarComplete = () => {
@@ -72,22 +125,11 @@ const Dashboard: React.FC = () => {
     ...assertion,
     name:
       candidateList.find((candidate) => candidate.id === assertion.winner)
-        ?.name || "Unknown",
+        ?.name ?? "Unknown",
   }));
 
   // 获取候选人的数量
   const candidateNum = candidateList.length;
-
-  // // 获取胜利者的信息
-  // const winner =
-  //   assertionList.length > 0
-  //     ? candidateList.find(
-  //         (candidate) => candidate.id === assertionList[0].winner,
-  //       ) || {
-  //         id: -1,
-  //         name: "Unknown",
-  //       }
-  //     : { id: -1, name: "Unknown" };
 
   // 获取断言的数量
   const assertionNum = assertionList.length;
@@ -99,7 +141,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="p-4">
       <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-12 flex justify-end gap-4 mb-2 pr-6">
+        <div className="absolute right-4 top-8 col-span-12 flex justify-end gap-4 mb-2 pr-6">
           <Link href="/upload">
             <Button size="sm">
               Change File
@@ -111,38 +153,37 @@ const Dashboard: React.FC = () => {
             <Workflow className="ml-2" size={16} />
           </Button>
         </div>
-        {/* 其他内容 */}
       </div>
-      {/* 文件上传按钮
-      <div className="flex justify-end mb-4 mt-[-20px] pr-6">
-        <Link href="/upload">
-          <Button size="sm">
-            Change File
-            <FilePenLine className="ml-2" size={16} />
-          </Button>
-        </Link>
-      </div> */}
 
       {/* Grid 布局 */}
       <div className="grid grid-cols-12 gap-6 p-6">
         {/* 左侧区域 */}
         <div className="col-span-12 md:col-span-8 space-y-6">
           {/* 数据卡片 */}
-          <div
-            data-tour="first-step"
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
-          >
-            <Card
-              title="Candidate"
-              value={candidateNum}
-              icon={<FaUserFriends />}
-            />
-            <Card
-              title="Winner"
-              value={winnerInfo ? winnerInfo.name : "Unknown"} // 渲染 winnerInfo 的 name 字段
-              icon={<FaTrophy />}
-            />
-            <Card title="Assertion" value={assertionNum} icon={<FaList />} />
+          <div className="w-full overflow-x-auto">
+            <div className="flex flex-nowrap gap-2 md:gap-6 min-w-full pb-2">
+              <div className="flex-1 min-w-max">
+                <Card
+                  title="Candidate"
+                  value={candidateNum}
+                  icon={<FaUserFriends />}
+                />
+              </div>
+              <div className="flex-1 min-w-max">
+                <Card
+                  title="Winner"
+                  value={winnerInfo ? winnerInfo.name : "Unknown"}
+                  icon={<FaTrophy />}
+                />
+              </div>
+              <div className="flex-1 min-w-max">
+                <Card
+                  title="Assertion"
+                  value={assertionNum}
+                  icon={<FaList />}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Elimination Tree section */}
@@ -154,7 +195,7 @@ const Dashboard: React.FC = () => {
         {/* 右侧区域：Assertion 表格 */}
         <div
           data-tour="second-step"
-          className="border border-gray-300 col-span-12 md:col-span-4 shadow-md rounded-lg p-6"
+          className="relative border border-gray-300 col-span-12 md:col-span-4 shadow-md rounded-lg p-6"
         >
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold text-gray-600">The Assertions</h3>
@@ -168,8 +209,15 @@ const Dashboard: React.FC = () => {
             Parse from your uploaded file
           </p>
           <AssertionTable assertions={assertionsWithNames} />
+
+          <AuditProgressAnimation
+            championName={winnerInfo ? winnerInfo.name : "Unknown"}
+            isValid={isValid}
+          />
         </div>
       </div>
+      {/* verification */}
+      {/* <VerificationProgress /> */}
 
       {/* Modal 组件 */}
       <AssertionsDetailsModal
@@ -179,10 +227,6 @@ const Dashboard: React.FC = () => {
         maxDifficulty={maxDifficulty}
         minMargin={minMargin}
         candidates={candidateList}
-      />
-
-      <AuditProgressAnimation
-        championName={winnerInfo ? winnerInfo.name : "Unknown"}
       />
     </div>
   );

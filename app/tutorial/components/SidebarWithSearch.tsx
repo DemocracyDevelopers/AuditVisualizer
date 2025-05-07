@@ -14,14 +14,14 @@ interface SidebarProps {
 }
 
 const SidebarWithSearch: React.FC<SidebarProps> = ({
-                                                     sidebarWidth,
-                                                     setSidebarWidth,
-                                                     collapsed,
-                                                     setCollapsed,
-                                                   }) => {
+  sidebarWidth,
+  setSidebarWidth,
+  collapsed,
+  setCollapsed,
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<
-      { content: string; path: string }[]
+    { content: string; path: string }[]
   >([]);
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const [activeSubItem, setActiveSubItem] = useState<string | null>(null);
@@ -41,17 +41,17 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
     }
 
     const currentSection = contentData.find(
-        (section) => pathname === section.path,
+      (section) => pathname === section.path,
     );
     if (currentSection) {
       setExpandedSections((prev) =>
-          prev.includes(currentSection.title)
-              ? prev
-              : [...prev, currentSection.title],
+        prev.includes(currentSection.title)
+          ? prev
+          : [...prev, currentSection.title],
       );
 
       const currentSubItem = currentSection.subItems?.find((subItem) =>
-          pathname.includes(subItem.toLowerCase().replace(/\s/g, "-")),
+        pathname.includes(subItem.toLowerCase().replace(/\s/g, "-")),
       );
       if (currentSubItem) {
         setActiveSubItem(currentSubItem);
@@ -106,8 +106,8 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
     });
 
     const uniqueResults = results.filter(
-        (result, index, self) =>
-            index === self.findIndex((r) => r.content === result.content),
+      (result, index, self) =>
+        index === self.findIndex((r) => r.content === result.content),
     );
 
     setSearchResults(uniqueResults);
@@ -135,9 +135,9 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
   const toggleSection = (title: string, path: string, hasSubItems: boolean) => {
     if (hasSubItems) {
       setExpandedSections((prev) =>
-          prev.includes(title)
-              ? prev.filter((item) => item !== title)
-              : [...prev, title],
+        prev.includes(title)
+          ? prev.filter((item) => item !== title)
+          : [...prev, title],
       );
     } else {
       router.push(path);
@@ -162,148 +162,144 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
   }, [expandedSections]);
 
   return (
-      <>
+    <>
+      <div
+        className="sticky top-6 left-2 flex flex-col"
+        style={{ height: "88vh" }}
+      >
         <div
-            className="sticky top-6 left-2 flex flex-col"
-            style={{height: "88vh"}}
+          className="bg-white shadow-xl rounded-xl transition-transform duration-300 flex-1 overflow-auto"
+          style={{ width: collapsed ? "0px" : `${sidebarWidth}px` }}
         >
-          <div
-              className="bg-white shadow-xl rounded-xl transition-transform duration-300 flex-1 overflow-auto"
-              style={{width: collapsed ? "0px" : `${sidebarWidth}px`}}
-          >
+          {!collapsed && (
+            <div className="p-4">
+              {/* 搜索框区域 */}
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchTerm}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="w-full p-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  onClick={() => handleSearch(searchTerm)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-blue-500 hover:text-blue-700"
+                  aria-label="Search"
+                >
+                  <Search size={18} />
+                </button>
+              </div>
 
-
-            {!collapsed && (
-                <div className="p-4">
-                  {/* 搜索框区域 */}
-                  <div className="relative">
-                    <input
-                        type="text"
-                        placeholder="Search..."
-                        value={searchTerm}
-                        onChange={(e) => handleSearch(e.target.value)}
-                        className="w-full p-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <button
-                        onClick={() => handleSearch(searchTerm)}
-                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-blue-500 hover:text-blue-700"
-                        aria-label="Search"
+              {searchResults.length > 0 && (
+                <ul className="mt-4 bg-gray-50 p-2 rounded-md max-h-60 overflow-y-auto shadow-inner">
+                  {searchResults.map((result, index) => (
+                    <li
+                      key={index}
+                      className="text-blue-600 px-3 py-2 hover:bg-blue-100 rounded cursor-pointer border-b last:border-b-0"
+                      onClick={() =>
+                        handleResultClick(result.path, result.content)
+                      }
                     >
-                      <Search size={18}/>
-                    </button>
-                  </div>
+                      {result.content}
+                    </li>
+                  ))}
+                </ul>
+              )}
 
-                  {searchResults.length > 0 && (
-                      <ul className="mt-4 bg-gray-50 p-2 rounded-md max-h-60 overflow-y-auto shadow-inner">
-                        {searchResults.map((result, index) => (
-                            <li
-                                key={index}
-                                className="text-blue-600 px-3 py-2 hover:bg-blue-100 rounded cursor-pointer border-b last:border-b-0"
-                                onClick={() =>
-                                    handleResultClick(result.path, result.content)
-                                }
-                            >
-                              {result.content}
-                            </li>
-                        ))}
-                      </ul>
-                  )}
+              {searchResults.length === 0 && searchTerm && (
+                <p className="text-gray-500 mt-3 text-sm">No results found.</p>
+              )}
 
-                  {searchResults.length === 0 && searchTerm && (
-                      <p className="text-gray-500 mt-3 text-sm">No results found.</p>
-                  )}
-
-                  {/* 内容目录区域 */}
-                  <div className="mt-6 pt-4 border-t">
-                    <h4 className="text-xl font-bold mb-4">Table of Content</h4>
-                    <ul className="space-y-2">
-                      {contentData.map((section) => (
-                          <li key={section.title}>
-                            <div
-                                className="flex justify-between items-center cursor-pointer py-2"
-                                onClick={() =>
-                                    toggleSection(
-                                        section.title,
-                                        section.path,
-                                        !!section.subItems &&
-                                        section.subItems.length > 0,
-                                    )
-                                }
-                            >
+              {/* 内容目录区域 */}
+              <div className="mt-6 pt-4 border-t">
+                <h4 className="text-xl font-bold mb-4">Table of Content</h4>
+                <ul className="space-y-2">
+                  {contentData.map((section) => (
+                    <li key={section.title}>
+                      <div
+                        className="flex justify-between items-center cursor-pointer py-2"
+                        onClick={() =>
+                          toggleSection(
+                            section.title,
+                            section.path,
+                            !!section.subItems && section.subItems.length > 0,
+                          )
+                        }
+                      >
                         <span
-                            className={`${
-                                expandedSections.includes(section.title) ||
-                                (pathname === section.path &&
-                                    pathname === "/tutorial")
-                                    ? "text-blue-600 font-semibold"
-                                    : "text-gray-800"
-                            }`}
+                          className={`${
+                            expandedSections.includes(section.title) ||
+                            (pathname === section.path &&
+                              pathname === "/tutorial")
+                              ? "text-blue-600 font-semibold"
+                              : "text-gray-800"
+                          }`}
                         >
                           {section.title}
                         </span>
-                              {section.subItems && section.subItems.length > 0 && (
-                                  <span className="text-gray-500">
+                        {section.subItems && section.subItems.length > 0 && (
+                          <span className="text-gray-500">
                             {expandedSections.includes(section.title) ? (
-                                <ChevronDown/>
+                              <ChevronDown />
                             ) : (
-                                <ChevronRight/>
+                              <ChevronRight />
                             )}
                           </span>
-                              )}
-                            </div>
-                            {expandedSections.includes(section.title) &&
-                                section.subItems &&
-                                section.subItems.length > 0 && (
-                                    <ul className="ml-4 mt-2 space-y-1">
-                                      {section.subItems.map((subItem) => (
-                                          <li key={subItem}>
+                        )}
+                      </div>
+                      {expandedSections.includes(section.title) &&
+                        section.subItems &&
+                        section.subItems.length > 0 && (
+                          <ul className="ml-4 mt-2 space-y-1">
+                            {section.subItems.map((subItem) => (
+                              <li key={subItem}>
                                 <span
-                                    className={`block cursor-pointer ${
-                                        activeSubItem === subItem
-                                            ? "text-blue-600 font-semibold"
-                                            : "text-gray-700"
-                                    } hover:underline`}
-                                    onClick={() =>
-                                        handleResultClick(section.path, subItem)
-                                    }
+                                  className={`block cursor-pointer ${
+                                    activeSubItem === subItem
+                                      ? "text-blue-600 font-semibold"
+                                      : "text-gray-700"
+                                  } hover:underline`}
+                                  onClick={() =>
+                                    handleResultClick(section.path, subItem)
+                                  }
                                 >
                                   {subItem}
                                 </span>
-                                          </li>
-                                      ))}
-                                    </ul>
-                                )}
-                          </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-            )}
-          </div>
-
-          {!collapsed && (
-              <div className="flex justify-center py-3 bg-transparent">
-                <button
-                    onClick={collapseAll}
-                    className="bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 p-2 rounded-full shadow-md transition"
-                    aria-label="Collapse sidebar"
-                >
-                  <ChevronLeft size={18}/>
-                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                    </li>
+                  ))}
+                </ul>
               </div>
-          )}
-
-
-          {collapsed && (
-              <button
-                  className="fixed top-1/2 left-0 transform -translate-y-1/2 bg-gray-200 p-2 rounded-r-md shadow-lg"
-                  onClick={toggleSidebar}
-              >
-                <ChevronRight/>
-              </button>
+            </div>
           )}
         </div>
-      </>
+
+        {!collapsed && (
+          <div className="flex justify-center py-3 bg-transparent">
+            <button
+              onClick={collapseAll}
+              className="bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 p-2 rounded-full shadow-md transition"
+              aria-label="Collapse sidebar"
+            >
+              <ChevronLeft size={18} />
+            </button>
+          </div>
+        )}
+
+        {collapsed && (
+          <button
+            className="fixed top-1/2 left-0 transform -translate-y-1/2 bg-gray-200 p-2 rounded-r-md shadow-lg"
+            onClick={toggleSidebar}
+          >
+            <ChevronRight />
+          </button>
+        )}
+      </div>
+    </>
   );
 };
 

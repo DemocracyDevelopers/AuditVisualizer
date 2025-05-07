@@ -14,9 +14,9 @@ const MarginContainer: React.FC<MarginContainerProps> = ({
   children,
 }) => {
   return (
-      <div className="px-6 pt-6 max-w-5xl mx-auto transition-all duration-300">
-          {children}
-      </div>
+    <div className="px-6 pt-6 max-w-5xl mx-auto transition-all duration-300">
+      {children}
+    </div>
   );
 };
 
