@@ -40,10 +40,6 @@ interface CountsObject {
   [depth: number]: number;
 }
 
-// Define D3 specific types with SVGSVGElement instead of Element
-type D3ZoomBehavior = d3.ZoomBehavior<SVGSVGElement, unknown>;
-type D3ZoomEvent = d3.D3ZoomEvent<SVGSVGElement, unknown>;
-
 function LazyLoadView() {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const gRef = useRef<SVGGElement | null>(null);
@@ -207,8 +203,9 @@ function LazyLoadView() {
   const handleNodeClick = useCallback(
     (node: TreeNode, rootId: number) => {
       // If node is pruned, don't expand
+      // Node clicked: node.path
       if (node.pruned) {
-        console.log("Node is pruned, cannot expand");
+        // Node is pruned, cannot expand
         return;
       }
 
@@ -427,21 +424,6 @@ function LazyLoadView() {
   }, [winnerInfo, selectedTreeId, fileData]);
 
   // Helper function to determine pruning type and color
-  const getPruningInfo = useCallback((node: TreeNode) => {
-    if (!node.pruned) {
-      return { type: "NEN", color: "#ff6b6b" }; // Default for safety
-    }
-
-    // Most reliable detection method: convert the entire prunedBy object to a string and check if it contains "neb"
-    const prunedByString = JSON.stringify(node.prunedBy || {}).toLowerCase();
-
-    // If the string contains "neb", determine it as NEB type
-    if (prunedByString.includes("neb")) {
-      return { type: "NEB", color: "#4dabf7" }; // Blue color for NEB
-    } else {
-      return { type: "NEN", color: "#ff6b6b" }; // Red color for NEN
-    }
-  }, []);
 
   // 修复拖拽功能并添加滚轮缩放
   const setupDragHandling = useCallback(
@@ -455,15 +437,19 @@ function LazyLoadView() {
 
       // 设置拖拽开始处理函数
       const handleMouseDown = (event: MouseEvent) => {
-        if (event.button !== 0) return; // 只处理左键点击
+        // 重要: 检查是否点击在SVG本身而不是子元素
+        if (event.target === svgElement.node()) {
+          if (event.button !== 0) return; // 只处理左键点击
+          console.log("SVG背景被点击，开始拖拽");
 
-        setIsDragging(true);
-        setDragStart({
-          x: event.clientX,
-          y: event.clientY,
-        });
+          setIsDragging(true);
+          setDragStart({
+            x: event.clientX,
+            y: event.clientY,
+          });
 
-        svgElement.style("cursor", "grabbing");
+          svgElement.style("cursor", "grabbing");
+        }
       };
 
       // 设置拖拽移动处理函数
@@ -571,6 +557,8 @@ function LazyLoadView() {
   );
 
   // Render the tree visualization with much better positioning
+  // This is the updated renderTree function for LazyLoadView with scissors markers
+
   const renderTree = useCallback(() => {
     if (!svgRef.current) return;
 
@@ -632,13 +620,60 @@ function LazyLoadView() {
       .attr("x2", (d) => (d.target as d3.HierarchyPointNode<TreeNode>).x)
       .attr("y2", (d) => (d.target as d3.HierarchyPointNode<TreeNode>).y)
       .attr("stroke", (d) => {
-        // If target node is pruned, use red
+        // If target node is pruned, use a lighter color
         if (d.target.data.pruned) {
-          return "#ff0000";
+          return "#d4d4d4";
         }
         return "#e9bc39";
       })
       .attr("stroke-width", 3);
+
+    // Add scissors cut markers for pruned nodes
+    g.selectAll("foreignObject.cut-marker")
+      .data(layout.links)
+      .enter()
+      .filter((d) => !!(d.target.data.pruned && d.target.data.prunedBy))
+      .append("foreignObject")
+      .attr("class", "cut-marker")
+      .attr(
+        "x",
+        (d) =>
+          ((d.source as d3.HierarchyPointNode<TreeNode>).x +
+            (d.target as d3.HierarchyPointNode<TreeNode>).x) /
+            2 -
+          12,
+      )
+      .attr(
+        "y",
+        (d) =>
+          ((d.source as d3.HierarchyPointNode<TreeNode>).y +
+            (d.target as d3.HierarchyPointNode<TreeNode>).y) /
+            2 -
+          12,
+      )
+      .attr("width", 24)
+      .attr("height", 24)
+      .attr("class", "cursor-pointer")
+      .html(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scissors">
+        <circle cx="6" cy="6" r="3"/>
+        <path d="M8.12 8.12 12 12"/>
+        <path d="M20 4 8.12 15.88"/>
+        <circle cx="6" cy="18" r="3"/>
+        <path d="M14.8 14.8 20 20"/>
+      </svg>`,
+      )
+      .append("title")
+      .text((d) => {
+        // Add tooltip showing the pruning reason
+        if (d.target.data.prunedBy) {
+          return `Pruned by: ${getContentFromAssertion({
+            assertion: d.target.data.prunedBy,
+            candidateList,
+          })}`;
+        }
+        return "Pruned node";
+      });
 
     // Create node groups with proper positioning
     const groups = g
@@ -649,7 +684,9 @@ function LazyLoadView() {
       .attr("class", "node")
       .attr("transform", (d) => `translate(${d.x},${d.y})`)
       .classed("cursor-pointer", true)
-      .on("click", (event: MouseEvent, d) => {
+      .on("click", function (event: MouseEvent, d) {
+        console.log("svg clicked");
+        event.stopPropagation();
         handleNodeClick(d.data as TreeNode, selectedTreeId);
       });
 
@@ -657,18 +694,8 @@ function LazyLoadView() {
     groups
       .append("circle")
       .attr("r", NODE_RADIUS)
-      .attr("fill", (d) => {
-        // If node is pruned, use light red fill
-        if (d.data.pruned) {
-          return "#ffcccc";
-        }
-        // If node has expandable children, use light orange fill
-        if (d.data.remaining && d.data.remaining.length > 0) {
-          return "#ffe0b2";
-        }
-        return "white";
-      })
-      .attr("stroke", (d) => (d.data.pruned ? "red" : "black"))
+      .attr("fill", (d) => "white")
+      .attr("stroke", (d) => "black")
       .attr("stroke-width", 1);
 
     // Add node text with improved text handling
@@ -713,26 +740,6 @@ function LazyLoadView() {
 
         return tooltip;
       });
-
-    // Add pruning indicators for pruned nodes (NEN, NEB)
-    groups
-      .filter((d) => d.data.pruned)
-      .append("circle")
-      .attr("r", 12)
-      .attr("cy", 40)
-      .attr("fill", (d) => getPruningInfo(d.data).color)
-      .attr("stroke", "white")
-      .attr("stroke-width", 1);
-
-    groups
-      .filter((d) => d.data.pruned)
-      .append("text")
-      .attr("y", 44)
-      .attr("text-anchor", "middle")
-      .attr("font-size", "8px")
-      .attr("font-weight", "bold")
-      .attr("fill", "white")
-      .text((d) => getPruningInfo(d.data).type);
 
     // Add expandable indicators - MODIFIED CODE
     // Only add indicators for nodes that:
@@ -804,7 +811,6 @@ function LazyLoadView() {
     isFullScreen,
     calculateTreeLayout,
     handleNodeClick,
-    getPruningInfo,
     candidateList,
     isInitialRender,
     currentTransform,

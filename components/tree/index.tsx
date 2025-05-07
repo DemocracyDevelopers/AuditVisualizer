@@ -567,37 +567,11 @@ export default function Tree({
       .attr("class", "text-lg text-black")
       .text((d) => (d.data.collapsedCount ? `${d.data.collapsedCount}` : ""));
 
-    // Add collapsible/expandable indicators
-    groups
-      .filter(
-        (d) =>
-          !!(
-            (d.data.children && d.data.children.length > 0) ||
-            (d.data._children && d.data._children.length > 0)
-          ),
-      )
-      .append("circle")
-      .attr("r", 8)
-      .attr("cy", NODE_RADIUS + 15)
-      .attr("fill", "#f0f0f0")
-      .attr("stroke", "#888")
-      .attr("stroke-width", 1);
-
-    groups
-      .filter((d) => !!d.data.children && d.data.children.length > 0)
-      .append("text")
-      .attr("text-anchor", "middle")
-      .attr("y", NODE_RADIUS + 18)
-      .attr("font-size", "12px")
-      .text("-");
-
-    groups
-      .filter((d) => !!d.data._children && d.data._children.length > 0)
-      .append("text")
-      .attr("text-anchor", "middle")
-      .attr("y", NODE_RADIUS + 18)
-      .attr("font-size", "12px")
-      .text("+");
+    // REMOVED: The expandable/collapsible indicators (circles with + and - symbols)
+    // The following 3 blocks have been removed:
+    // 1. The circle background for the +/- indicator
+    // 2. The "-" text for collapsible nodes
+    // 3. The "+" text for expandable nodes
   }, [treeData, dimensions, currentScale, currentTranslate, renderKey]);
 
   return (
