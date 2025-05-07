@@ -8,17 +8,20 @@ import { Crown } from "lucide-react";
 import { Candidate } from "./constants";
 import { useEffect, useRef } from "react";
 import useMultiWinnerDataStore from "@/store/multi-winner-data";
-import { getSmartDisplayName } from "@/components/ui/avatar";
+import { Avatar, getSmartDisplayName } from "@/components/ui/avatar";
+import SearchDropdown from "./search-dropdown";
 
 type CandidateListBarProps = {
-  selectedTreeId: number;
+  selectedTreeId: number | null;
   setSelectedTreeId: (id: number) => void;
+  handleSelectWinner: (id: number) => void;
   candidateList: Candidate[];
 };
 
 function DefaultCandidateListBar({
   selectedTreeId,
   setSelectedTreeId,
+  handleSelectWinner,
   candidateList,
 }: CandidateListBarProps) {
   const { winnerInfo } = useMultiWinnerDataStore();
@@ -36,6 +39,11 @@ function DefaultCandidateListBar({
       el.removeEventListener("wheel", handleWheel);
     };
   }, []);
+
+  const handleCandidateSelect = (candidateId: number) => {
+    setSelectedTreeId(candidateId);
+    //handleSelectWinner(candidateId);
+  };
 
   return (
     <div
@@ -66,14 +74,27 @@ function DefaultCandidateListBar({
               </div>
               <TooltipProvider>
                 <Tooltip>
-                  <TooltipTrigger
-                    onClick={() => setSelectedTreeId(candidate.id)}
-                    className={`flex items-center justify-center rounded-full cursor-pointer 
-								  border-2 text-[10px] leading-tight text-center font-bold px-1 
-								  w-10 h-10
-								  ${selectedTreeId === candidate.id ? "border-blue-500" : "border-black"}`}
-                  >
-                    {shortName}
+                  {/*<TooltipTrigger*/}
+                  {/*  onClick={() => setSelectedTreeId(candidate.id)}*/}
+                  {/*  className={`flex items-center justify-center rounded-full cursor-pointer */}
+                  {/*			  border-2 text-[10px] leading-tight text-center font-bold px-1 */}
+                  {/*			  w-10 h-10*/}
+                  {/*			  ${selectedTreeId === candidate.id ? "border-blue-500" : "border-black"}`}*/}
+                  {/*>*/}
+                  {/*  {shortName}*/}
+                  {/*</TooltipTrigger>*/}
+                  <TooltipTrigger asChild>
+                    <div onClick={() => handleCandidateSelect(candidate.id)}>
+                      <Avatar
+                        candidateId={candidate.id}
+                        className={`cursor-pointer ${
+                          selectedTreeId === candidate.id
+                            ? "border-blue-500"
+                            : "border-black"
+                        }`}
+                        displayStyle="smart"
+                      />
+                    </div>
                   </TooltipTrigger>
                   <TooltipContent>
                     {explanation || candidate.name}
@@ -84,6 +105,10 @@ function DefaultCandidateListBar({
           );
         })}
       </div>
+      <SearchDropdown
+        candidateList={candidateList}
+        onSelect={handleCandidateSelect}
+      />
     </div>
   );
 }
