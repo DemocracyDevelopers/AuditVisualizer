@@ -50,7 +50,7 @@ function CandidateListBar({
       data-tour="fifth-step"
     >
       <div
-        className="flex gap-2 rounded-md w-[220px] px-2 overflow-x-scroll scrollbar-hidden"
+        className="flex gap-2 rounded-md w-[220px] px-2 overflow-x-scroll scrollbar-hidden scrollbar-hidden::-webkit-scrollbar"
         ref={scrollContainerRef}
       >
         {candidateList.map((candidate) => {
