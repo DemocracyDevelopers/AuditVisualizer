@@ -50,10 +50,10 @@ const AssertionTable: React.FC<AssertionTableProps> = ({ assertions }) => {
       }
     }
 
-    return pageNumbers.map((page, index) =>
+    return pageNumbers.map((page) =>
       typeof page === "number" ? (
         <button
-          key={index}
+          key={page}
           onClick={() => handlePageChange(page)}
           className={`px-3 py-1 rounded-md border ${
             currentPage === page ? "bg-black text-white" : "bg-white text-black"
