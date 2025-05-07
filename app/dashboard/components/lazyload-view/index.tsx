@@ -728,7 +728,7 @@ function LazyLoadView() {
       .append("title")
       .text((d) => {
         // Add more information to hover tooltip
-        let tooltip = getSmartDisplayName(d.data.id, candidateList).name;
+        let tooltip = getSmartDisplayName(d.data.id, candidateList).shortName;
 
         // If node is pruned, show pruning reason
         if (d.data.pruned && d.data.prunedBy) {
