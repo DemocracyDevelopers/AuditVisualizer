@@ -4,6 +4,7 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import { TooltipTrigger } from "@radix-ui/react-tooltip";
+import { Avatar } from "@/components/ui/avatar";
 import { Crown } from "lucide-react";
 import { Candidate } from "./constants";
 import SearchDropdown from "./search-dropdown";
@@ -72,14 +73,18 @@ function CandidateListBar({
               </div>
               <TooltipProvider>
                 <Tooltip>
-                  <TooltipTrigger
-                    onClick={() => handleCandidateSelect(candidate.id)}
-                    className={`flex items-center justify-center rounded-full cursor-pointer 
-                                border-2 text-[10px] leading-tight text-center font-bold px-1 
-                                w-10 h-10
-                                ${selectedWinnerId === candidate.id ? "border-blue-500" : "border-black"}`}
-                  >
-                    {shortName}
+                  <TooltipTrigger asChild>
+                    <div onClick={() => handleCandidateSelect(candidate.id)}>
+                      <Avatar
+                        candidateId={candidate.id}
+                        className={`cursor-pointer ${
+                          selectedWinnerId === candidate.id
+                            ? "border-blue-500"
+                            : "border-black"
+                        }`}
+                        displayStyle="smart"
+                      />
+                    </div>
                   </TooltipTrigger>
                   <TooltipContent>
                     {explanation || candidate.name}
