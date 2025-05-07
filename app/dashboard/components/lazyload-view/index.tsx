@@ -203,9 +203,9 @@ function LazyLoadView() {
   const handleNodeClick = useCallback(
     (node: TreeNode, rootId: number) => {
       // If node is pruned, don't expand
-      console.log("Node clicked:", node.path);
+      // Node clicked: node.path
       if (node.pruned) {
-        console.log("Node is pruned, cannot expand");
+        // Node is pruned, cannot expand
         return;
       }
 
