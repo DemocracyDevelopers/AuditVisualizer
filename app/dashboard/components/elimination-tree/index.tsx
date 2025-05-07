@@ -12,10 +12,12 @@ import {
   getCandidateNumber,
 } from "@/app/explain-assertions/components/explain-process";
 import { useFileDataStore } from "@/store/fileData";
+import useTreeTabStore from "@/store/use-tree-tab-store";
 
 function EliminationTree() {
+  const { currentTab, setCurrentTab } = useTreeTabStore();
   // "default" | "step-by-step"
-  const [tabValue, setTabValue] = useState<string>("default");
+  // const [tabValue, setTabValue] = useState<string>("default");
   const [isLocked, setIsLocked] = useState<boolean>(true);
   const [selectedWinnerId, setSelectedWinnerId] = useState<number>(0);
 
@@ -29,10 +31,16 @@ function EliminationTree() {
     }
   }, [fileData]);
 
+  // const handleTabChange = (value: string) => {
+  //   // Only allow changing tabs if not locked
+  //   if (!isLocked || value === tabValue) {
+  //     setTabValue(value);
+  //   }
+  // };
+
   const handleTabChange = (value: string) => {
-    // Only allow changing tabs if not locked
-    if (!isLocked || value === tabValue) {
-      setTabValue(value);
+    if (!isLocked) {
+      setCurrentTab(value as "default" | "step-by-step");
     }
   };
 
@@ -51,7 +59,7 @@ function EliminationTree() {
             />
           </div>
         </div>
-        <Tabs
+        {/* <Tabs
           defaultValue="default"
           onValueChange={handleTabChange}
           value={tabValue}
@@ -82,10 +90,29 @@ function EliminationTree() {
               {isLocked && <Lock className="text-red-500 ml-2" size={16} />}
             </TabsTrigger>
           </TabsList>
+          
+        </Tabs> */}
+        <Tabs value={currentTab} onValueChange={handleTabChange}>
+          <TabsList>
+            <TabsTrigger value="default">Default</TabsTrigger>
+            <TabsTrigger value="step-by-step">
+              Step by Step
+              {isLocked && <Lock className="text-red-500 ml-2" size={16} />}
+            </TabsTrigger>
+          </TabsList>
         </Tabs>
       </div>
 
-      {isLocked || tabValue === "default" ? (
+      {/* {isLocked || tabValue === "default" ? (
+        <LazyLoadView />
+      ) : (
+        <StepByStepView
+          selectedWinnerId={selectedWinnerId}
+          setSelectedWinnerId={setSelectedWinnerId}
+        />
+      )} */}
+      {/* Views */}
+      {isLocked || currentTab === "default" ? (
         <LazyLoadView />
       ) : (
         <StepByStepView

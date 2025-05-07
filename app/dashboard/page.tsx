@@ -29,11 +29,23 @@ import {
 import { AvatarColor } from "@/utils/avatar-color";
 import { useRouter } from "next/navigation";
 
+import useTreeTabStore from "@/store/use-tree-tab-store";
+
 const Dashboard: FC = () => {
   const { setIsOpen } = useTour();
 
+  const startStepByStepTab = () => {
+    useTreeTabStore.getState().setCurrentTab("step-by-step");
+  };
+
+  const storeTabState = () => {
+    useTreeTabStore.getState().backupTab();
+  };
+
   const startTour = () => {
     if (setIsOpen) {
+      storeTabState();
+      startStepByStepTab();
       setIsOpen(true);
     }
   };
@@ -44,21 +56,18 @@ const Dashboard: FC = () => {
   useEffect(() => {
     const shouldStart = sessionStorage.getItem("startTour");
     if (shouldStart === "true" && tour.setIsOpen) {
+      startStepByStepTab();
       tour.setIsOpen(true);
       sessionStorage.removeItem("startTour");
     }
   }, [tour]);
-  
-  const { candidateList, assertionList, winnerInfo, multiWinner } =
+
+  const { candidateList, assertionList, winnerInfo } =
     useMultiWinnerDataStore();
 
   // Ensure hooks are always called in the same order
   const [isAvatarReady, setIsAvatarReady] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  if (!multiWinner) {
-    return <div>Please Re-Upload File</div>;
-  }
 
   // 1. 拿到 name 列表，等价于 metadata.candidates
   const names = candidateList.map((c) => c.name);
@@ -160,7 +169,7 @@ const Dashboard: FC = () => {
         {/* 左侧区域 */}
         <div className="col-span-12 md:col-span-8 space-y-6">
           {/* 数据卡片 */}
-          <div className="w-full overflow-x-auto">
+          <div data-tour="first-step" className="w-full overflow-x-auto">
             <div className="flex flex-nowrap gap-2 md:gap-6 min-w-full pb-2">
               <div className="flex-1 min-w-max">
                 <Card
