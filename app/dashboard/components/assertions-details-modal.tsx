@@ -1,10 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogClose,
 } from "@/components/ui/dialog";
 import {
   Table,
@@ -16,7 +15,7 @@ import {
 } from "@/components/ui/table";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import TooltipWithIcon from "@/app/dashboard/components/Information-icon-text";
 import { getSmartDisplayName } from "@/components/ui/avatar";
 
@@ -31,7 +30,7 @@ interface Assertion {
 
 interface Candidate {
   id: number;
-  name: string; // full name
+  name: string;
 }
 
 interface AssertionsDetailsModalProps {
@@ -43,6 +42,8 @@ interface AssertionsDetailsModalProps {
   candidates: Candidate[];
 }
 
+const pageSize = 10;
+
 const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
   isOpen,
   onClose,
@@ -51,9 +52,23 @@ const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
   minMargin,
   candidates,
 }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = Math.ceil(assertions.length / pageSize);
+
+  const pagedAssertions = assertions.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold flex items-center relative">
             Assertions Details
@@ -67,6 +82,7 @@ const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
         </DialogHeader>
 
         <div className="space-y-6">
+          {/* Candidate Info */}
           <div>
             <h3 className="text-lg font-semibold mb-2">Candidates</h3>
             <ul className="list-disc list-inside text-gray-700">
@@ -84,6 +100,7 @@ const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
             </ul>
           </div>
 
+          {/* Difficulty and Margin */}
           <div>
             <p className="text-gray-700">
               <span className="font-semibold">Maximum Difficulty:</span>{" "}
@@ -93,37 +110,77 @@ const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
             </p>
           </div>
 
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Index</TableHead>
-                  <TableHead>Content</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Difficulty</TableHead>
-                  <TableHead>Margin</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {assertions.map((assertion) => (
-                  <TableRow key={assertion.index}>
-                    <TableCell>{assertion.index}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center">
-                        <Avatar
-                          candidateId={assertion.winner}
-                          className="mr-2"
-                        />
-                        <span>{assertion.content}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>{assertion.type}</TableCell>
-                    <TableCell>{assertion.difficulty}</TableCell>
-                    <TableCell>{assertion.margin}</TableCell>
+          {/* Table with Pagination */}
+          <div className="space-y-3">
+            <div className="max-h-[300px] overflow-auto border rounded">
+              <Table className="min-w-full">
+                <TableHeader className="sticky top-0 bg-white z-10 shadow">
+                  <TableRow>
+                    <TableHead>Index</TableHead>
+                    <TableHead>Content</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Difficulty</TableHead>
+                    <TableHead>Margin</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {pagedAssertions.map((assertion) => (
+                    <TableRow key={assertion.index}>
+                      <TableCell>{assertion.index}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center">
+                          <Avatar
+                            candidateId={assertion.winner}
+                            className="mr-2"
+                          />
+                          <span>{assertion.content}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>{assertion.type}</TableCell>
+                      <TableCell>{assertion.difficulty}</TableCell>
+                      <TableCell>{assertion.margin}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="flex justify-center items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={currentPage === 1}
+                onClick={() => handlePageChange(currentPage - 1)}
+              >
+                Prev
+              </Button>
+
+              <span className="text-sm text-gray-700">Page</span>
+              <select
+                value={currentPage}
+                onChange={(e) => handlePageChange(Number(e.target.value))}
+                className="border border-gray-300 rounded px-2 py-1 text-sm"
+              >
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <option key={page} value={page}>
+                      {page}
+                    </option>
+                  ),
+                )}
+              </select>
+              <span className="text-sm text-gray-700">of {totalPages}</span>
+
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={currentPage === totalPages}
+                onClick={() => handlePageChange(currentPage + 1)}
+              >
+                Next
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>

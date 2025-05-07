@@ -1031,7 +1031,7 @@ function LazyLoadView() {
       <div className="flex flex-col items-center justify-center h-full p-8 text-center">
         <div className="bg-green-50 border border-green-200 rounded-lg p-6 max-w-2xl shadow-sm">
           <h3 className="text-xl font-semibold text-green-800 mb-2">
-            Winner Selected: {name || shortName}
+            Winner Selected: {name || winnerInfo.name}
           </h3>
           <p className="text-gray-700 mb-4">
             The winner&apos;s elimination tree is typically very large and
