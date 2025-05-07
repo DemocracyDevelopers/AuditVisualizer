@@ -2,7 +2,6 @@
 
 interface TreeNode {
   id: number;
-  name: string;
   eliminated?: boolean; // eliminated children
   cut?: boolean; // Cut children
   children?: TreeNode[];
