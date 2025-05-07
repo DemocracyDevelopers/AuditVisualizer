@@ -127,6 +127,17 @@ function StepByStepView({
     </Button>
   );
 
+  const currentStepData = data.process[selectedStep];
+
+  // 安全防御：如果当前 step 数据不存在，则返回 fallback UI
+  if (!currentStepData || !currentStepData.before) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-red-500">No data for step {selectedStep}.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="relative">
       {/* Pass selectedWinnerId to OneClickAnimation */}
@@ -153,8 +164,17 @@ function StepByStepView({
           selectedStep={selectedStep}
         />
         <div className="w-full h-96" data-tour="seventh-step">
-          <Tree
+          {/* <Tree
             data={data.process[selectedStep].before!}
+            key={`${selectedWinnerId}-${selectedStep}`}
+            nextComponent={NextComponent}
+            backComponent={BackComponent}
+            resetHiddenNodes={resetHiddenNodes}
+            onResetComplete={handleResetComplete}
+            onNodeCut={handleNodeCut}
+          /> */}
+          <Tree
+            data={currentStepData.before}
             key={`${selectedWinnerId}-${selectedStep}`}
             nextComponent={NextComponent}
             backComponent={BackComponent}
@@ -163,10 +183,12 @@ function StepByStepView({
             onNodeCut={handleNodeCut}
           />
         </div>
+
         <div className="w-48 flex flex-col gap-4" data-tour="ninth-step">
           <div>
             <div className="font-bold">Applied Assertion: </div>
-            <div>{data.process[selectedStep].assertion}</div>
+            {/* <div>{data.process[selectedStep].assertion}</div> */}
+            <div>{currentStepData.assertion}</div>
           </div>
 
           <div>

@@ -547,12 +547,14 @@ export function explain(
       );
 
       // Add to process
-      stepByStep.process.push({
-        step: stepIndex + 1,
-        assertion: assertionText,
-        before: beforeTree,
-        after: afterTree,
-      });
+      if (!areTreesEqual(beforeTree, afterTree)) {
+        stepByStep.process.push({
+          step: stepIndex + 1,
+          assertion: assertionText,
+          before: beforeTree,
+          after: afterTree,
+        });
+      }
 
       // Update current elimination orders
       currentEliminationOrders = eliminationOrdersAfter;
@@ -834,4 +836,25 @@ export function output_elimination_orders(
       .join(" < ");
     listItem.innerText = orderStr;
   });
+}
+
+/**
+ * Check if two trees are equal by comparing their structure and properties.
+ * @param t1 - The first tree to compare.
+ * @param t2 - The second tree to compare.
+ * @returns True if the trees are equal, false otherwise.
+ */
+function areTreesEqual(t1: any, t2: any): boolean {
+  if (!t1 || !t2) return t1 === t2;
+  if (t1.id !== t2.id) return false;
+  if (!Array.isArray(t1.children) || !Array.isArray(t2.children)) return false;
+  if (t1.children.length !== t2.children.length) return false;
+
+  for (let i = 0; i < t1.children.length; i++) {
+    if (!areTreesEqual(t1.children[i], t2.children[i])) {
+      return false;
+    }
+  }
+
+  return true;
 }
