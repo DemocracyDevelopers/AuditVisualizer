@@ -9,7 +9,6 @@ import Link from "next/link";
 import { ChevronRight, FilePenLine } from "lucide-react";
 import AuditProgressAnimation from "./components/audit-progress-animation"; // Ensure the file name matches the actual file
 import EliminationTree from "./components/elimination-tree";
-import AvatarAssignColor from "./components/avatar-assign-color"; // 引入 Avatar 组件
 import useMultiWinnerDataStore from "@/store/multi-winner-data";
 import {
   // inferEliminationPathWithDetails,
@@ -26,7 +25,6 @@ import {
   explainAssertions,
   getAssertions,
 } from "../explain-assertions/components/explain-process";
-import { AvatarColor } from "@/utils/avatar-color";
 import { useRouter } from "next/navigation";
 
 import useTreeTabStore from "@/store/use-tree-tab-store";
@@ -119,16 +117,6 @@ const Dashboard: FC = () => {
     setIsModalOpen(false);
   };
 
-  // 仅在 Avatar 完成时渲染 Dashboard 内容
-  if (!isAvatarReady) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen">
-        <AvatarAssignColor onComplete={handleAvatarComplete} />
-        <div className="mt-4">Loading...</div>
-      </div>
-    );
-  }
-
   // 获取带有 name 字段的 assertionList
   const assertionsWithNames = assertionList.map((assertion) => ({
     ...assertion,
@@ -165,11 +153,11 @@ const Dashboard: FC = () => {
       </div>
 
       {/* Grid 布局 */}
-      <div className="grid grid-cols-12 gap-6 p-6">
+      <div className="grid grid-cols-12 gap-6 p-6 items-stretch">
         {/* 左侧区域 */}
-        <div className="col-span-12 md:col-span-8 space-y-6">
+        <div className="col-span-12 md:col-span-8 flex flex-col space-y-6">
           {/* 数据卡片 */}
-          <div data-tour="first-step" className="w-full overflow-x-auto">
+          <div className="w-full overflow-x-auto">
             <div className="flex flex-nowrap gap-2 md:gap-6 min-w-full pb-2">
               <div className="flex-1 min-w-max">
                 <Card
@@ -195,36 +183,48 @@ const Dashboard: FC = () => {
             </div>
           </div>
 
-          {/* Elimination Tree section */}
-          <div data-tour="fourth-step">
+          {/* Elimination Tree */}
+          <div
+            data-tour="fourth-step"
+            className="flex-1 flex flex-col border border-gray-300 shadow-md rounded-lg p-4"
+          >
             <EliminationTree />
           </div>
         </div>
 
-        {/* 右侧区域：Assertion 表格 */}
+        {/* 右侧区域 */}
+        {/* 右侧区域 */}
+        {/* 右侧区域 */}
         <div
           data-tour="second-step"
-          className="relative border border-gray-300 col-span-12 md:col-span-4 shadow-md rounded-lg p-6"
+          className="col-span-12 md:col-span-4 flex flex-col border border-gray-300 shadow-md rounded-lg p-6"
         >
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-bold text-gray-600">The Assertions</h3>
-            <div className="text-right" data-tour="third-step">
-              <Button size="sm" onClick={handleViewDetails}>
-                View Details <ChevronRight className="ml-2" size={16} />
-              </Button>
+          <div className="flex-1 flex flex-col">
+            {/* 标题 */}
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-bold text-gray-600">
+                  The Assertions
+                </h3>
+                <div className="text-right" data-tour="third-step">
+                  <Button size="sm" onClick={handleViewDetails}>
+                    View Details <ChevronRight className="ml-2" size={16} />
+                  </Button>
+                </div>
+              </div>
+              <p className="text-sm text-gray-500 mb-4">
+                Parse from your uploaded file
+              </p>
+            </div>
+
+            {/* AssertionTable 填满右侧区域 */}
+            <div className="flex-1">
+              <AssertionTable assertions={assertionsWithNames} />
             </div>
           </div>
-          <p className="text-sm text-gray-500 mb-4">
-            Parse from your uploaded file
-          </p>
-          <AssertionTable assertions={assertionsWithNames} />
-
-          <AuditProgressAnimation
-            championName={winnerInfo ? winnerInfo.name : "Unknown"}
-            isValid={isValid}
-          />
         </div>
       </div>
+
       {/* verification */}
       {/* <VerificationProgress /> */}
 

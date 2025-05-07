@@ -6,7 +6,6 @@ import StepByStep from "@/app/dashboard/components/elimination-tree/step-by-step
 import { useEffect, useMemo, useState } from "react";
 import { Candidate } from "../elimination-tree/constants";
 import useMultiWinnerDataStore from "@/store/multi-winner-data";
-import { AvatarColor } from "@/utils/avatar-color";
 import { explainAssertions } from "@/app/explain-assertions/components/explain-process";
 import { useFileDataStore } from "@/store/fileData";
 import OneClickAnimation from "./one-click-animation";
@@ -49,7 +48,6 @@ function StepByStepView({
   }, [multiWinner]);
 
   useEffect(() => {
-    const avatarColor = new AvatarColor();
     const response = explainAssertions(fileData);
     // 根据核心库返回的 response 进行处理
     if (response.success) {
@@ -60,7 +58,6 @@ function StepByStepView({
         (name: string, index: number) => ({
           id: index,
           name: name,
-          color: avatarColor.getColor(index),
         }),
       );
 

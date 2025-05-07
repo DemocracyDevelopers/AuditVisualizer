@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import useMultiWinnerDataStore from "../../../store/multi-winner-data";
-import { AvatarColor } from "@/utils/avatar-color";
 import {
   explainAssertions,
   validateInputData,
@@ -60,7 +59,6 @@ const SampleSelector = () => {
     clearWinnerInfo,
   } = useMultiWinnerDataStore(); // 使用全局状态
 
-  const avatarColor = new AvatarColor();
   const router = useRouter();
   const [isConfirming, setIsConfirming] = useState(false);
   const [selectedSample, setSelectedSample] = useState<SampleFile | null>(null);
@@ -99,7 +97,6 @@ const SampleSelector = () => {
               (name: string, index: number) => ({
                 id: index,
                 name: name,
-                color: avatarColor.getColor(index),
               }),
             );
 

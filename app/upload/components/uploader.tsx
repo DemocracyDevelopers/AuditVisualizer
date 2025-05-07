@@ -5,7 +5,6 @@ import UploadProgress from "./progress";
 import useMultiWinnerDataStore from "../../../store/multi-winner-data";
 import { validateInputData } from "../../explain-assertions/components/explain-process";
 import { useRouter } from "next/navigation";
-import { AvatarColor } from "@/utils/avatar-color";
 import { useFileDataStore } from "@/store/fileData";
 import { getContentFromAssertion } from "@/utils/candidateTools";
 
@@ -48,8 +47,6 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
     setWinnerInfo,
     clearWinnerInfo,
   } = useMultiWinnerDataStore(); // 使用全局状态
-
-  const avatarColor = new AvatarColor();
 
   const simulateProgress = useCallback(
     (state: number, success: boolean, errorMsg: string) => {
@@ -152,7 +149,6 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
               (name: string, index: number) => ({
                 id: index,
                 name: name,
-                color: avatarColor.getColor(index),
               }),
             );
 
