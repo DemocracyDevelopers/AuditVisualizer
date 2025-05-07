@@ -6,8 +6,8 @@ interface Assertion {
   index: number;
   content: string;
   type: string;
-  winner: number;
-  name: string;
+  winner: number; // candidate ID
+  name: string; // candidate name
 }
 
 interface AssertionTableProps {
