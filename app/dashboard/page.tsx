@@ -150,7 +150,7 @@ const Dashboard: FC = () => {
   return (
     <div className="p-4">
       <div className="grid grid-cols-12 gap-6">
-        <div className="absolute right-4 top-8 col-span-12 flex justify-end gap-4 mb-2 pr-6">
+        <div className="absolute right-10 top-7 col-span-12 flex justify-end gap-4 mb-2 pr-6">
           <Link href="/upload">
             <Button size="sm">
               Change File
