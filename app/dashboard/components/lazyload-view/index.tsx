@@ -29,6 +29,7 @@ import DefaultCandidateListBar from "../elimination-tree/default-candidate-list-
 import useDefaultTree from "@/store/use-default-tree";
 import { getContentFromAssertion } from "@/utils/candidateTools";
 import { getCandidateNumber } from "@/app/explain-assertions/components/explain-process";
+import useTreeSelectionStore from "@/store/use-tree-selection-store";
 
 // Node sizing constants
 const NODE_RADIUS = 18;
@@ -50,7 +51,11 @@ function LazyLoadView() {
     unknown
   > | null>(null);
 
-  const [selectedTreeId, setSelectedTreeId] = useState(0);
+  // const [selectedTreeId, setSelectedTreeId] = useState(0);
+
+  const selectedTreeId = useTreeSelectionStore((s) => s.selectedTreeId);
+  const setSelectedTreeId = useTreeSelectionStore((s) => s.setSelectedTreeId);
+
   const [currentZoom, setCurrentZoom] = useState(1);
   const [currentTransform, setCurrentTransform] =
     useState<d3.ZoomTransform | null>(null);
@@ -1154,7 +1159,11 @@ function LazyLoadView() {
                 <Minimize className="h-4 w-4" />
               </Button>
             </div>
-            <Button variant="outline" onClick={expandAllNodes}>
+            <Button
+              variant="outline"
+              onClick={expandAllNodes}
+              data-tour="expand-all-button"
+            >
               <ExpandIcon className="h-4 w-4 mr-2" />
               Expand All
             </Button>
@@ -1228,7 +1237,11 @@ function LazyLoadView() {
               <Maximize className="h-4 w-4" />
             </Button>
           </div>
-          <Button variant="outline" onClick={expandAllNodes}>
+          <Button
+            variant="outline"
+            onClick={expandAllNodes}
+            data-tour="expand-all-button"
+          >
             <ExpandIcon className="h-4 w-4 mr-2" />
             Expand All
           </Button>

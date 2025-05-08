@@ -95,7 +95,7 @@ function EliminationTree() {
         <Tabs value={currentTab} onValueChange={handleTabChange}>
           <TabsList>
             <TabsTrigger value="default">Default</TabsTrigger>
-            <TabsTrigger value="step-by-step">
+            <TabsTrigger value="step-by-step" data-tour="step-by-step-button">
               Step by Step
               {isLocked && <Lock className="text-red-500 ml-2" size={16} />}
             </TabsTrigger>
