@@ -1074,7 +1074,7 @@ function LazyLoadView() {
         ref={containerRef}
         className={`relative ${
           isFullScreen
-            ? "fixed inset-0 bg-white z-10"
+            ? "fixed inset-0 bg-background z-10"
             : "w-full h-96 flex-grow overflow-hidden"
         }`}
         data-tour="tree-view"
@@ -1093,7 +1093,7 @@ function LazyLoadView() {
         )}
 
         {isFullScreen && !isBigDataWinnerSelected() && (
-          <div className="fixed bottom-0 left-0 right-0 flex justify-between items-center px-4 py-2 border-t bg-white z-20">
+          <div className="fixed bottom-0 left-0 right-0 flex justify-between items-center px-4 py-2 border-t bg-background z-20">
             <div></div>
             <div className="flex items-center space-x-2">
               <Button
@@ -1167,7 +1167,7 @@ function LazyLoadView() {
 
       {/* Controls when not in fullscreen mode */}
       {!isFullScreen && !isBigDataWinnerSelected() && (
-        <div className="flex justify-between items-center mt-2 px-4 py-2 border-t bg-white">
+        <div className="flex justify-between items-center mt-2 px-4 py-2 border-t bg-background">
           <div></div>
           <div className="flex items-center space-x-2">
             <Button

@@ -56,7 +56,9 @@ const AssertionTable: React.FC<AssertionTableProps> = ({ assertions }) => {
           key={page}
           onClick={() => handlePageChange(page)}
           className={`px-3 py-1 rounded-md border ${
-            currentPage === page ? "bg-black text-white" : "bg-white text-black"
+            currentPage === page
+              ? "bg-black text-white"
+              : "bg-background text-black"
           } cursor-pointer`}
         >
           {page}
@@ -64,7 +66,7 @@ const AssertionTable: React.FC<AssertionTableProps> = ({ assertions }) => {
       ) : (
         <span
           key={index}
-          className="px-3 py-1 rounded-md border bg-white text-black cursor-default"
+          className="px-3 py-1 rounded-md border bg-background text-black cursor-default"
         >
           {page}
         </span>
@@ -76,7 +78,7 @@ const AssertionTable: React.FC<AssertionTableProps> = ({ assertions }) => {
     <div className="flex flex-col">
       <div className="overflow-y-auto max-h-[520px]">
         <table className="min-w-full table-auto">
-          <thead className="sticky top-0 bg-white z-10">
+          <thead className="sticky top-0 bg-background z-10">
             <tr>
               <th className="px-4 py-2 border-b">Index</th>
               <th className="px-4 py-2 border-b">Content</th>

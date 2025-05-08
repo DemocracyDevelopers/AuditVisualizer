@@ -29,6 +29,9 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+    --neutral-foreground: oklch(0.53 0.01 275);
+    --gray-500: 0.55 0 0;
+    --gray-700: 0.36 0 0;
   }
 
   .dark {
@@ -56,6 +59,9 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    --neutral-foreground: oklch(0.7 0.01 275);
+    --gray-500: 0.7 0 0;
+    --gray-700: 0.7 0 0;
   }
 }
 

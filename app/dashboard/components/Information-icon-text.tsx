@@ -34,7 +34,7 @@ const TooltipWithIcon: React.FC<TooltipWithIconProps> = ({
         <TooltipContent
           side="right"
           align="center"
-          className="bg-white text-black rounded-lg shadow-lg p-4 w-64"
+          className="bg-background text-black rounded-lg shadow-lg p-4 w-64"
         >
           <div className="font-bold mb-2">{title}</div>
           <div className="font-normal">

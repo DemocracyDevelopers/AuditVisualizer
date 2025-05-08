@@ -207,7 +207,7 @@ const Dashboard: FC = () => {
           className="relative border border-gray-300 col-span-12 md:col-span-4 shadow-md rounded-lg p-6"
         >
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-bold text-gray-600">The Assertions</h3>
+            <h3 className="text-lg font-bold text-gray-500">The Assertions</h3>
             <div className="text-right" data-tour="third-step">
               <Button size="sm" onClick={handleViewDetails}>
                 View Details <ChevronRight className="ml-2" size={16} />
