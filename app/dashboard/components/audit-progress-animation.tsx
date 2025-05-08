@@ -66,7 +66,7 @@ const AuditProgressAnimation = ({
   if (!isVisible) return null;
 
   return (
-    <div className="absolute bottom-0 left-0 w-full border-t border-b border-gray-300 bg-white p-4 rounded-b-lg z-50">
+    <div className="absolute bottom-0 left-0 w-full border-t border-b border-gray-300 bg-background p-4 rounded-b-lg z-50">
       <div className="flex justify-between items-center mb-2">
         <div className="text-sm font-bold text-gray-600">Audit Progress</div>
         <button

@@ -199,29 +199,23 @@ const Dashboard: FC = () => {
           data-tour="second-step"
           className="col-span-12 md:col-span-4 flex flex-col border border-gray-300 shadow-md rounded-lg p-6"
         >
-          <div className="flex-1 flex flex-col">
-            {/* 标题 */}
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold text-gray-600">
-                  The Assertions
-                </h3>
-                <div className="text-right" data-tour="third-step">
-                  <Button size="sm" onClick={handleViewDetails}>
-                    View Details <ChevronRight className="ml-2" size={16} />
-                  </Button>
-                </div>
-              </div>
-              <p className="text-sm text-gray-500 mb-4">
-                Parse from your uploaded file
-              </p>
-            </div>
-
-            {/* AssertionTable 填满右侧区域 */}
-            <div className="flex-1">
-              <AssertionTable assertions={assertionsWithNames} />
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-bold text-gray-500">The Assertions</h3>
+            <div className="text-right" data-tour="third-step">
+              <Button size="sm" onClick={handleViewDetails}>
+                View Details <ChevronRight className="ml-2" size={16} />
+              </Button>
             </div>
           </div>
+          <p className="text-sm text-gray-500 mb-4">
+            Parse from your uploaded file
+          </p>
+          <AssertionTable assertions={assertionsWithNames} />
+
+          <AuditProgressAnimation
+            championName={winnerInfo ? winnerInfo.name : "Unknown"}
+            isValid={isValid}
+          />
         </div>
       </div>
 
