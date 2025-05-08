@@ -27,14 +27,14 @@ const TooltipWithIcon: React.FC<TooltipWithIconProps> = ({
         <TooltipTrigger asChild>
           <span className="ml-2 relative">
             {/* Information Icon */}
-            <FaInfoCircle className="text-black cursor-pointer" size={18} />
+            <FaInfoCircle className="text-primary cursor-pointer" size={18} />
           </span>
         </TooltipTrigger>
 
         <TooltipContent
           side="right"
           align="center"
-          className="bg-background text-black rounded-lg shadow-lg p-4 w-64"
+          className="bg-background text-primary rounded-lg shadow-lg p-4 w-64"
         >
           <div className="font-bold mb-2">{title}</div>
           <div className="font-normal">
