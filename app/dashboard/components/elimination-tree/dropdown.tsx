@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
-import useTreeSettingsStore from "@/store/useTreeSettingStore";
+import useTreeSettingsStore from "@/store/use-tree-setting-store";
 import { ChevronDown } from "lucide-react";
 
 function Dropdown() {

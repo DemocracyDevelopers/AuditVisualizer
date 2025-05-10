@@ -1,32 +1,3 @@
-// const testData = {
-//   name: "Root",
-//   children: [
-//     {
-//       name: "Child 1",
-//       children: [
-//         {
-//           name: "Grandchild 1.1",
-//         },
-//         {
-//           name: "Grandchild 1.2",
-//         },
-//       ],
-//     },
-//     {
-//       name: "Child 2",
-//       children: [
-//         {
-//           name: "Grandchild 2.1",
-//           children: [
-//             {
-//               name: "Great-Grandchild 2.1.1",
-//             },
-//           ],
-//         },
-//       ],
-//     },
-//   ],
-// };
 const testData = {
   name: "Alice",
   children: [
@@ -228,36 +199,7 @@ type Candidate = {
   name: string;
   color?: string;
 };
-const candidateList: Candidate[] = [
-  {
-    id: 1,
-    name: "Alice",
-    color: "",
-  },
-  {
-    id: 2,
-    name: "Bob",
-    color: "",
-  },
-  {
-    id: 3,
-    name: "Chuan",
-    color: "",
-  },
-  {
-    id: 4,
-    name: "Diego",
-    color: "",
-  },
-];
+
+export { testData, dataOneTree, dataStepByStep, dataMultiWinner, dataOneTree2 };
 
 export type { Candidate };
-
-export {
-  testData,
-  dataOneTree,
-  dataStepByStep,
-  dataMultiWinner,
-  dataOneTree2,
-  candidateList,
-};

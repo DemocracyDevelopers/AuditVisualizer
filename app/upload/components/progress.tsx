@@ -65,7 +65,7 @@ const UploadProgress: React.FC<UploadProgressProps> = ({
           </p>
         </>
       )}
-      <div className="border-2 border-gray-300 p-8 rounded-lg bg-gray-50 cursor-pointer w-full relative text-center flex flex-col flex-grow justify-center">
+      <div className="border-2 border-gray-300 p-8 rounded-lg bg-muted cursor-pointer w-full relative text-center flex flex-col flex-grow justify-center">
         <div>
           {hasError ? (
             <TriangleAlert className="mx-auto mb-2 text-red-500" size={80} />

@@ -1,9 +1,10 @@
 "use client";
 
 import React from "react";
-import SampleSelector from "./components/sampleSelector";
-import Link from "next/link";
+import SampleSelector from "./components/sample-selector";
 import { useRouter } from "next/navigation";
+import TermsAndPrivacy from "@/app/upload/components/terms-and-privacy";
+import TutorialLink from "@/app/upload/components/tutorial-link";
 
 const Sample = () => {
   const router = useRouter();
@@ -21,6 +22,7 @@ const Sample = () => {
         </div>
         <div className="border border-gray-300 shadow-md rounded-lg p-6 flex flex-col flex-grow">
           <SampleSelector />
+          <TermsAndPrivacy />
         </div>
         <div className="mt-8">
           <button
@@ -30,25 +32,7 @@ const Sample = () => {
             ← Back
           </button>
         </div>
-
-        <p className="text-sm text-gray-500 text-center mt-4">
-          By sharing your files or using our service, you agree to our{" "}
-          <Link href="#" className="underline hover:text-gray-800">
-            Terms of Service
-          </Link>{" "}
-          and{" "}
-          <Link href="#" className="underline hover:text-gray-800">
-            Privacy Policy
-          </Link>
-          .
-        </p>
-        <p className="text-center text-lg text-gray-600 my-4">
-          Need help? Click{" "}
-          <Link href="/tutorial" className="text-blue-600 hover:underline">
-            here
-          </Link>{" "}
-          for a tutorial.
-        </p>
+        <TutorialLink linkText="here" linkHref="/tutorial" />
       </main>
     </div>
   );

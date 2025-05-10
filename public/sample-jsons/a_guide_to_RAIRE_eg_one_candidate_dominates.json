@@ -12,7 +12,8 @@
             "winner": 0,
             "loser": 1
           },
-          "difficulty": 2.0
+          "difficulty": 2.0,
+          "margin": 1000
         },
         {
           "assertion": {
@@ -20,7 +21,8 @@
             "winner": 0,
             "loser": 3
           },
-          "difficulty": 2.0
+          "difficulty": 2.0,
+          "margin": 500
         },
         {
           "assertion": {
@@ -28,10 +30,12 @@
             "winner": 0,
             "loser": 2
           },
-          "difficulty": 2.0
+          "difficulty": 2.0,
+          "margin": 2000
         }
       ],
       "difficulty": 2.0,
+      "margin": 5000,
       "winner": 0,
       "num_candidates": 4
     }

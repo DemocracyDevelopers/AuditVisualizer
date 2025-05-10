@@ -1,116 +1,125 @@
 "use client";
-import CandidateListBar from "@/app/dashboard/components/elimination-tree/candidate-list-bar";
 import Dropdown from "@/app/dashboard/components/elimination-tree/dropdown";
-import StepByStep from "@/app/dashboard/components/elimination-tree/step-by-step";
-// import { demoFromCore } from "@/app/dashboard/components/elimination-tree/demo";
-import Tree from "@/components/Tree";
+import TooltipWithIcon from "@/app/dashboard/components/Information-icon-text";
+import useMultiWinnerDataStore from "@/store/multi-winner-data";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Lock } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight } from "lucide-react";
-import useMultiWinnerDataStore from "@/store/MultiWinnerData";
+import StepByStepView from "../step-by-step-view";
+import LazyLoadView from "../lazyload-view";
+import {
+  explainAssertions,
+  getCandidateNumber,
+} from "@/app/explain-assertions/components/explain-process";
+import { useFileDataStore } from "@/store/fileData";
+import useTreeTabStore from "@/store/use-tree-tab-store";
 
 function EliminationTree() {
-  const { multiWinner } = useMultiWinnerDataStore();
-  useEffect(() => {
-    console.log("?", multiWinner);
-  }, [multiWinner]);
-
-  // Define loading state
-  const isLoading = multiWinner === null;
-
-  // Ensure multiWinner has at least one winnerInfo
+  const { currentTab, setCurrentTab } = useTreeTabStore();
+  // "default" | "step-by-step"
+  // const [tabValue, setTabValue] = useState<string>("default");
+  const [isLocked, setIsLocked] = useState<boolean>(true);
   const [selectedWinnerId, setSelectedWinnerId] = useState<number>(0);
-  const [selectedStep, setSelectedStep] = useState<number>(1); // Ensure this is always defined
 
-  // Use useEffect to initialize selectedWinnerId when multiWinner loads
+  const fileData = useFileDataStore((state) => state.fileData);
+
   useEffect(() => {
-    if (multiWinner && multiWinner.length > 0) {
-      setSelectedWinnerId(multiWinner[0].winnerInfo.id);
+    const candidateNumber = getCandidateNumber(fileData);
+    // NOTE: 根据情况修改
+    if (candidateNumber < 6) {
+      setIsLocked(false);
     }
-  }, [multiWinner]);
+  }, [fileData]);
 
-  // Memoize the possible winner list from demoFromCore
-  const possibleWinnerList = useMemo(() => {
-    return Array.isArray(multiWinner)
-      ? multiWinner.map((cur) => cur.winnerInfo)
-      : []; // Default to an empty array if demoFromCore is not an array
-  }, [multiWinner]); // Ensure this value does not change between renders
+  // const handleTabChange = (value: string) => {
+  //   // Only allow changing tabs if not locked
+  //   if (!isLocked || value === tabValue) {
+  //     setTabValue(value);
+  //   }
+  // };
 
-  const oneWinnerTrees = useMemo(() => {
-    return multiWinner
-      ? multiWinner.find((cur) => cur.winnerInfo.id === selectedWinnerId) ||
-          null
-      : null;
-  }, [selectedWinnerId, multiWinner]);
-
-  // Handle case when oneWinnerTrees is null
-  if (isLoading || !oneWinnerTrees) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        loading {/* Replace with your loading component */}
-      </div>
-    );
-  }
-
-  const { winnerInfo, data } = oneWinnerTrees;
-  const stepSize = data.process.length - 1; // Handle stepSize for 0 case
-
-  const isNextDisabled = selectedStep >= stepSize;
-
-  const NextComponent = (
-    <Button
-      variant="ghost"
-      onClick={() => setSelectedStep((prevStep) => prevStep + 1)}
-      disabled={isNextDisabled} // Disable button based on condition
-    >
-      Next <ArrowRight className="ml-2 h-4 w-4" />
-    </Button>
-  );
-
-  const isBackDisabled = selectedStep <= 1;
-
-  const BackComponent = (
-    <Button
-      variant="ghost"
-      onClick={() => setSelectedStep((prevStep) => prevStep - 1)}
-      disabled={isBackDisabled} // Disable button based on condition
-    >
-      <ArrowLeft className="mr-2 h-4 w-4" /> Back
-    </Button>
-  );
+  const handleTabChange = (value: string) => {
+    if (!isLocked) {
+      setCurrentTab(value as "default" | "step-by-step");
+    }
+  };
 
   return (
     <div className="border border-gray-300 rounded-lg p-6 h-auto flex flex-col justify-between pl-10">
-      <div className="flex justify-between">
-        <h3 className="text-2xl font-bold">Elimination Tree</h3>
-        <Dropdown />
-      </div>
-      <div>
-        <CandidateListBar
-          selectedWinnerId={selectedWinnerId}
-          handleSelectWinner={(id: number) => {
-            setSelectedStep(1); // Reset step
-            setSelectedWinnerId(id);
-          }}
-          useAvatar={false}
-          candidateList={possibleWinnerList}
-        />
-      </div>
-      <div className="flex">
-        <StepByStep
-          stepSize={stepSize}
-          setSelectedStep={setSelectedStep}
-          selectedStep={selectedStep}
-        />
-        <div className="w-full h-96">
-          <Tree
-            data={data.process[selectedStep].before!}
-            key={`${selectedWinnerId}-${selectedStep}`}
-            nextComponent={NextComponent}
-            backComponent={BackComponent}
-          />
+      <div className="flex items-center justify-between">
+        {/* Elimination Tree title and Tooltip with Icon */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <h3 className="text-2xl font-bold">Elimination Tree</h3>
+            <TooltipWithIcon
+              title="Need Help?"
+              description="For detailed guidance on the elimination tree process, please refer to our"
+              linkText="Tutorial"
+              linkHref="/tutorial"
+            />
+          </div>
         </div>
+        {/* <Tabs
+          defaultValue="default"
+          onValueChange={handleTabChange}
+          value={tabValue}
+          orientation="horizontal"
+          dir="ltr"
+          activationMode="automatic"
+        >
+          <TabsList>
+            <TabsTrigger
+              value="default"
+              className={
+                isLocked && tabValue !== "default"
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
+              }
+            >
+              Default
+            </TabsTrigger>
+            <TabsTrigger
+              value="step-by-step"
+              className={
+                isLocked && tabValue !== "step-by-step"
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
+              }
+            >
+              Step By Step
+              {isLocked && <Lock className="text-red-500 ml-2" size={16} />}
+            </TabsTrigger>
+          </TabsList>
+          
+        </Tabs> */}
+        <Tabs value={currentTab} onValueChange={handleTabChange}>
+          <TabsList>
+            <TabsTrigger value="default">Default</TabsTrigger>
+            <TabsTrigger value="step-by-step">
+              Step by Step
+              {isLocked && <Lock className="text-red-500 ml-2" size={16} />}
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
+
+      {/* {isLocked || tabValue === "default" ? (
+        <LazyLoadView />
+      ) : (
+        <StepByStepView
+          selectedWinnerId={selectedWinnerId}
+          setSelectedWinnerId={setSelectedWinnerId}
+        />
+      )} */}
+      {/* Views */}
+      {isLocked || currentTab === "default" ? (
+        <LazyLoadView />
+      ) : (
+        <StepByStepView
+          selectedWinnerId={selectedWinnerId}
+          setSelectedWinnerId={setSelectedWinnerId}
+        />
+      )}
     </div>
   );
 }
