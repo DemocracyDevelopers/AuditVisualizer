@@ -38,7 +38,7 @@ const AssertionTable: React.FC<AssertionTableProps> = ({ assertions }) => {
       {/* 表格区域 - 滚动 */}
       <div ref={tableRef} className="flex-1 overflow-y-auto border rounded-lg">
         <table className="min-w-full table-auto">
-          <thead className="sticky top-0 bg-white z-10">
+          <thead className="sticky top-0 bg-background z-10">
             <tr>
               <th className="px-4 py-2 border-b">Index</th>
               <th className="px-4 py-2 border-b">Content</th>
