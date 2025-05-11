@@ -22,12 +22,6 @@ import { useTour } from "@reactour/tour";
 
 import { Workflow } from "lucide-react";
 import { useFileDataStore } from "@/store/fileData";
-import {
-  explainAssertions,
-  getAssertions,
-} from "../explain-assertions/components/explain-process";
-import { AvatarColor } from "@/utils/avatar-color";
-import { useRouter } from "next/navigation";
 
 import useTreeTabStore from "@/store/use-tree-tab-store";
 
