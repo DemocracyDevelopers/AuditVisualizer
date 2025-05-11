@@ -5,7 +5,6 @@ import UploadProgress from "./progress";
 import useMultiWinnerDataStore from "../../../store/multi-winner-data";
 import { validateInputData } from "../../explain-assertions/components/explain-process";
 import { useRouter } from "next/navigation";
-import { AvatarColor } from "@/utils/avatar-color";
 import { useFileDataStore } from "@/store/fileData";
 import { getContentFromAssertion } from "@/utils/candidateTools";
 
@@ -48,8 +47,6 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
     setWinnerInfo,
     clearWinnerInfo,
   } = useMultiWinnerDataStore(); // 使用全局状态
-
-  const avatarColor = new AvatarColor();
 
   const simulateProgress = useCallback(
     (state: number, success: boolean, errorMsg: string) => {
@@ -152,7 +149,6 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
               (name: string, index: number) => ({
                 id: index,
                 name: name,
-                color: avatarColor.getColor(index),
               }),
             );
 
@@ -316,7 +312,7 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
       ) : uploadComplete && selectedFile ? (
         <>
           {/* 上传完成 */}
-          <div className="border-2 border-gray-300 p-8 rounded-lg bg-gray-50 cursor-pointer w-full relative text-center flex flex-grow justify-center items-center">
+          <div className="border-2 border-gray-300 p-8 rounded-lg bg-muted cursor-pointer w-full relative text-center flex flex-grow justify-center items-center">
             <div>
               <h2 className="text-2xl font-bold text-gray-600 mb-2">
                 Uploaded!

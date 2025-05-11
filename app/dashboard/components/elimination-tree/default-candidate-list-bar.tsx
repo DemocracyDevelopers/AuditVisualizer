@@ -14,7 +14,7 @@ import SearchDropdown from "./search-dropdown";
 type CandidateListBarProps = {
   selectedTreeId: number | null;
   setSelectedTreeId: (id: number) => void;
-  handleSelectWinner: (id: number) => void;
+  handleSelectWinner?: (id: number) => void; //暂时改成了可选参数，因为部署时报错了 -kwj 2025/5/7
   candidateList: Candidate[];
 };
 

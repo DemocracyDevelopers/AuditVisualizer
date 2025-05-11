@@ -543,11 +543,11 @@ export default function Tree({
       .append("title")
       .text(function (d) {
         const { candidateList } = useMultiWinnerDataStore.getState();
-        const { explanation, name } = getSmartDisplayName(
+        const { explanation, shortName } = getSmartDisplayName(
           d.data.id,
           candidateList,
         );
-        return explanation || name;
+        return explanation || shortName; //这里的返回值应是shortName kwj 2025/5/7
       });
 
     // Add collapsed node count indicator

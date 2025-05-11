@@ -728,7 +728,7 @@ function LazyLoadView() {
       .append("title")
       .text((d) => {
         // Add more information to hover tooltip
-        let tooltip = getSmartDisplayName(d.data.id, candidateList).name;
+        let tooltip = getSmartDisplayName(d.data.id, candidateList).shortName;
 
         // If node is pruned, show pruning reason
         if (d.data.pruned && d.data.prunedBy) {
@@ -1022,16 +1022,13 @@ function LazyLoadView() {
   const renderWinnerMessage = useCallback(() => {
     if (!winnerInfo) return null;
 
-    const { name, shortName } = getSmartDisplayName(
-      winnerInfo.id,
-      candidateList,
-    );
+    const { shortName } = getSmartDisplayName(winnerInfo.id, candidateList);
 
     return (
       <div className="flex flex-col items-center justify-center h-full p-8 text-center">
         <div className="bg-green-50 border border-green-200 rounded-lg p-6 max-w-2xl shadow-sm">
           <h3 className="text-xl font-semibold text-green-800 mb-2">
-            Winner Selected: {name || shortName}
+            You have selected the Winner - {winnerInfo.name}
           </h3>
           <p className="text-gray-700 mb-4">
             The winner&apos;s elimination tree is typically very large and
@@ -1074,7 +1071,7 @@ function LazyLoadView() {
         ref={containerRef}
         className={`relative ${
           isFullScreen
-            ? "fixed inset-0 bg-white z-10"
+            ? "fixed inset-0 bg-background z-10"
             : "w-full h-96 flex-grow overflow-hidden"
         }`}
         data-tour="tree-view"
@@ -1093,7 +1090,7 @@ function LazyLoadView() {
         )}
 
         {isFullScreen && !isBigDataWinnerSelected() && (
-          <div className="fixed bottom-0 left-0 right-0 flex justify-between items-center px-4 py-2 border-t bg-white z-20">
+          <div className="fixed bottom-0 left-0 right-0 flex justify-between items-center px-4 py-2 border-t bg-background z-20">
             <div></div>
             <div className="flex items-center space-x-2">
               <Button
@@ -1167,7 +1164,7 @@ function LazyLoadView() {
 
       {/* Controls when not in fullscreen mode */}
       {!isFullScreen && !isBigDataWinnerSelected() && (
-        <div className="flex justify-between items-center mt-2 px-4 py-2 border-t bg-white">
+        <div className="flex justify-between items-center mt-2 px-4 py-2 border-t bg-background">
           <div></div>
           <div className="flex items-center space-x-2">
             <Button
