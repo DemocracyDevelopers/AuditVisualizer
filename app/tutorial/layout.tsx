@@ -4,9 +4,10 @@ import { useMemo, useState } from "react";
 import SidebarWithSearch from "./components/SidebarWithSearch";
 import TermsAndPrivacy from "../upload/components/terms-and-privacy";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useSearchParams, usePathname } from "next/navigation";
 import { contentData } from "./components/data-content";
 import Breadcrumbs from "./components/Breadcrumbs";
+import { Button } from "@/components/ui/button";
 
 export default function TutorialLayout({
   children,
@@ -37,7 +38,6 @@ export default function TutorialLayout({
         collapsed={collapsed}
         setCollapsed={setCollapsed}
       />
-
       {/* Main content area */}
       <main className="flex-grow overflow-y-auto">
         {/* Breadcrumbs 放置在侧边栏的右侧 */}
@@ -49,9 +49,19 @@ export default function TutorialLayout({
           {/* <Breadcrumbs paths={breadcrumbPaths} /> */}
 
           <div className="p-8 transition-all duration-300">
-            <Breadcrumbs paths={breadcrumbPaths} />
+            {/* 面包屑 + 返回按钮 */}
+            <div className="flex items-center justify-between mb-6">
+              <Breadcrumbs paths={breadcrumbPaths} />
+              <Button
+                onClick={() => {
+                  window.location.href = "/upload";
+                }}
+              >
+                Enough? Go Back
+              </Button>
+            </div>
+
             {children}
-            {/*  */}
             <NavigationArea />
           </div>
         </div>
@@ -105,11 +115,11 @@ const NavigationArea = () => {
             </Link>
           </div>
         )}
-        <div>
-          <Link href="/upload" className="font-bold hover:underline">
-            Back to Home Page
-          </Link>
-        </div>
+        {/*<div>*/}
+        {/*  <Link href="/upload" className="font-bold hover:underline">*/}
+        {/*    Back to Home Page*/}
+        {/*  </Link>*/}
+        {/*</div>*/}
       </div>
     </div>
   );
