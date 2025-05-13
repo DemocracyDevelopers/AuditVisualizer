@@ -1,0 +1,40 @@
+import AssertionInfoBox from "./assertion-info-box";
+
+# Margin and Difficulty
+
+## Assertion Margins
+
+This section describes how to implement the **Assertion Margins** component. In order to estimate sample sizes, we need to understand the concept of "margin" as it applies to an assertion, or rather to the two-candidate contest described by that assertion.
+
+The Assertion Margin for an assertion _A_ is simply the sum of the scores of all ballots for _A_. This is the minimum number of ballots that would have to be added or removed to switch a true assertion to false.
+
+**The Assertion Margin _m<sub>A</sub>_ for assertion _A_ and a set of ballots _B_ is:**
+
+<div className="text-center">
+  _m<sub>A</sub>(B) = Σ<sub>b ∈ B</sub> SCORE<sub>A</sub>(b)_
+</div>
+
+This margin can be used directly to calculate the diluted margin _μ_ for each assertion, in order to estimate the required sample size. The diluted margin for an IRV contest is the smallest diluted margin for any of its assertions.
+
+<AssertionInfoBox title="Estimating the difficulty of auditing an assertion">
+  <div className="text-gray-700">
+    Given a set of assertions that attacks an outcome, the 'easiest to audit'
+    assertion is the one we expect would require the smallest sample of ballots
+    to audit. Given two assertions, we assume that the assertion with the larger
+    diluted margin will be the easier one to audit. For the purposes of our
+    running example, we will define the diluted margin of an assertion with
+    winner <em>w</em> and loser <em>l</em> as the difference in tallies of the
+    winner and loser divided by the total number of ballots cast.
+  </div>
+  <div className="text-gray-700 mt-4">
+    Recall that when we talk about the winner and loser of an assertion, we are
+    not referring to the ultimate winners and losers of the election—we are just
+    referring to the candidates being compared by the assertion itself.
+  </div>
+  <div className="text-gray-700 mt-4">
+    In our example, the total number of cast ballots is 13500. Let's also assume
+    that we are undertaking a ballot level comparison audit, and use{" "}
+    <em>1 divided by the diluted margin</em> to estimate the auditing difficulty
+    of a given assertion.
+  </div>
+</AssertionInfoBox>

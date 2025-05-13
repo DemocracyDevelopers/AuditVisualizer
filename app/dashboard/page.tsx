@@ -21,6 +21,7 @@ import { useTour } from "@reactour/tour";
 
 import { Workflow } from "lucide-react";
 import { useFileDataStore } from "@/store/fileData";
+import useTreeTabStore from "@/store/use-tree-tab-store";
 import {
   explainAssertions,
   getAssertions,

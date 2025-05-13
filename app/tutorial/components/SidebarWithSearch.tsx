@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
-import { contentData } from "./data-content";
 import { Search } from "lucide-react"; // ✅ 加上这一行引入
+import { contentData } from "./data-content";
 
 interface SidebarProps {
   sidebarWidth: number;
