@@ -5,8 +5,8 @@ import UploadProgress from "./progress";
 import useMultiWinnerDataStore from "../../../store/multi-winner-data";
 import { validateInputData } from "../../explain-assertions/components/explain-process";
 import { useRouter } from "next/navigation";
-import { useFileDataStore } from "@/store/fileData";
-import { getContentFromAssertion } from "@/utils/candidateTools";
+import { useFileDataStore } from "../../../store/fileData";
+import { getContentFromAssertion } from "../../../utils/candidateTools";
 
 interface UploaderProps {
   className?: string;
@@ -122,6 +122,7 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
       setErrorTitle,
       setErrorMsg,
       setShowAlert,
+      setPhaseErrors,
     ],
   );
 
@@ -153,6 +154,8 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
             );
 
             setCandidateList(candidateList);
+            // ✅ 添加这行日志输出
+            console.log("✅ File loaded. Expect Tour to show after dashboard.");
 
             // 从 jsonData 中提取 assertions
             const assertions = jsonData.solution.Ok.assertions;
