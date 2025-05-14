@@ -13,6 +13,7 @@ import OneClickAnimation from "./one-click-animation";
 interface ProcessStep {
   before: OneWinnerTree;
   assertion: string;
+  treeUnchanged?: boolean;
 }
 
 interface TreeData {
@@ -51,6 +52,7 @@ function StepByStepView({
     const response = explainAssertions(fileData);
     // 根据核心库返回的 response 进行处理
     if (response.success) {
+      console.log("response.data:", response.data);
       // 成功解析并校验，将数据存储到全局状态中
       setMultiWinner(response.data);
       const jsonData = JSON.parse(fileData);
@@ -124,6 +126,17 @@ function StepByStepView({
     </Button>
   );
 
+  const currentStepData = data.process[selectedStep];
+
+  // 安全防御：如果当前 step 数据不存在，则返回 fallback UI
+  if (!currentStepData || !currentStepData.before) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-red-500">No data for step {selectedStep}.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="relative">
       {/* Pass selectedWinnerId to OneClickAnimation */}
@@ -150,8 +163,17 @@ function StepByStepView({
           selectedStep={selectedStep}
         />
         <div className="w-full h-96" data-tour="seventh-step">
-          <Tree
+          {/* <Tree
             data={data.process[selectedStep].before!}
+            key={`${selectedWinnerId}-${selectedStep}`}
+            nextComponent={NextComponent}
+            backComponent={BackComponent}
+            resetHiddenNodes={resetHiddenNodes}
+            onResetComplete={handleResetComplete}
+            onNodeCut={handleNodeCut}
+          /> */}
+          <Tree
+            data={currentStepData.before}
             key={`${selectedWinnerId}-${selectedStep}`}
             nextComponent={NextComponent}
             backComponent={BackComponent}
@@ -160,12 +182,20 @@ function StepByStepView({
             onNodeCut={handleNodeCut}
           />
         </div>
+
         <div className="w-48 flex flex-col gap-4" data-tour="ninth-step">
           <div>
             <div className="font-bold">Applied Assertion: </div>
-            <div>{data.process[selectedStep].assertion}</div>
+            {/* <div>{data.process[selectedStep].assertion}</div> */}
+            <div>{currentStepData.assertion}</div>
           </div>
-
+          {(data.process[selectedStep] as any).treeUnchanged === true && (
+            <p className="text-xs text-gray-500 italic mt-2">
+              This assertion did{" "}
+              <span className="font-bold text-red-500">not</span> eliminate any
+              elimination orders.
+            </p>
+          )}
           <div>
             {hasNodeBeenCut && (
               <Button onClick={handleRevertAssertion}>
