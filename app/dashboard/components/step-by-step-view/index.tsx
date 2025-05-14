@@ -13,6 +13,7 @@ import OneClickAnimation from "./one-click-animation";
 interface ProcessStep {
   before: OneWinnerTree;
   assertion: string;
+  treeUnchanged?: boolean;
 }
 
 interface TreeData {
@@ -51,6 +52,7 @@ function StepByStepView({
     const response = explainAssertions(fileData);
     // 根据核心库返回的 response 进行处理
     if (response.success) {
+      console.log("response.data:", response.data);
       // 成功解析并校验，将数据存储到全局状态中
       setMultiWinner(response.data);
       const jsonData = JSON.parse(fileData);
@@ -165,7 +167,13 @@ function StepByStepView({
             <div className="font-bold">Applied Assertion: </div>
             <div>{data.process[selectedStep].assertion}</div>
           </div>
-
+          {(data.process[selectedStep] as any).treeUnchanged === true && (
+            <p className="text-xs text-gray-500 italic mt-2">
+              This assertion did{" "}
+              <span className="font-bold text-red-500">not</span> eliminate any
+              elimination orders.
+            </p>
+          )}
           <div>
             {hasNodeBeenCut && (
               <Button onClick={handleRevertAssertion}>
