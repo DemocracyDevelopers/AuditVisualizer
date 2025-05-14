@@ -17,6 +17,7 @@ interface OneClickAnimationProps {
     assertion?: string;
     before?: TreeNode | null;
     after?: TreeNode | null;
+    treeUnchanged?: boolean;
   }>;
   selectedWinnerId: number; // Add selectedWinnerId as a prop
 }
@@ -311,6 +312,15 @@ function OneClickAnimation({
                     {currentAssertion}
                   </div>
                 )}
+                {isBefore &&
+                  process[Math.floor((currentStep + 1) / 2)]?.treeUnchanged ===
+                    true && (
+                    <p className="text-sm text-gray-500 italic mt-2 text-center">
+                      This assertion did{" "}
+                      <span className="font-bold text-red-500">not</span>{" "}
+                      eliminate any elimination orders.
+                    </p>
+                  )}
               </div>
               <Button
                 onClick={handleReplay}
