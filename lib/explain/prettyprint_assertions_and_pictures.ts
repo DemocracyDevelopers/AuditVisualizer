@@ -552,7 +552,10 @@ export function explain(
       // Add to process
       stepByStep.process.push({
         step: stepIndex + 1,
-        assertion: assertionText,
+        assertion: {
+          index: stepIndex, // 或者 assertion.assertion_index
+          content: assertionText,
+        },
         before: beforeTree,
         after: afterTree,
         treeUnchanged, // true if the tree is unchanged after applying the assertion
