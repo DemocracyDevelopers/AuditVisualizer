@@ -142,7 +142,7 @@ export const getSteps = (candidateCount: number) => {
             back={5}
             next={7}
             backSwitchTo="default"
-            nextSwitchTo="step-by-step"
+            nextSwitchTo={excludeStepByStep ? "default" : "step-by-step"}
             setCurrentStep={setCurrentStep}
           />
         </div>
