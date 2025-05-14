@@ -7,27 +7,17 @@ import { FaUserFriends, FaTrophy, FaList } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ChevronRight, FilePenLine } from "lucide-react";
-import AuditProgressAnimation from "./components/audit-progress-animation"; // Ensure the file name matches the actual file
 import EliminationTree from "./components/elimination-tree";
 import useMultiWinnerDataStore from "@/store/multi-winner-data";
 import {
-  // inferEliminationPathWithDetails,
   AssertionInternal,
   verifyWinnerByDP,
 } from "@/lib/explain/judge_winner";
-// import multiWinnerData from "@/store/multi-winner-data"; // 引入 zustand store
 
 import { useTour } from "@reactour/tour";
 
 import { Workflow } from "lucide-react";
-import { useFileDataStore } from "@/store/fileData";
-import useTreeTabStore from "@/store/use-tree-tab-store";
-import {
-  explainAssertions,
-  getAssertions,
-} from "../explain-assertions/components/explain-process";
-import { useRouter } from "next/navigation";
-import useTreeSelectionStore from "@/store/use-tree-selection-store";
+import { useSelectFirstNonWinner } from "@/hooks/useSelectFirstNonWinner";
 
 const Dashboard: FC = () => {
   const { candidateList, assertionList, winnerInfo } =
@@ -35,35 +25,36 @@ const Dashboard: FC = () => {
 
   const { setIsOpen } = useTour();
 
-  const setSelectedTreeId = useTreeSelectionStore(
-    (state) => state.setSelectedTreeId,
-  );
+  const selectFirstNonWinner = useSelectFirstNonWinner();
 
   const startTour = () => {
-    const candidateCount = candidateList.length;
-    const judge_select_new_tree = candidateCount >= 6;
-
     if (setIsOpen) {
+      const candidateCount = candidateList.length;
+      const judge_select_new_tree = candidateCount >= 6;
       if (judge_select_new_tree) {
-        const firstNonWinnerCandidate = candidateList.find(
-          (candidate) => winnerInfo && candidate.id !== winnerInfo.id,
-        );
-
-        if (firstNonWinnerCandidate) {
-          setSelectedTreeId(firstNonWinnerCandidate.id);
-        }
+        selectFirstNonWinner();
       }
       setIsOpen(true);
     }
   };
-  const fileData = useFileDataStore((state) => state.fileData);
 
   const tour = useTour();
 
   useEffect(() => {
     const shouldStart = sessionStorage.getItem("startTour");
     if (shouldStart === "true" && tour.setIsOpen) {
+      tour.setCurrentStep(0);
       tour.setIsOpen(true);
+
+      const candidateCount = candidateList.length;
+      const judge_select_new_tree = candidateCount >= 6;
+      if (judge_select_new_tree) {
+        console.log("selectFirstNonWinner");
+        setTimeout(() => {
+          selectFirstNonWinner();
+        }, 100); // 100ms
+      }
+
       sessionStorage.removeItem("startTour");
     }
   }, [tour]);
