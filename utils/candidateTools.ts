@@ -8,7 +8,7 @@ const getContentFromAssertion = ({
   assertion: Assertion;
   candidateList: Candidate[];
 }) => {
-  const { type, winner, loser, continuing } = assertion;
+  const { type, winner, loser, continuing, assertion_index } = assertion;
   const winnerName = candidateList[winner].name;
   const loserName = candidateList[loser].name;
   let content = "";
@@ -16,9 +16,9 @@ const getContentFromAssertion = ({
     const continuingNames = continuing!
       .map((id) => candidateList[id].name)
       .join(", ");
-    content = `${winnerName} > ${loserName} if only {${continuingNames}} remain`;
+    content = `[${assertion_index}] ${winnerName} > ${loserName} if only {${continuingNames}} remain`;
   } else if (type === "NEB") {
-    content = `${winnerName} NEB ${loserName}`;
+    content = `[${assertion_index}] ${winnerName} NEB ${loserName}`;
   }
   return content;
 };
