@@ -5,6 +5,7 @@ import { TourProvider } from "@reactour/tour";
 import { TourStepWatcher } from "./TourStepWatcher";
 import { TourSyncWatcher } from "./TourSyncWatcher";
 import { CloseTourOnRouteChange } from "@/hooks/CloseTourOnRouteChange";
+import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 
 // ✅ 不再依赖外部 steps，而交由 TourSyncWatcher 设置
 interface ClientTourProviderProps {
@@ -14,6 +15,8 @@ interface ClientTourProviderProps {
 export default function ClientTourProvider({
   children,
 }: ClientTourProviderProps) {
+  const disableBody = (target: any) => disableBodyScroll(target);
+  const enableBody = (target: any) => enableBodyScroll(target);
   return (
     <TourProvider
       steps={[]} // 初始为空，由 TourSyncWatcher 后续动态设置
@@ -27,6 +30,8 @@ export default function ClientTourProvider({
         popover: (base) => ({ ...base, borderRadius: "12px" }),
       }}
       scrollSmooth={true}
+      afterOpen={disableBody}
+      beforeClose={enableBody}
     >
       <CloseTourOnRouteChange />
       {/* ✅ 动态更新 steps */}
