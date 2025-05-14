@@ -4,6 +4,7 @@ import React from "react";
 import { TourProvider } from "@reactour/tour";
 import { TourStepWatcher } from "./TourStepWatcher";
 import { TourSyncWatcher } from "./TourSyncWatcher";
+import { CloseTourOnRouteChange } from "@/hooks/CloseTourOnRouteChange";
 
 // ✅ 不再依赖外部 steps，而交由 TourSyncWatcher 设置
 interface ClientTourProviderProps {
@@ -25,7 +26,9 @@ export default function ClientTourProvider({
       styles={{
         popover: (base) => ({ ...base, borderRadius: "12px" }),
       }}
+      scrollSmooth={true}
     >
+      <CloseTourOnRouteChange />
       {/* ✅ 动态更新 steps */}
       <TourSyncWatcher />
       <TourStepWatcher />
