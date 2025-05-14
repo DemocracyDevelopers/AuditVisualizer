@@ -185,9 +185,14 @@ function StepByStepView({
 
         <div className="w-48 flex flex-col gap-4" data-tour="ninth-step">
           <div>
-            <div className="font-bold">Applied Assertion: </div>
-            {/* <div>{data.process[selectedStep].assertion}</div> */}
-            <div>{currentStepData.assertion}</div>
+            <div className="font-bold">Applied Assertion:</div>
+            <div>
+              <span className="text-dark-500">
+                {(currentStepData.assertion?.index ?? -1) + 1 || "N/A"}.{" "}
+              </span>
+              {currentStepData.assertion?.content ??
+                "No assertion content available"}
+            </div>
           </div>
           {(data.process[selectedStep] as any).treeUnchanged === true && (
             <p className="text-xs text-gray-500 italic mt-2">

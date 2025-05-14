@@ -14,7 +14,7 @@ interface OneClickAnimationProps {
   process: Array<{
     step: number;
     trees?: TreeNode | null; // step 0
-    assertion?: string;
+    assertion?: { index: number; content: string };
     before?: TreeNode | null;
     after?: TreeNode | null;
     treeUnchanged?: boolean;
@@ -35,7 +35,10 @@ function OneClickAnimation({
   const [open, setOpen] = useState(false);
   const [resetHiddenNodes, setResetHiddenNodes] = useState(false);
   const [currentTree, setCurrentTree] = useState<TreeNode | null>(null);
-  const [currentAssertion, setCurrentAssertion] = useState<string | null>(null);
+  const [currentAssertion, setCurrentAssertion] = useState<{
+    index: number;
+    content: string;
+  } | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [animationComplete, setAnimationComplete] = useState(false);
@@ -68,7 +71,7 @@ function OneClickAnimation({
     // Only initialize the tree if dialog is open
     if (open && process && process.length > 0) {
       setCurrentTree(deepCloneTree(process[0].trees) || null);
-      setCurrentAssertion(process[0].assertion || null);
+      setCurrentAssertion(process[0]?.assertion ?? null);
     }
   }, [selectedWinnerId, process, open]);
 
@@ -115,7 +118,7 @@ function OneClickAnimation({
       // First step uses process[0].trees
       console.log("Setting tree to process[0].trees");
       setCurrentTree(deepCloneTree(process[0].trees) || null);
-      setCurrentAssertion(process[0].assertion || null);
+      setCurrentAssertion(process[0]?.assertion ?? null);
     } else {
       // Calculate which process item and whether it's before or after
       const processIndex = Math.floor((currentStep + 1) / 2);
@@ -127,7 +130,7 @@ function OneClickAnimation({
         console.log(`Setting tree to process[${processIndex}].after`);
         setCurrentTree(deepCloneTree(process[processIndex].after) || null);
       }
-      setCurrentAssertion(process[processIndex].assertion || null);
+      setCurrentAssertion(process[processIndex]?.assertion ?? null);
     }
   }, [currentStep, process, totalSteps]);
 
@@ -308,10 +311,14 @@ function OneClickAnimation({
             <div className="flex justify-center items-baseline gap-8 mt-4">
               <div>
                 {isBefore && currentAssertion && (
-                  <div className="mt-4 text-center font-medium">
-                    {currentAssertion}
+                  <div>
+                    <span className="text-dark-500">
+                      {currentAssertion.index + 1}.{" "}
+                    </span>
+                    {currentAssertion.content}
                   </div>
                 )}
+
                 {isBefore &&
                   process[Math.floor((currentStep + 1) / 2)]?.treeUnchanged ===
                     true && (
