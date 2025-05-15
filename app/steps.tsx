@@ -12,7 +12,7 @@ export const getSteps = (candidateCount: number) => {
       }: {
         setCurrentStep: (step: number) => void;
       }) => (
-        <div className="text-black">
+        <div>
           {"We have "}
           <strong className="text-blue-600 font-semibold">
             Candidate Number, Winner Name and Assertion Number
@@ -29,7 +29,7 @@ export const getSteps = (candidateCount: number) => {
       }: {
         setCurrentStep: (step: number) => void;
       }) => (
-        <div className="">
+        <div>
           {"This is the "}
           <strong className="text-blue-600 font-semibold">
             Assertions List
