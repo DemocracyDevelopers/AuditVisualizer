@@ -4,6 +4,10 @@ import useTreeTabStore from "@/store/use-tree-tab-store";
 export const getSteps = (candidateCount: number) => {
   const excludeStepByStep = candidateCount >= 6;
 
+  const Brown = ({ children }: { children: React.ReactNode }) => (
+    <span className="text-amber-700">{children}</span>
+  );
+
   const steps = [
     {
       selector: "[data-tour='first-step']",
@@ -13,11 +17,11 @@ export const getSteps = (candidateCount: number) => {
         setCurrentStep: (step: number) => void;
       }) => (
         <div>
-          {"We have "}
+          <Brown>We have </Brown>
           <strong className="text-blue-600 font-semibold">
             Candidate Number, Winner Name and Assertion Number
           </strong>
-          {" here!"}
+          <Brown> here!</Brown>
           <TourNavButtons next={1} setCurrentStep={setCurrentStep} />
         </div>
       ),
@@ -30,11 +34,11 @@ export const getSteps = (candidateCount: number) => {
         setCurrentStep: (step: number) => void;
       }) => (
         <div>
-          {"This is the "}
+          <Brown>This is the </Brown>
           <strong className="text-blue-600 font-semibold">
             Assertions List
           </strong>
-          {" with "}
+          <Brown> with </Brown>
           <strong className="text-blue-600 font-semibold">
             Audit Progress Verification
           </strong>
@@ -50,11 +54,11 @@ export const getSteps = (candidateCount: number) => {
         setCurrentStep: (step: number) => void;
       }) => (
         <div>
-          {"Click the "}
+          <Brown>Click the </Brown>
           <strong className="text-blue-600 font-semibold">
             View Details Button
           </strong>
-          {" to view details in a modal!"}
+          <Brown> to view details in a modal!</Brown>
           <TourNavButtons back={1} next={3} setCurrentStep={setCurrentStep} />
         </div>
       ),
@@ -67,11 +71,11 @@ export const getSteps = (candidateCount: number) => {
         setCurrentStep: (step: number) => void;
       }) => (
         <div>
-          {"This is where our "}
+          <Brown>This is where our </Brown>
           <strong className="text-blue-600 font-semibold">
             Elimination Tree
           </strong>
-          {" lives."}
+          <Brown> lives.</Brown>
           <TourNavButtons back={2} next={4} setCurrentStep={setCurrentStep} />
         </div>
       ),
@@ -84,13 +88,13 @@ export const getSteps = (candidateCount: number) => {
         setCurrentStep: (step: number) => void;
       }) => (
         <div>
-          {"This bar shows all candidates and the "}
+          <Brown>This bar shows all candidates and the </Brown>
           <strong className="text-blue-600 font-semibold">
             Winner has a Crown
           </strong>
-          {
-            "! You can click a name to highlight and view elimination path here."
-          }
+          <Brown>
+            ! You can click a name to highlight and view elimination path here.
+          </Brown>
           <TourNavButtons
             back={3}
             next={5}
@@ -108,9 +112,9 @@ export const getSteps = (candidateCount: number) => {
         setCurrentStep: (step: number) => void;
       }) => (
         <div>
-          {"Click "}
+          <Brown>Click </Brown>
           <strong className="text-blue-600 font-semibold">Expand All</strong>
-          {" to see the full tree!"}
+          <Brown> to see the full tree!</Brown>
           <TourNavButtons
             back={4}
             next={6}
@@ -129,15 +133,16 @@ export const getSteps = (candidateCount: number) => {
         setCurrentStep: (step: number) => void;
       }) => (
         <div>
-          {"In default mode, you’ll see the full elimination tree:"}
+          <Brown>In default mode, you’ll see the full elimination tree:</Brown>
           <br />
-          <strong className="text-gray-500">Gray branches</strong> are cut by
-          assertions (scissors here),{" "}
-          <strong className="text-yellow-500">Yellow ones</strong> survive.
+          <strong className="text-gray-500">Gray branches</strong>
+          <Brown> are cut by assertions (scissors here), </Brown>
+          <strong className="text-yellow-500">Yellow ones</strong>
+          <Brown>survive.</Brown>
           <br />
-          {"If someone wins, they’ve got "}
+          <Brown>If someone wins, they’ve got </Brown>
           <strong className="text-blue-600"> at least one yellow path</strong>
-          {" reaching the top—no cuts, no doubts!"}
+          <Brown> reaching the top—no cuts, no doubts!</Brown>
           <TourNavButtons
             back={5}
             next={7}
@@ -156,9 +161,9 @@ export const getSteps = (candidateCount: number) => {
         setCurrentStep: (step: number) => void;
       }) => (
         <div>
-          {"Then, let’s explore the "}
+          <Brown>Then, let’s explore the </Brown>
           <strong className="text-blue-600 font-semibold">Step By Step</strong>
-          {" mode."}
+          <Brown> mode.</Brown>
           <TourNavButtons
             back={6}
             next={8}
@@ -177,9 +182,10 @@ export const getSteps = (candidateCount: number) => {
         setCurrentStep: (step: number) => void;
       }) => (
         <div>
-          {
-            "Step-by-Step mode lets you see how candidates get knocked out, one assertion at a time."
-          }
+          <Brown>
+            Step-by-Step mode lets you see how candidates get knocked out, one
+            assertion at a time.
+          </Brown>
           <TourNavButtons
             back={7}
             next={9}
@@ -198,11 +204,11 @@ export const getSteps = (candidateCount: number) => {
         setCurrentStep: (step: number) => void;
       }) => (
         <div>
-          {"This is the "}
+          <Brown>This is the </Brown>
           <strong className="text-blue-600 font-semibold">
             Step-by-Step Bar
           </strong>
-          {". Click each step to explore assertions individually."}
+          <Brown>. Click each step to explore assertions individually.</Brown>
           <TourNavButtons
             back={8}
             next={10}
@@ -216,11 +222,11 @@ export const getSteps = (candidateCount: number) => {
       selector: "[data-tour='ninth-step']",
       content: ({ setCurrentStep, setIsOpen }: any) => (
         <div>
-          {"This section displays the currently "}
+          <Brown>This section displays the currently </Brown>
           <strong className="text-blue-600 font-semibold">
             Applied Assertion
           </strong>
-          {" at the selected step."}
+          <Brown> at the selected step.</Brown>
           <TourNavButtons
             back={9}
             next={11}

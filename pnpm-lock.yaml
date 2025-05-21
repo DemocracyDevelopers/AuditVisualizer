@@ -124,6 +124,9 @@ devDependencies:
   '@types/animejs':
     specifier: ^3.1.13
     version: 3.1.13
+  '@types/body-scroll-lock':
+    specifier: ^3.1.2
+    version: 3.1.2
   '@types/jest':
     specifier: ^29.5.12
     version: 29.5.14
@@ -2228,6 +2231,10 @@ packages:
     resolution: {integrity: sha512-dkO5fhS7+/oos4ciWxyEyjWe48zmG6wbCheo/G2ZnHx4fs3EU6YC6UM8rk56gAjNJ9P3MTH2jo5jb92/K6wbng==}
     dependencies:
       '@babel/types': 7.27.0
+    dev: true
+
+  /@types/body-scroll-lock@3.1.2:
+    resolution: {integrity: sha512-ELhtuphE/YbhEcpBf/rIV9Tl3/O0A0gpCVD+oYFSS8bWstHFJUgA4nNw1ZakVlRC38XaQEIsBogUZKWIPBvpfQ==}
     dev: true
 
   /@types/d3-array@3.2.1:
