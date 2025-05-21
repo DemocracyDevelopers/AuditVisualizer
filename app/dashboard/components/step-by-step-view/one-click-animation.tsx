@@ -41,6 +41,7 @@ function OneClickAnimation({
   } | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isPaused, setIsPaused] = useState(false); // New state for pause functionality
   const [animationComplete, setAnimationComplete] = useState(false);
   const [isLastStep, setIsLastStep] = useState(false);
   // Add a key state to force tree re-renders
@@ -61,6 +62,7 @@ function OneClickAnimation({
   useEffect(() => {
     setCurrentStep(0);
     setIsAnimating(false);
+    setIsPaused(false); // Reset pause state
     setAnimationComplete(false);
     setResetHiddenNodes(true);
     setIsLastStep(false);
@@ -80,6 +82,7 @@ function OneClickAnimation({
     if (
       open &&
       !isAnimating &&
+      !isPaused && // Don't restart if paused
       !animationComplete &&
       process &&
       process.length > 0 &&
@@ -95,7 +98,7 @@ function OneClickAnimation({
 
     // 重置手动导航标志
     isManualNavigation.current = false;
-  }, [open, isAnimating, animationComplete, process]);
+  }, [open, isAnimating, isPaused, animationComplete, process]);
 
   const isBefore = (currentStep - 1) % 2 === 0; // Even offset (1,3,5...) = before, Odd offset (2,4,6...) = after
 
@@ -134,10 +137,10 @@ function OneClickAnimation({
     }
   }, [currentStep, process, totalSteps]);
 
-  // Animation timer effect - 只有在isAnimating为true且不是手动导航时才会运行
+  // Animation timer effect - 只有在isAnimating为true且不是手动导航时且不是暂停状态才会运行
   useEffect(() => {
-    // 如果是手动导航，不执行自动动画
-    if (isManualNavigation.current) {
+    // 如果是手动导航或暂停状态，不执行自动动画
+    if (isManualNavigation.current || isPaused) {
       return;
     }
 
@@ -152,6 +155,7 @@ function OneClickAnimation({
         if (nextStep >= totalSteps - 1) {
           // We've reached the final step - stop the animation
           setIsAnimating(false);
+          setIsPaused(false); // Reset pause state when complete
           setAnimationComplete(true);
           setIsLastStep(true);
           console.log("Animation complete at step:", nextStep);
@@ -160,6 +164,7 @@ function OneClickAnimation({
     } else if (isAnimating && currentStep >= totalSteps - 1) {
       // Force stop animation if we're already at or beyond the last step
       setIsAnimating(false);
+      setIsPaused(false); // Reset pause state when complete
       setAnimationComplete(true);
       setIsLastStep(true);
       console.log("Animation stopped - already at final step");
@@ -170,24 +175,26 @@ function OneClickAnimation({
         clearTimeout(animationTimer);
       }
     };
-  }, [currentStep, isAnimating, totalSteps]);
+  }, [currentStep, isAnimating, isPaused, totalSteps]);
 
   // Reset animation complete flag when animation starts
   useEffect(() => {
-    if (isAnimating && !isManualNavigation.current) {
+    if (isAnimating && !isManualNavigation.current && !isPaused) {
       setAnimationComplete(false);
       setIsLastStep(false);
     }
-  }, [isAnimating]);
+  }, [isAnimating, isPaused]);
 
   const handleResetComplete = () => {
     setResetHiddenNodes(false);
   };
 
   const handleReplay = () => {
+    // For replay functionality
     setCurrentStep(0);
     setResetHiddenNodes(true);
     setIsAnimating(true);
+    setIsPaused(false); // Ensure not paused when replaying
     setAnimationComplete(false);
     setIsLastStep(false);
     isManualNavigation.current = false;
@@ -195,14 +202,37 @@ function OneClickAnimation({
     setTreeKey((prev) => prev + 1);
   };
 
+  // Handle play/pause toggling
+  const handlePlayPauseToggle = () => {
+    if (animationComplete) {
+      // If animation is complete, replay from beginning
+      handleReplay();
+    } else if (isPaused) {
+      // If paused, resume animation
+      setIsPaused(false);
+      setIsAnimating(true);
+      isManualNavigation.current = false;
+    } else if (isAnimating) {
+      // If playing, pause animation
+      setIsPaused(true);
+      setIsAnimating(false);
+    } else {
+      // If not playing and not paused, start animation
+      setIsAnimating(true);
+      setIsPaused(false);
+      isManualNavigation.current = false;
+    }
+  };
+
   // Handle indicator click
   const handleIndicatorClick = (index: number) => {
     // 设置手动导航标志
     isManualNavigation.current = true;
 
-    // 如果动画正在播放，停止它
+    // 如果动画正在播放，暂停它
     if (isAnimating) {
       setIsAnimating(false);
+      setIsPaused(true); // Set to paused state when manually navigating
     }
 
     // 设置当前步骤为点击的索引
@@ -218,6 +248,7 @@ function OneClickAnimation({
     if (index >= totalSteps - 1) {
       setAnimationComplete(true);
       setIsLastStep(true);
+      setIsPaused(false); // Reset pause state at final step
     } else {
       setAnimationComplete(false);
       setIsLastStep(false);
@@ -246,6 +277,19 @@ function OneClickAnimation({
     );
   };
 
+  // Determine button label based on animation state
+  const getButtonLabel = () => {
+    if (animationComplete) {
+      return "Replay";
+    } else if (isPaused) {
+      return "Resume";
+    } else if (isAnimating) {
+      return "Pause";
+    } else {
+      return "Play";
+    }
+  };
+
   return (
     <Dialog
       open={open}
@@ -255,6 +299,7 @@ function OneClickAnimation({
           // When opening the dialog, reset and start animation
           setCurrentStep(0);
           setIsAnimating(true);
+          setIsPaused(false); // Reset pause state when opening
           setAnimationComplete(false);
           setIsLastStep(false);
           isManualNavigation.current = false;
@@ -263,6 +308,7 @@ function OneClickAnimation({
         } else {
           // When closing, stop the animation
           setIsAnimating(false);
+          setIsPaused(false); // Reset pause state when closing
         }
       }}
     >
@@ -328,18 +374,12 @@ function OneClickAnimation({
                       eliminate any elimination orders.
                     </p>
                   )}
+                <div className="flex justify-center mt-2">
+                  <Button size="sm" onClick={handlePlayPauseToggle}>
+                    {getButtonLabel()}
+                  </Button>
+                </div>
               </div>
-              <Button
-                onClick={handleReplay}
-                disabled={isAnimating && !isManualNavigation.current}
-                className="px-8"
-              >
-                {isAnimating && !isManualNavigation.current
-                  ? "Playing..."
-                  : animationComplete
-                    ? "Replay"
-                    : "Play"}
-              </Button>
             </div>
           </div>
         </div>

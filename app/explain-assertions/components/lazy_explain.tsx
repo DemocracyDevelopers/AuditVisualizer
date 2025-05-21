@@ -2,6 +2,7 @@
 // 外部调用时传入整棵树、目标节点的 id 以及完整的 Assertions 列表，
 // 函数内部直接使用目标节点的 remaining 和 remainingAssertions 进行扩展，返回更新后的整棵树。
 
+import { assert } from "console";
 import {
   Assertion,
   EffectOfAssertionOnEliminationOrderSuffix,
@@ -224,9 +225,11 @@ export function createTreeFromFile(
   if (typeof rootCandidate !== "number") {
     throw new Error("Invalid or missing winner index in solution");
   }
-
   const assertions: Assertion[] = solution.assertions.map(
-    (a: any) => a.assertion,
+    (a: any, idx: number) => ({
+      assertion_index: idx + 1,
+      ...a.assertion,
+    }),
   );
   return createInitialTree(rootCandidate, numCandidates, assertions);
 }

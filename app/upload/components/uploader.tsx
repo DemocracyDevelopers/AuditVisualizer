@@ -7,6 +7,7 @@ import { validateInputData } from "../../explain-assertions/components/explain-p
 import { useRouter } from "next/navigation";
 import { useFileDataStore } from "../../../store/fileData";
 import { getContentFromAssertion } from "../../../utils/candidateTools";
+import { Assertion } from "@/lib/explain/prettyprint_assertions_and_pictures";
 
 interface UploaderProps {
   className?: string;
@@ -162,30 +163,22 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
 
             // 根据 assertions 生成 assertionList
             const assertionList = assertions.map(
-              (
-                assertionObj: {
-                  assertion: {
-                    type: string;
-                    winner: number;
-                    loser: number;
-                    continuing: number[];
-                  };
-                  difficulty: number;
-                  margin: number;
-                },
-                index: number,
-              ) => {
+              (assertionObj: {
+                assertion: Assertion;
+                difficulty: number;
+                margin: number;
+              }) => {
                 const { assertion, difficulty, margin } = assertionObj;
-                const { type, winner } = assertion;
+                const { type, winner, assertion_index } = assertion;
 
                 // 返回 assertionList 的每一项
                 return {
-                  index: index + 1, // index 从 1 开始
+                  index: assertion_index + 1, // index 从 1 开始
                   winner: winner, // 将 winner 转化为名字
                   content: getContentFromAssertion({
                     assertion,
                     candidateList,
-                  }), // 生成的内容
+                  }).text, // 生成的内容
                   type, // 保持 type 不变
                   difficulty, // 保持 difficulty 不变
                   margin, // 保持 margin 不变
