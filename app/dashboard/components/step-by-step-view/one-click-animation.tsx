@@ -352,12 +352,7 @@ function OneClickAnimation({
           </div>
 
           <div className="mt-auto">
-            <div className="flex justify-center items-baseline gap-5">
-              {renderProgressIndicators()}
-              <Button size="sm" onClick={handlePlayPauseToggle}>
-                {getButtonLabel()}
-              </Button>
-            </div>
+            {renderProgressIndicators()}
 
             <div className="flex justify-center items-baseline gap-8 mt-4">
               <div>
@@ -379,6 +374,11 @@ function OneClickAnimation({
                       eliminate any elimination orders.
                     </p>
                   )}
+                <div className="flex justify-center mt-2">
+                  <Button size="sm" onClick={handlePlayPauseToggle}>
+                    {getButtonLabel()}
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
