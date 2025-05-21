@@ -12,7 +12,6 @@ import {
 } from "../ui/dropdown-menu";
 import useMultiWinnerDataStore from "@/store/multi-winner-data";
 import { getSmartDisplayName } from "@/components/ui/avatar";
-import { getContentFromAssertion } from "@/utils/candidateTools";
 
 interface TreeProps {
   data: TreeNode;

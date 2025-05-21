@@ -730,10 +730,12 @@ function LazyLoadView() {
 
         // If node is pruned, show pruning reason
         if (d.data.pruned && d.data.prunedBy) {
-          tooltip += `\nPruned by: ${getContentFromAssertion({
-            assertion: d.data.prunedBy,
-            candidateList,
-          })}`;
+          tooltip += `\nPruned by: ${
+            getContentFromAssertion({
+              assertion: d.data.prunedBy,
+              candidateList,
+            }).text
+          }`;
         }
 
         return tooltip;
