@@ -30,7 +30,7 @@ export default function TutorialLayout({
   }, [pathname]);
 
   return (
-    <div className="flex bg-white">
+    <div className="flex bg-background">
       {/* Sidebar */}
       <SidebarWithSearch
         sidebarWidth={sidebarWidth}

@@ -620,7 +620,7 @@ export default function Tree({
   return (
     <div
       ref={containerRef}
-      className={`flex flex-col ${isFullScreen ? "h-screen bg-white" : "h-full"} overflow-hidden relative`}
+      className={`flex flex-col ${isFullScreen ? "h-screen bg-background" : "h-full"} overflow-hidden relative`}
       data-tour="seventh-step"
     >
       <div className="flex-grow relative overflow-hidden">

@@ -356,7 +356,7 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
             Use the dropzone below to upload your file.
           </p>
           <div
-            className="h-[calc(100vh-400px)] border-2 border-gray-300 p-8 rounded-lg bg-gray-50 cursor-pointer w-full relative text-center flex flex-grow justify-center items-center"
+            className="h-[calc(100vh-400px)] border-2 border-gray-300 p-8 rounded-lg bg-neutral cursor-pointer w-full relative text-center flex flex-grow justify-center items-center"
             onDragOver={handleDragOver}
             onDrop={handleDrop}
           >
