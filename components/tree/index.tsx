@@ -12,6 +12,7 @@ import {
 } from "../ui/dropdown-menu";
 import useMultiWinnerDataStore from "@/store/multi-winner-data";
 import { getSmartDisplayName } from "@/components/ui/avatar";
+import { getContentFromAssertion } from "@/utils/candidateTools";
 
 interface TreeProps {
   data: TreeNode;
@@ -20,6 +21,7 @@ interface TreeProps {
   resetHiddenNodes: boolean;
   onResetComplete: () => void;
   onNodeCut: () => void;
+  currentAssertion: string;
 }
 
 // Node sizing constants
@@ -34,10 +36,12 @@ export default function Tree({
   resetHiddenNodes,
   onResetComplete,
   onNodeCut,
+  currentAssertion,
 }: TreeProps) {
   // Refs
   const containerRef = useRef<HTMLDivElement | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const { candidateList } = useMultiWinnerDataStore.getState();
 
   // State
   const [treeData, setTreeData] = useState<TreeNode>(data);
@@ -485,6 +489,10 @@ export default function Tree({
           <path d="M14.8 14.8 20 20"/>
         </svg>`,
       )
+      .append("title")
+      .text(() => {
+        return currentAssertion;
+      })
       .on("click", (event, d) => {
         event.stopPropagation();
         markNodeAndChildrenAsHidden(d.target.data);
@@ -520,7 +528,6 @@ export default function Tree({
       .attr("font-size", "10px")
       .attr("fill", "black")
       .text(function (d) {
-        const { candidateList } = useMultiWinnerDataStore.getState();
         const { shortName } = getSmartDisplayName(d.data.id, candidateList);
         const maxWidth = 35;
         let text = shortName;
@@ -542,7 +549,6 @@ export default function Tree({
       })
       .append("title")
       .text(function (d) {
-        const { candidateList } = useMultiWinnerDataStore.getState();
         const { explanation, shortName } = getSmartDisplayName(
           d.data.id,
           candidateList,
