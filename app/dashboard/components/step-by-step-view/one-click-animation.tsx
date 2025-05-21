@@ -39,6 +39,9 @@ function OneClickAnimation({
     index: number;
     content: string;
   } | null>(null);
+  const currentAssertionString = `[${(currentAssertion?.index || 0) + 1}] Pruned by: ${
+    currentAssertion?.content
+  }`;
   const [currentStep, setCurrentStep] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isPaused, setIsPaused] = useState(false); // New state for pause functionality
@@ -329,6 +332,7 @@ function OneClickAnimation({
           <div className="flex-grow relative">
             {currentTree && (
               <Tree
+                currentAssertionString={currentAssertionString}
                 key={treeKey} // Add a key prop that changes to force re-renders
                 data={currentTree}
                 resetHiddenNodes={resetHiddenNodes}

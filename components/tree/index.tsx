@@ -21,7 +21,7 @@ interface TreeProps {
   resetHiddenNodes: boolean;
   onResetComplete: () => void;
   onNodeCut: () => void;
-  currentAssertion: string;
+  currentAssertionString: string;
 }
 
 // Node sizing constants
@@ -36,7 +36,7 @@ export default function Tree({
   resetHiddenNodes,
   onResetComplete,
   onNodeCut,
-  currentAssertion,
+  currentAssertionString,
 }: TreeProps) {
   // Refs
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -491,7 +491,7 @@ export default function Tree({
       )
       .append("title")
       .text(() => {
-        return currentAssertion;
+        return currentAssertionString;
       })
       .on("click", (event, d) => {
         event.stopPropagation();

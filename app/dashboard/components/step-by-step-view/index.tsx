@@ -137,7 +137,7 @@ function StepByStepView({
     );
   }
 
-  const currentAssertion = `[${(currentStepData.assertion?.index || 0) + 1}] Pruned by: ${
+  const currentAssertionString = `[${(currentStepData.assertion?.index || 0) + 1}] Pruned by: ${
     currentStepData.assertion?.content
   }`;
 
@@ -184,7 +184,7 @@ function StepByStepView({
             resetHiddenNodes={resetHiddenNodes}
             onResetComplete={handleResetComplete}
             onNodeCut={handleNodeCut}
-            currentAssertion={currentAssertion}
+            currentAssertionString={currentAssertionString}
           />
         </div>
 
