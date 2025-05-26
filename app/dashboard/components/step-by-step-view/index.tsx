@@ -137,6 +137,10 @@ function StepByStepView({
     );
   }
 
+  const currentAssertionString = `[${(currentStepData.assertion?.index || 0) + 1}] Pruned by: ${
+    currentStepData.assertion?.content
+  }`;
+
   return (
     <div className="relative">
       {/* Pass selectedWinnerId to OneClickAnimation */}
@@ -180,6 +184,7 @@ function StepByStepView({
             resetHiddenNodes={resetHiddenNodes}
             onResetComplete={handleResetComplete}
             onNodeCut={handleNodeCut}
+            currentAssertionString={currentAssertionString}
           />
         </div>
 
