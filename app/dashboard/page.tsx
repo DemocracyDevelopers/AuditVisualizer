@@ -215,7 +215,11 @@ const Dashboard: FC = () => {
 
             {/* AssertionTable 填满右侧区域 */}
             <div className="flex-1">
-              <AssertionTable assertions={assertionsWithNames} />
+              <AssertionTable
+                assertions={assertionsWithNames}
+                winnerName={winnerInfo ? winnerInfo.name : "Unknown"}
+                isValid={isValid}
+              />
             </div>
           </div>
         </div>
