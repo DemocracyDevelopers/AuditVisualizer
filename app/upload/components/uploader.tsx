@@ -163,17 +163,20 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
 
             // 根据 assertions 生成 assertionList
             const assertionList = assertions.map(
-              (assertionObj: {
-                assertion: Assertion;
-                difficulty: number;
-                margin: number;
-              }) => {
+              (
+                assertionObj: {
+                  assertion: Assertion;
+                  difficulty: number;
+                  margin: number;
+                },
+                idx: number,
+              ) => {
                 const { assertion, difficulty, margin } = assertionObj;
-                const { type, winner, assertion_index } = assertion;
+                const { type, winner } = assertion; // 此时可能还没有assertion_index
 
                 // 返回 assertionList 的每一项
                 return {
-                  index: assertion_index + 1, // index 从 1 开始
+                  index: idx + 1, // index 从 1 开始
                   winner: winner, // 将 winner 转化为名字
                   content: getContentFromAssertion({
                     assertion,
