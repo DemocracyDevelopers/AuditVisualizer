@@ -6,6 +6,7 @@ import { TourStepWatcher } from "./TourStepWatcher";
 import { TourSyncWatcher } from "./TourSyncWatcher";
 import { CloseTourOnRouteChange } from "@/hooks/CloseTourOnRouteChange";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
+import { X } from "lucide-react"; // 任意图标库都可以用
 
 // ✅ 不再依赖外部 steps，而交由 TourSyncWatcher 设置
 interface ClientTourProviderProps {
@@ -32,9 +33,19 @@ export default function ClientTourProvider({
       scrollSmooth={true}
       afterOpen={disableBody}
       beforeClose={enableBody}
+      components={{
+        Close: ({ onClick }) => (
+          <button
+            onClick={onClick}
+            className="absolute top-2 right-2 text-gray-700 hover:text-gray-900 bg-white rounded-full p-2 shadow-md"
+            aria-label="Close"
+          >
+            <X size={18} />
+          </button>
+        ),
+      }}
     >
       <CloseTourOnRouteChange />
-      {/* ✅ 动态更新 steps */}
       <TourSyncWatcher />
       <TourStepWatcher />
       {children}
