@@ -20,6 +20,7 @@ interface TreeProps {
   resetHiddenNodes: boolean;
   onResetComplete: () => void;
   onNodeCut: () => void;
+  currentAssertionString: string;
 }
 
 // Node sizing constants
@@ -34,10 +35,12 @@ export default function Tree({
   resetHiddenNodes,
   onResetComplete,
   onNodeCut,
+  currentAssertionString,
 }: TreeProps) {
   // Refs
   const containerRef = useRef<HTMLDivElement | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const { candidateList } = useMultiWinnerDataStore.getState();
 
   // State
   const [treeData, setTreeData] = useState<TreeNode>(data);
@@ -485,6 +488,10 @@ export default function Tree({
           <path d="M14.8 14.8 20 20"/>
         </svg>`,
       )
+      .append("title")
+      .text(() => {
+        return currentAssertionString;
+      })
       .on("click", (event, d) => {
         event.stopPropagation();
         markNodeAndChildrenAsHidden(d.target.data);
@@ -520,7 +527,6 @@ export default function Tree({
       .attr("font-size", "10px")
       .attr("fill", "black")
       .text(function (d) {
-        const { candidateList } = useMultiWinnerDataStore.getState();
         const { shortName } = getSmartDisplayName(d.data.id, candidateList);
         const maxWidth = 35;
         let text = shortName;
@@ -542,7 +548,6 @@ export default function Tree({
       })
       .append("title")
       .text(function (d) {
-        const { candidateList } = useMultiWinnerDataStore.getState();
         const { explanation, shortName } = getSmartDisplayName(
           d.data.id,
           candidateList,
@@ -620,7 +625,7 @@ export default function Tree({
   return (
     <div
       ref={containerRef}
-      className={`flex flex-col ${isFullScreen ? "h-screen bg-white" : "h-full"} overflow-hidden relative`}
+      className={`flex flex-col ${isFullScreen ? "h-screen bg-background" : "h-full"} overflow-hidden relative`}
       data-tour="seventh-step"
     >
       <div className="flex-grow relative overflow-hidden">

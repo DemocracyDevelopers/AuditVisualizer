@@ -20,7 +20,7 @@ export interface Assertion {
   loser: number;
   continuing?: number[];
   type: string;
-  assertion_index?: number;
+  assertion_index: number;
 }
 
 export interface TreeNode {

@@ -1,5 +1,4 @@
 import {
-  MutableRefObject,
   useEffect,
   useRef,
   useState,
@@ -45,13 +44,6 @@ function LazyLoadView() {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const gRef = useRef<SVGGElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  // Updated to use SVGSVGElement instead of Element
-  const zoomBehaviorRef = useRef<d3.ZoomBehavior<
-    SVGSVGElement,
-    unknown
-  > | null>(null);
-
-  // const [selectedTreeId, setSelectedTreeId] = useState(0);
 
   const selectedTreeId = useTreeSelectionStore((s) => s.selectedTreeId);
   const setSelectedTreeId = useTreeSelectionStore((s) => s.setSelectedTreeId);
@@ -672,10 +664,11 @@ function LazyLoadView() {
       .text((d) => {
         // Add tooltip showing the pruning reason
         if (d.target.data.prunedBy) {
-          return `Pruned by: ${getContentFromAssertion({
+          const obj = getContentFromAssertion({
             assertion: d.target.data.prunedBy,
             candidateList,
-          })}`;
+          });
+          return `[${obj.idx}] Pruned by: ${obj.text}`;
         }
         return "Pruned node";
       });
@@ -737,10 +730,12 @@ function LazyLoadView() {
 
         // If node is pruned, show pruning reason
         if (d.data.pruned && d.data.prunedBy) {
-          tooltip += `\nPruned by: ${getContentFromAssertion({
-            assertion: d.data.prunedBy,
-            candidateList,
-          })}`;
+          tooltip += `\nPruned by: ${
+            getContentFromAssertion({
+              assertion: d.data.prunedBy,
+              candidateList,
+            }).text
+          }`;
         }
 
         return tooltip;

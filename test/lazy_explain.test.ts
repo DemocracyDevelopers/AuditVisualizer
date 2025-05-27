@@ -1,141 +1,95 @@
-// test/lazy_explain.test.ts
-
+// __tests__/lazy_explain.test.ts
 import {
-  createInitialTree,
-  expandTreeByNode,
-  TreeNode,
-} from "../app/explain-assertions/components/lazy_explain";
+  findNodeByPath,
+isNodeExpanded,
+collapseTreeByNode,
+expandTreeByNode,
+createInitialTree,
+createTreeFromFile,
+TreeNode,
+} from '../app/explain-assertions/components/lazy_explain';
 import {
-  Assertion,
-  EffectOfAssertionOnEliminationOrderSuffix,
-} from "../lib/explain/prettyprint_assertions_and_pictures";
+Assertion,
+EffectOfAssertionOnEliminationOrderSuffix as Eff,
+assertion_ok_elimination_order_suffix,
+} from '../lib/explain/prettyprint_assertions_and_pictures';
 
-// Mock the module and specifically the assertion_ok_elimination_order_suffix function
-jest.mock("../lib/explain/prettyprint_assertions_and_pictures", () => {
-  const originalModule = jest.requireActual(
-    "../lib/explain/prettyprint_assertions_and_pictures",
-  );
+// Mock assertion_ok_elimination_order_suffix to control pruning
+jest.mock('../lib/explain/prettyprint_assertions_and_pictures', () => {
+  const original = jest.requireActual('../lib/explain/prettyprint_assertions_and_pictures');
   return {
-    __esModule: true,
-    ...originalModule,
-    assertion_ok_elimination_order_suffix: jest.fn(
-      (assertion: Assertion, eliminationOrder: number[]) => {
-        return originalModule.EffectOfAssertionOnEliminationOrderSuffix.Ok;
-      },
-    ),
+    ...original,
+    assertion_ok_elimination_order_suffix: jest.fn(() => original.EffectOfAssertionOnEliminationOrderSuffix.Ok),
   };
 });
 
-describe("expandTreeByNode - simple tests", () => {
-  test("should expand the root node and add children correctly", () => {
-    const numCandidates = 4;
-    let tree: TreeNode = createInitialTree(0);
-    const dummyAssertion: Assertion = {
-      type: "NEB",
-      winner: 0,
-      loser: 1,
-    } as Assertion;
-    const assertions: Assertion[] = [dummyAssertion];
+describe('findNodeByPath & isNodeExpanded', () => {
+  const assertions: Assertion[] = [];
+  const tree = createInitialTree(0, 3, assertions);
+  tree.path = [0]; // root path
 
-    tree = expandTreeByNode(assertions, tree, 0, numCandidates);
-    expect(tree.children.length).toBe(3);
-    const childIds = tree.children.map((child) => child.id).sort();
-    expect(childIds).toEqual([1, 2, 3]);
-    tree.children.forEach((child) => {
-      expect(child.path).toEqual([child.id, 0]);
-    });
+  it('findNodeByPath locates root', () => {
+    const node = findNodeByPath(tree, [0]);
+    expect(node).toBe(tree);
   });
 
-  test("should throw an error if the target node is not found", () => {
-    const numCandidates = 4;
-    const tree: TreeNode = createInitialTree(0);
-    const dummyAssertion: Assertion = {
-      type: "NEB",
-      winner: 0,
-      loser: 1,
-    } as Assertion;
-    const assertions: Assertion[] = [dummyAssertion];
-    expect(() => {
-      expandTreeByNode(assertions, tree, 99, numCandidates);
-    }).toThrow();
+  it('returns null when path not present', () => {
+    expect(findNodeByPath(tree, [1,0])).toBeNull();
+  });
+
+  it('isNodeExpanded is false for fresh tree', () => {
+    expect(isNodeExpanded(tree)).toBe(false);
   });
 });
 
-describe("expandTreeByNode - extended tests", () => {
-  test("should mark a branch as NeedsMoreDetail when assertion returns NeedsMoreDetail", () => {
-    const {
-      assertion_ok_elimination_order_suffix,
-    } = require("../lib/explain/prettyprint_assertions_and_pictures");
-    // Set up the mock to return NeedsMoreDetail when candidate 2 is expanded
-    (assertion_ok_elimination_order_suffix as jest.Mock).mockImplementationOnce(
-      (assertion: Assertion, eliminationOrder: number[]) => {
-        if (eliminationOrder[0] === 2) {
-          return EffectOfAssertionOnEliminationOrderSuffix.NeedsMoreDetail;
-        }
-        return EffectOfAssertionOnEliminationOrderSuffix.Ok;
-      },
-    );
+describe('expandTreeByNode & collapseTreeByNode', () => {
+  const assertions: Assertion[] = [];
+  let tree: TreeNode;
 
-    const numCandidates = 4;
-    let tree: TreeNode = createInitialTree(0);
-    const dummyAssertion: Assertion = {
-      type: "NEB",
-      winner: 0,
-      loser: 1,
-    } as Assertion;
-    const assertions: Assertion[] = [dummyAssertion];
-    tree = expandTreeByNode(assertions, tree, 0, numCandidates);
-    const candidate2Node = tree.children.find((child) => child.id === 2);
-    expect(candidate2Node).toBeDefined();
-    expect(candidate2Node?.path).toEqual([2, 0]);
+  beforeEach(() => {
+    tree = createInitialTree(0, 4, assertions);
   });
 
-  test("should mark a branch as Contradiction when assertion returns Contradiction", () => {
-    const {
-      assertion_ok_elimination_order_suffix,
-    } = require("../lib/explain/prettyprint_assertions_and_pictures");
-    // Set up the mock to return Contradiction when candidate 3 is expanded
-    (assertion_ok_elimination_order_suffix as jest.Mock).mockImplementationOnce(
-      (assertion: Assertion, eliminationOrder: number[]) => {
-        if (eliminationOrder[0] === 3) {
-          return EffectOfAssertionOnEliminationOrderSuffix.Contradiction;
-        }
-        return EffectOfAssertionOnEliminationOrderSuffix.Ok;
-      },
-    );
-
-    const numCandidates = 4;
-    let tree: TreeNode = createInitialTree(0);
-    const dummyAssertion: Assertion = {
-      type: "NEB",
-      winner: 0,
-      loser: 1,
-    } as Assertion;
-    const assertions: Assertion[] = [dummyAssertion];
-    tree = expandTreeByNode(assertions, tree, 0, numCandidates);
-    const candidate3Node = tree.children.find((child) => child.id === 3);
-    expect(candidate3Node).toBeDefined();
-    expect(candidate3Node?.path).toEqual([3, 0]);
+  it('expands root to children', () => {
+    const expanded = expandTreeByNode(tree, [0]);
+    expect(isNodeExpanded(expanded)).toBe(true);
+    const ids = expanded.children.map(c => c.id).sort();
+    expect(ids).toEqual([1,2,3]);
   });
 
-  test("should expand a non-root node correctly", () => {
-    const numCandidates = 4;
-    let tree: TreeNode = createInitialTree(0);
-    const assertions: Assertion[] = [
-      { type: "NEB", winner: 0, loser: 1 } as Assertion,
-    ];
-    tree = expandTreeByNode(assertions, tree, 0, numCandidates);
-    tree = expandTreeByNode(assertions, tree, 1, numCandidates);
-    const node1 = tree.children.find((child) => child.id === 1);
-    expect(node1).toBeDefined();
-    if (node1) {
-      expect(node1.path).toEqual([1, 0]);
-      expect(node1.children.length).toBe(2);
-      const childIds = node1.children.map((child) => child.id).sort();
-      expect(childIds).toEqual([2, 3]);
-      node1.children.forEach((child) => {
-        expect(child.path).toEqual([child.id, 1, 0]);
-      });
-    }
+  it('throws on invalid path', () => {
+    expect(() => expandTreeByNode(tree, [99])).toThrow();
+  });
+
+  it('collapseTreeByNode clears children', () => {
+    let t = expandTreeByNode(tree, [0]);
+    expect(isNodeExpanded(t)).toBe(true);
+    t = collapseTreeByNode(t, [0]);
+    expect(isNodeExpanded(t)).toBe(false);
+  });
+});
+
+describe('createTreeFromFile', () => {
+  const payload = {
+    metadata: { candidates: ['A','B'] },
+    solution: { Ok: { winner: 1, assertions: [ { assertion: { type:'NEB', winner:1, loser:0 } } ] } }
+  };
+  const json = JSON.stringify(payload);
+
+  it('builds tree matching file content', () => {
+    const tree = createTreeFromFile(json, 1);
+    expect(tree.id).toBe(1);
+    expect(tree.path).toEqual([1]);
+    expect(tree.remaining).toEqual([0]);
+    expect(tree.remainingAssertions.length).toBe(1);
+  });
+
+  it('throws on invalid JSON', () => {
+    expect(() => createTreeFromFile('bad', 0)).toThrow('Invalid JSON file content');
+  });
+
+  it('throws when solution.Ok missing', () => {
+    const bad = JSON.stringify({ metadata:{candidates:['A']} });
+    expect(() => createTreeFromFile(bad, 0)).toThrow('Missing solution.Ok in file');
   });
 });

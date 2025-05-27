@@ -1,5 +1,4 @@
 import { TourNavButtons } from "@/components/TourNavButtons";
-import useTreeTabStore from "@/store/use-tree-tab-store";
 
 export const getSteps = (candidateCount: number) => {
   const excludeStepByStep = candidateCount >= 6;
