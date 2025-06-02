@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import SidebarWithSearch from "./components/SidebarWithSearch";
 import Link from "next/link";
-import { useSearchParams, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { contentData } from "./components/data-content";
 import Breadcrumbs from "./components/Breadcrumbs";
 import { Button } from "@/components/ui/button";
