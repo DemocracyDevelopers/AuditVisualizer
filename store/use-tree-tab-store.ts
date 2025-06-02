@@ -1,8 +1,10 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
+// Type definition for valid tab values
 type TabValue = "default" | "step-by-step";
 
+// Interface for managing tab state in the tree view
 interface TreeTabState {
   currentTab: TabValue;
   previousTab: TabValue;
@@ -11,6 +13,7 @@ interface TreeTabState {
   restoreTab: () => void;
 }
 
+// Zustand store for managing the current and previous tab states
 const useTreeTabStore = create<TreeTabState>()(
   devtools(
     (set, get) => ({

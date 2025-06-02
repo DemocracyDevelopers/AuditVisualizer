@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import SidebarWithSearch from "./components/SidebarWithSearch";
-import TermsAndPrivacy from "../upload/components/terms-and-privacy";
 import Link from "next/link";
 import { useSearchParams, usePathname } from "next/navigation";
 import { contentData } from "./components/data-content";
@@ -40,16 +39,14 @@ export default function TutorialLayout({
       />
       {/* Main content area */}
       <main className="flex-grow overflow-y-auto">
-        {/* Breadcrumbs 放置在侧边栏的右侧 */}
         <div
           style={{
-            paddingLeft: collapsed ? 16 : 24, // px，根据 sidebar 状态动态设定
+            paddingLeft: collapsed ? 16 : 24,
           }}
         >
           {/* <Breadcrumbs paths={breadcrumbPaths} /> */}
 
           <div className="p-8 transition-all duration-300">
-            {/* 面包屑 + 返回按钮 */}
             <div className="flex items-center justify-between mb-6">
               <Breadcrumbs paths={breadcrumbPaths} />
               <Button
@@ -91,7 +88,6 @@ const NavigationArea = () => {
           <span className="font-bold">Previous:</span>{" "}
           <Link
             href={prevItem.path}
-            // className="text-gray-600 hover:text-gray-900 flex items-center group"
             className="text-blue-500 hover:underline items-center inline-flex"
           >
             {prevItem.title}
@@ -111,15 +107,9 @@ const NavigationArea = () => {
               className="text-blue-500 hover:underline items-center inline-flex"
             >
               {nextItem.title}
-              {/* <ChevronRight className="ml-2 text-blue-500" /> */}
             </Link>
           </div>
         )}
-        {/*<div>*/}
-        {/*  <Link href="/upload" className="font-bold hover:underline">*/}
-        {/*    Back to Home Page*/}
-        {/*  </Link>*/}
-        {/*</div>*/}
       </div>
     </div>
   );

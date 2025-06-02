@@ -29,7 +29,6 @@ const sampleFiles: SampleFile[] = [
     name: "NEB Assertion",
     description: "NEB assertions example",
     imageUrl: "/sample-images/img.png",
-    // fileUrl: "/sample-jsons/a_guide_to_RAIRE_eg_NEB_assertions.json",
     fileUrl: "/sample-jsons/a_guide_to_RAIRE_eg_NEB_assertions.json",
   },
   {
@@ -37,14 +36,12 @@ const sampleFiles: SampleFile[] = [
     description: "One candidate dominates example",
     imageUrl: "/sample-images/img.png",
     fileUrl: "/sample-jsons/a_guide_to_RAIRE_eg_one_candidate_dominates.json",
-    // fileUrl: "/sample-jsons/Singleton Mayoral.json",
   },
   {
     name: "Two leading candidates example",
     description: "Two leading candidates example ",
     imageUrl: "/sample-images/img.png",
     fileUrl: "/sample-jsons/a_guide_to_RAIRE_eg_two_leading_candidates.json",
-    // fileUrl: "/sample-jsons/test.json",
   },
 ];
 
@@ -57,7 +54,7 @@ const SampleSelector = () => {
     clearCandidateList,
     clearMultiWinner,
     clearWinnerInfo,
-  } = useMultiWinnerDataStore(); // 使用全局状态
+  } = useMultiWinnerDataStore();
 
   const router = useRouter();
   const [isConfirming, setIsConfirming] = useState(false);
@@ -65,7 +62,7 @@ const SampleSelector = () => {
 
   const handleSampleClick = async (sample: SampleFile) => {
     try {
-      setSelectedSample(sample); // Start loading
+      setSelectedSample(sample);
       clearMultiWinner();
       clearCandidateList();
       clearAssertionList();
@@ -76,22 +73,17 @@ const SampleSelector = () => {
         throw new Error("Failed to fetch the sample file");
       }
 
-      // 将样例文件转换为 Blob 对象
       const blob = await response.blob();
       const reader = new FileReader();
 
-      // 使用 FileReader 读取 Blob 的内容
       reader.onload = (e) => {
         const result = e.target?.result;
 
         if (typeof result === "string") {
           useFileDataStore.setState({ fileData: result });
-          // 解析文件内容并调用核心库进行校验和解析
           const response = validateInputData(result);
           console.log("response", response);
           if (response.success) {
-            // 成功解析并校验，将数据存储到全局状态中
-            // setMultiWinner(response.data);
             const jsonData = JSON.parse(result);
             const candidateList = jsonData.metadata.candidates.map(
               (name: string, index: number) => ({
@@ -102,7 +94,6 @@ const SampleSelector = () => {
 
             setCandidateList(candidateList);
 
-            // 将候选人列表转换为字典，以便更快地查找名字
             const candidateMap = candidateList.reduce(
               (
                 acc: { [key: number]: string },
@@ -114,10 +105,8 @@ const SampleSelector = () => {
               {} as { [key: number]: string },
             );
 
-            // 从 jsonData 中提取 assertions
             const assertions = jsonData.solution.Ok.assertions;
 
-            // 根据 assertions 生成 assertionList
             const assertionList = assertions.map(
               (
                 assertionObj: {
@@ -135,11 +124,9 @@ const SampleSelector = () => {
                 const { assertion, difficulty, margin } = assertionObj;
                 const { type, winner, loser, continuing } = assertion;
 
-                // 获取 winner 和 loser 的名字
                 const winnerName = candidateMap[winner];
                 const loserName = candidateMap[loser];
 
-                // 根据不同类型生成 content 字段
                 let content = "";
                 if (type === "NEN") {
                   const continuingNames = continuing
@@ -150,14 +137,13 @@ const SampleSelector = () => {
                   content = `${winnerName} NEB ${loserName}`;
                 }
 
-                // 返回 assertionList 的每一项
                 return {
-                  index: index + 1, // index 从 1 开始
-                  winner: winner, // 将 winner 转化为名字
-                  content, // 生成的内容
-                  type, // 保持 type 不变
-                  difficulty, // 保持 difficulty 不变
-                  margin, // 保持 margin 不变
+                  index: index + 1,
+                  winner: winner,
+                  content,
+                  type,
+                  difficulty,
+                  margin,
                 };
               },
             );
@@ -167,13 +153,11 @@ const SampleSelector = () => {
             const winnerName = jsonData.metadata.candidates[winnerId];
             setWinnerInfo({ id: winnerId, name: winnerName });
           } else {
-            // 处理错误情况
             console.error("Error:", response);
           }
         }
       };
 
-      // 读取 Blob 内容为文本
       reader.readAsText(blob);
     } catch (error) {
       console.error("Error fetching or processing the sample file:", error);
