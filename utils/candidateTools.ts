@@ -25,7 +25,6 @@ const getContentFromAssertion = ({
       .join(", ");
     content.text = `${winnerName} > ${loserName} if only {${continuingNames}} remain`;
   } else {
-    //  (type === "NEB")
     content.text = ` ${winnerName} NEB ${loserName}`;
   }
   return content;

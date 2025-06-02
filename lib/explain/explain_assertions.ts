@@ -1,15 +1,12 @@
 "use strict";
 import { add, getWebJSON, removeAllChildElements } from "./explain_utils";
-import {
-  describe_raire_result,
-  // 以及其他需要的函数和变量
-} from "./prettyprint_assertions_and_pictures";
-// 这里是核心业务的开始
+import { describe_raire_result } from "./prettyprint_assertions_and_pictures";
+// Main logic entry point
 export function explain_assertions(): void {
   const inputElement = document.getElementById("Input") as HTMLInputElement;
   const input = inputElement.value;
 
-  console.log("原始输入:", input); // 打印原始输入
+  console.log("原始输入:", input); // Log raw input
 
   const format_div = document.getElementById("Format") as HTMLElement;
   const output_div = document.getElementById("Output") as HTMLElement;
@@ -22,7 +19,7 @@ export function explain_assertions(): void {
   let parsed_input: any = null;
 
   try {
-    // JSON.parse() 方法用于将一个 JSON 字符串转换为对象，存储在 parsed_input 中
+    // Use JSON.parse() to convert string into object and store in parsed_input
     parsed_input = JSON.parse(input);
     console.log("parsed解析之后的输入:", parsed_input);
   } catch (e) {
@@ -30,15 +27,15 @@ export function explain_assertions(): void {
     return;
   }
 
-  // interpret_input_formats() 识别输入格式，raire, Michelle Blom RAIRE, ShangriLa log
+  // interpret_input_formats() detects format: raire, Michelle Blom RAIRE, or ShangriLa log
   const contests = interpret_input_formats(parsed_input);
 
-  console.log("Contests打印解释后的格式:", contests); // 打印解释后的格式
+  console.log("Contests打印解释后的格式:", contests); // Log detected format and contest structure
 
   if (contests && contests.format) {
     add(format_div, "p").innerText = "Format: " + contests.format;
     for (const contest of contests.contests) {
-      // 从这里进入处理输入的业务，describe_raire_result() 函数，在 prettyprint_assertions_and_pictures.js 中
+      // Business logic continues: describe_raire_result() from prettyprint_assertions_and_pictures.js
       describe_raire_result(output_div, explanation_div, contest);
     }
   } else {
@@ -112,7 +109,7 @@ export function parseMichelleAssertions(
   audit_assertions: any[],
   candidates: string[],
 ): any[] | null {
-  const candidate_id_of_name: { [key: string]: number } = {}; // 候选人的反向映射
+  const candidate_id_of_name: { [key: string]: number } = {}; // Reverse map from candidate name to index
   const num_candidates = candidates.length;
 
   for (let i = 0; i < num_candidates; i++) {
@@ -206,7 +203,7 @@ export function make_examples(): void {
       return false;
     };
   }
-  // 创建 "a guide to RAIRE" 示例
+  // Create "a guide to RAIRE" example list
   for (const name of [
     "guide",
     "NEB_assertions",

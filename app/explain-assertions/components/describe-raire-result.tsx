@@ -2,14 +2,13 @@
 
 import React from "react";
 import { Assertion } from "../../../lib/explain/prettyprint_assertions_and_pictures";
-// ... import other necessary functions ...
 
 interface DescribeRaireResultProps {
   data: any;
 }
 
 const DescribeRaireResult: React.FC<DescribeRaireResultProps> = ({ data }) => {
-  // Helper functions adjusted to work within the component
+  // Helper function: Get candidate name by ID
   const candidate_name = (id: number): string => {
     if (data.metadata && Array.isArray(data.metadata.candidates)) {
       const name = data.metadata.candidates[id];
@@ -20,10 +19,15 @@ const DescribeRaireResult: React.FC<DescribeRaireResultProps> = ({ data }) => {
     return `Candidate ${id}`;
   };
 
+  // Helper function: Join multiple candidate names into a single string
   const candidate_name_list = (ids: number[]): string => {
     return ids.map(candidate_name).join(",");
   };
 
+  /**
+   * Describe how much time and operations it took to complete a particular step.
+   * Displays in milliseconds or seconds depending on duration.
+   */
   const describe_time = (
     what: string,
     time_taken: { seconds: number; work: number },
@@ -42,16 +46,19 @@ const DescribeRaireResult: React.FC<DescribeRaireResultProps> = ({ data }) => {
     return null;
   };
 
-  // Now, handle the rendering logic based on `data`
+  // Render explanation if the solution exists and is marked as "Ok"
   if (data.solution && data.solution.Ok) {
-    // Extract data for rendering
+    // Extract relevant solution data
     const { assertions, winner, num_candidates } = data.solution.Ok;
     const candidate_names =
       data.metadata && data.metadata.candidates
         ? data.metadata.candidates
         : Array.from({ length: num_candidates }, (_, i) => `Candidate ${i}`);
 
-    // Prepare the assertion elements
+    /**
+     * Build assertion descriptions into JSX elements.
+     * Each assertion describes a rule derived from the election audit logic (e.g., NEN or NEB).
+     */
     const assertionElements = assertions.map((av: any, index: number) => {
       const a = av.assertion as Assertion;
 
@@ -110,11 +117,12 @@ const DescribeRaireResult: React.FC<DescribeRaireResultProps> = ({ data }) => {
       </div>
     );
   } else if (data.solution && data.solution.Err) {
-    // Handle error cases
+    // Handle and display error messages
+
     const err = data.solution.Err;
     let errorMessage = `Error: ${JSON.stringify(err)}`;
 
-    // Customize error messages based on the error type
+    // Customize common errors with user-friendly messages
     if (err === "InvalidCandidateNumber") {
       errorMessage =
         "Invalid candidate number in the preference list. Candidate numbers should be 0 to num_candidates-1 inclusive.";
@@ -145,6 +153,7 @@ const DescribeRaireResult: React.FC<DescribeRaireResultProps> = ({ data }) => {
       </div>
     );
   } else {
+    // Catch-all for unexpected or malformed output
     return (
       <div>
         <p className="error">Output is wrong format</p>
