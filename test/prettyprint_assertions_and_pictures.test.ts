@@ -28,7 +28,8 @@ import {
 describe("Assertion Evaluation Logic", () => {
   describe("assertion_ok_elimination_order_suffix", () => {
     it("should validate NEB assertion correctly - OK case", () => {
-      // NEB: Alice beats Bob always
+      // Test: NEB assertion satisfied by elimination order
+      // NEB: Alice never eliminated before Bob
       const assertion: Assertion = {
         type: "NEB",
         winner: 0, // Alice
@@ -47,7 +48,7 @@ describe("Assertion Evaluation Logic", () => {
     });
 
     it("should detect NEB assertion contradiction", () => {
-      // NEB: Alice beats Bob always
+      // Test: NEB assertion violated by elimination order
       const assertion: Assertion = {
         type: "NEB",
         winner: 0, // Alice
@@ -68,6 +69,7 @@ describe("Assertion Evaluation Logic", () => {
     });
 
     it("should require more detail for incomplete NEB assertion", () => {
+      // Test: Insufficient information to evaluate NEB assertion
       const assertion: Assertion = {
         type: "NEB",
         winner: 0, // Alice
@@ -88,7 +90,7 @@ describe("Assertion Evaluation Logic", () => {
     });
 
     it("should validate NEN assertion correctly - OK case", () => {
-      // NEN: Alice beats Bob when only {Alice, Bob, Charlie} remain
+      // Test: NEN assertion satisfied - Alice beats Bob in specific context
       const assertion: Assertion = {
         type: "NEN",
         winner: 0, // Alice
@@ -108,6 +110,7 @@ describe("Assertion Evaluation Logic", () => {
     });
 
     it("should detect NEN assertion contradiction when winner eliminated first", () => {
+      // Test: NEN violation - winner eliminated first in relevant context
       const assertion: Assertion = {
         type: "NEN",
         winner: 0, // Alice
@@ -129,6 +132,7 @@ describe("Assertion Evaluation Logic", () => {
     });
 
     it("should handle NEN assertion when elimination order is outside context", () => {
+      // Test: NEN assertion doesn't apply when candidates outside context
       const assertion: Assertion = {
         type: "NEN",
         winner: 0, // Alice
@@ -148,6 +152,7 @@ describe("Assertion Evaluation Logic", () => {
     });
 
     it("should require more detail for incomplete NEN assertion", () => {
+      // Test: Not enough information to evaluate NEN in its context
       const assertion: Assertion = {
         type: "NEN",
         winner: 0, // Alice
@@ -171,6 +176,7 @@ describe("Assertion Evaluation Logic", () => {
 
   describe("assertion_allowed_suffixes", () => {
     it("should return original suffix when assertion is satisfied", () => {
+      // Test: Valid suffix passes through unchanged
       const assertion: Assertion = {
         type: "NEB",
         winner: 0, // Alice
@@ -185,6 +191,7 @@ describe("Assertion Evaluation Logic", () => {
     });
 
     it("should return empty array when assertion contradicted and not just_get_enough_info", () => {
+      // Test: Invalid suffix filtered out when not in info-gathering mode
       const assertion: Assertion = {
         type: "NEB",
         winner: 0, // Alice
@@ -199,6 +206,7 @@ describe("Assertion Evaluation Logic", () => {
     });
 
     it("should return original suffix when contradicted but just_get_enough_info is true", () => {
+      // Test: In info-gathering mode, even invalid suffixes are preserved
       const assertion: Assertion = {
         type: "NEB",
         winner: 0, // Alice
@@ -213,6 +221,7 @@ describe("Assertion Evaluation Logic", () => {
     });
 
     it("should expand suffix when more detail needed", () => {
+      // Test: Incomplete suffix gets expanded with all possible candidates
       const assertion: Assertion = {
         type: "NEB",
         winner: 0, // Alice
@@ -237,6 +246,7 @@ describe("Assertion Evaluation Logic", () => {
     });
 
     it("should handle three-candidate expansion correctly", () => {
+      // Test: NEB constraint applied during suffix expansion
       const assertion: Assertion = {
         type: "NEB",
         winner: 0, // Alice
@@ -261,6 +271,7 @@ describe("Assertion Evaluation Logic", () => {
 
   describe("assertion_all_allowed_suffixes", () => {
     it("should process multiple elimination order suffixes", () => {
+      // Test: Batch processing of multiple suffixes with filtering
       const assertion: Assertion = {
         type: "NEB",
         winner: 0, // Alice
@@ -288,6 +299,7 @@ describe("Assertion Evaluation Logic", () => {
     });
 
     it("should handle empty input array", () => {
+      // Test: Empty input produces empty output
       const assertion: Assertion = {
         type: "NEB",
         winner: 0,
@@ -302,6 +314,7 @@ describe("Assertion Evaluation Logic", () => {
 
   describe("all_elimination_orders", () => {
     it("should generate all permutations for 2 candidates", () => {
+      // Test: Generate all possible elimination orders (permutations)
       const result = all_elimination_orders(2);
 
       expect(result).toHaveLength(2); // 2! = 2
@@ -310,6 +323,7 @@ describe("Assertion Evaluation Logic", () => {
     });
 
     it("should generate all permutations for 3 candidates", () => {
+      // Test: 3-candidate permutation generation
       const result = all_elimination_orders(3);
 
       expect(result).toHaveLength(6); // 3! = 6
@@ -323,11 +337,13 @@ describe("Assertion Evaluation Logic", () => {
     });
 
     it("should handle zero candidates", () => {
+      // Test: Edge case - no candidates
       const result = all_elimination_orders(0);
       expect(result).toEqual([[]]);
     });
 
     it("should handle single candidate", () => {
+      // Test: Edge case - single candidate (no eliminations)
       const result = all_elimination_orders(1);
       expect(result).toEqual([[0]]);
     });
@@ -335,6 +351,7 @@ describe("Assertion Evaluation Logic", () => {
 
   describe("all_elimination_order_suffixes", () => {
     it("should generate single-candidate suffixes", () => {
+      // Test: Generate minimal suffixes (single winners)
       const result = all_elimination_order_suffixes(3);
 
       expect(result).toHaveLength(3);
@@ -344,6 +361,7 @@ describe("Assertion Evaluation Logic", () => {
     });
 
     it("should handle zero candidates", () => {
+      // Test: Edge case - no candidates to generate suffixes for
       const result = all_elimination_order_suffixes(0);
       expect(result).toEqual([]);
     });
@@ -351,6 +369,7 @@ describe("Assertion Evaluation Logic", () => {
 
   describe("assertion_description", () => {
     it("should describe NEB assertion correctly", () => {
+      // Test: Human-readable NEB assertion description
       const assertion: Assertion = {
         type: "NEB",
         winner: 0,
@@ -364,6 +383,7 @@ describe("Assertion Evaluation Logic", () => {
     });
 
     it("should describe NEN assertion correctly", () => {
+      // Test: Human-readable NEN assertion description with context
       const assertion: Assertion = {
         type: "NEN",
         winner: 0,
@@ -380,6 +400,7 @@ describe("Assertion Evaluation Logic", () => {
     });
 
     it("should handle different candidate name orderings", () => {
+      // Test: Candidate indices map correctly to names regardless of array order
       const assertion: Assertion = {
         type: "NEB",
         winner: 2,
@@ -395,6 +416,7 @@ describe("Assertion Evaluation Logic", () => {
 
   describe("explain", () => {
     it("should generate explanation for simple two-candidate scenario", () => {
+      // Test: Basic explanation generation for simple case
       const assertions: Assertion[] = [
         {
           type: "NEB",
@@ -422,6 +444,7 @@ describe("Assertion Evaluation Logic", () => {
     });
 
     it("should handle hideWinner option correctly", () => {
+      // Test: Option to hide the actual winner from explanation trees
       const assertions: Assertion[] = [
         {
           type: "NEB",
@@ -440,6 +463,7 @@ describe("Assertion Evaluation Logic", () => {
     });
 
     it("should generate step-by-step process correctly", () => {
+      // Test: Multi-step explanation with multiple assertions
       const assertions: Assertion[] = [
         {
           type: "NEB",
@@ -472,7 +496,6 @@ describe("Assertion Evaluation Logic", () => {
       };
 
       const process = bobEntry.data.process as ProcessStep[];
-
       expect(process.length).toBeGreaterThanOrEqual(2); // At least step 0 + 1 assertion
 
       // Check step 0 (initial state)
@@ -499,6 +522,7 @@ describe("Assertion Evaluation Logic", () => {
     });
 
     it("should handle complex three-candidate elimination scenario", () => {
+      // Test: Complex scenario with mixed assertion types
       const assertions: Assertion[] = [
         {
           type: "NEN",
@@ -532,6 +556,7 @@ describe("Assertion Evaluation Logic", () => {
     });
 
     it("should handle empty assertions gracefully", () => {
+      // Test: No assertions provided - should show initial trees only
       const assertions: Assertion[] = [];
       const candidateNames = ["Alice", "Bob"];
 
@@ -546,7 +571,7 @@ describe("Assertion Evaluation Logic", () => {
     });
 
     it("should detect when tree remains unchanged after assertion", () => {
-      // Create a scenario where an assertion doesn't change the tree
+      // Test: Detection of assertions that don't change elimination trees
       const assertions: Assertion[] = [
         {
           type: "NEB",
@@ -574,6 +599,7 @@ describe("Assertion Evaluation Logic", () => {
     });
 
     it("should handle expandFullyAtStart option", () => {
+      // Test: Different tree expansion strategies
       const assertions: Assertion[] = [
         {
           type: "NEB",

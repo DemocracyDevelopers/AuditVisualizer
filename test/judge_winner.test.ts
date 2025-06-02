@@ -22,7 +22,8 @@ import {
 describe("Winner Verification Algorithm", () => {
   describe("verifyWinnerByDP", () => {
     it("should verify a simple winner with NEB assertion", () => {
-      // Test case: Alice beats Bob in all scenarios (NEB assertion)
+      // Test: Basic NEB assertion - Alice never eliminated before Bob
+      // This should prove Alice wins in all valid elimination paths
       const candidates = ["Alice", "Bob"];
       const assertions: AssertionInternal[] = [
         {
@@ -40,6 +41,7 @@ describe("Winner Verification Algorithm", () => {
     });
 
     it("should return null for invalid winner", () => {
+      // Test: Assertion proves Alice wins, but we claim Bob wins → should fail
       const candidates = ["Alice", "Bob"];
       const assertions: AssertionInternal[] = [
         {
@@ -55,7 +57,8 @@ describe("Winner Verification Algorithm", () => {
     });
 
     it("should handle three-candidate scenario with multiple assertions", () => {
-      // Scenario: Alice wins, with assertions proving she beats both Bob and Charlie
+      // Test: Multiple assertions working together to prove a winner
+      // Scenario: Alice wins by never being eliminated before Bob or Charlie
       const candidates = ["Alice", "Bob", "Charlie"];
       const assertions: AssertionInternal[] = [
         {
@@ -80,13 +83,14 @@ describe("Winner Verification Algorithm", () => {
     });
 
     it("should handle context-specific NEN assertions correctly", () => {
-      // Test NEN assertion: Alice beats Bob when only they remain
+      // Test: Context-specific assertions in multi-round elimination
+      // Scenario: Alice beats Charlie initially, then Bob in final round
       const candidates = ["Alice", "Bob", "Charlie"];
       const assertions: AssertionInternal[] = [
         {
           high: "Alice",
           low: "Charlie",
-          context: ["Alice", "Bob", "Charlie"], // Alice beats Charlie initially
+          context: ["Alice", "Bob", "Charlie"], // Alice beats Charlie when all present
         },
         {
           high: "Alice",
@@ -104,9 +108,7 @@ describe("Winner Verification Algorithm", () => {
     });
 
     it("should return null when assertions are contradictory", () => {
-      // This test should use assertions that actually make it impossible to determine a winner
-      // Rather than truly contradictory assertions, let's use assertions that don't provide
-      // enough information to determine Alice as the unique winner
+      // Test: Contradictory assertion - Bob beats Alice contradicts Alice winning
       const candidates = ["Alice", "Bob"];
       const assertions: AssertionInternal[] = [
         {
@@ -121,7 +123,7 @@ describe("Winner Verification Algorithm", () => {
     });
 
     it("should handle single candidate scenario", () => {
-      // Edge case: only one candidate
+      // Test: Edge case - only one candidate automatically wins
       const candidates = ["Alice"];
       const assertions: AssertionInternal[] = [];
 
@@ -133,6 +135,7 @@ describe("Winner Verification Algorithm", () => {
     });
 
     it("should return null for non-existent candidate", () => {
+      // Test: Robustness - trying to verify candidate not in election
       const candidates = ["Alice", "Bob"];
       const assertions: AssertionInternal[] = [];
 
@@ -142,7 +145,7 @@ describe("Winner Verification Algorithm", () => {
     });
 
     it("should handle complex four-candidate elimination scenario", () => {
-      // More complex scenario with four candidates
+      // Test: Complex multi-candidate scenario with cascading eliminations
       const candidates = ["Alice", "Bob", "Charlie", "Diego"];
       const assertions: AssertionInternal[] = [
         {
@@ -172,7 +175,7 @@ describe("Winner Verification Algorithm", () => {
     });
 
     it("should handle empty assertions with multiple candidates", () => {
-      // No assertions provided - should not be able to determine unique winner
+      // Test: No assertions provided - cannot determine unique winner
       const candidates = ["Alice", "Bob", "Charlie"];
       const assertions: AssertionInternal[] = [];
 
@@ -181,7 +184,8 @@ describe("Winner Verification Algorithm", () => {
     });
 
     it("should verify winner with strong assertions", () => {
-      // Use stronger assertions that definitively prove Alice wins
+      // Test: Strong assertions that may or may not uniquely determine winner
+      // This tests the algorithm's ability to detect when assertions are sufficient
       const candidates = ["Alice", "Bob", "Charlie", "Diego"];
       const assertions: AssertionInternal[] = [
         {
@@ -204,8 +208,8 @@ describe("Winner Verification Algorithm", () => {
       const result = verifyWinnerByDP(assertions, candidates, "Alice");
 
       if (result === null) {
-        // If the algorithm returns null, it means these assertions don't uniquely determine Alice as winner
-        // This could be expected behavior depending on the algorithm implementation
+        // Algorithm correctly determined that these assertions don't uniquely prove Alice wins
+        // This could happen if the assertions don't cover all necessary elimination paths
         console.log(
           "Algorithm correctly determined that these assertions do not uniquely prove Alice wins",
         );
@@ -217,7 +221,7 @@ describe("Winner Verification Algorithm", () => {
     });
 
     it("should handle case where reported winner loses", () => {
-      // Assertions that prove Bob wins, but we claim Alice wins
+      // Test: Assertions prove different winner than reported
       const candidates = ["Alice", "Bob", "Charlie"];
       const assertions: AssertionInternal[] = [
         {
@@ -237,7 +241,8 @@ describe("Winner Verification Algorithm", () => {
     });
 
     it("should reconstruct elimination path correctly", () => {
-      // Test that the elimination path is reconstructed in correct order
+      // Test: Correct elimination path reconstruction
+      // Order matters: Charlie eliminated first, then Bob
       const candidates = ["Alice", "Bob", "Charlie"];
       const assertions: AssertionInternal[] = [
         {
@@ -259,7 +264,8 @@ describe("Winner Verification Algorithm", () => {
     });
 
     it("should handle duplicate candidate names gracefully", () => {
-      // Edge case: what if candidate names are duplicated (shouldn't happen but test robustness)
+      // Test: Edge case robustness - duplicate candidate names
+      // (shouldn't happen in practice but tests algorithm robustness)
       const candidates = ["Alice", "Bob", "Alice"]; // Duplicate Alice
       const assertions: AssertionInternal[] = [
         {
