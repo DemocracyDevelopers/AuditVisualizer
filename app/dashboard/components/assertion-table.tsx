@@ -7,7 +7,7 @@ interface Assertion {
   index: number;
   content: string;
   type: string;
-  winner: number; // candidate ID
+  winner: number; // It should be the winner's candidate id
   name: string; // candidate name
 }
 
@@ -27,7 +27,7 @@ const AssertionTable: React.FC<AssertionTableProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(assertions.length / pageSize);
   const tableRef = useRef<HTMLDivElement>(null);
-  const paginationRef = useRef<HTMLDivElement>(null); // ✅ 新增分页定位
+  const paginationRef = useRef<HTMLDivElement>(null);
 
   const animationSpacerRef = useRef<HTMLDivElement>(null);
 
@@ -47,7 +47,6 @@ const AssertionTable: React.FC<AssertionTableProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      {/* 表格区域 - 滚动 */}
       <div ref={tableRef} className="flex-1 overflow-y-auto border rounded-lg">
         <table className="min-w-full table-auto">
           <thead className="sticky top-0 bg-background z-10">
@@ -74,9 +73,7 @@ const AssertionTable: React.FC<AssertionTableProps> = ({
         </table>
       </div>
 
-      {/* 分页 + 动画区域 */}
       <div ref={paginationRef} className="mt-2 pt-2 border-t">
-        {/* 分页按钮 */}
         <div className="flex justify-center items-center gap-2 flex-wrap">
           <Button
             size="sm"
@@ -95,12 +92,11 @@ const AssertionTable: React.FC<AssertionTableProps> = ({
               className="border border-gray-300 rounded px-2 py-1 text-sm"
             >
               {(() => {
-                const rangeSize = 5; // 显示几页
+                const rangeSize = 5;
                 const half = Math.floor(rangeSize / 2);
                 let start = Math.max(1, currentPage - half);
                 let end = Math.min(totalPages, start + rangeSize - 1);
 
-                // 向前补足范围不足时的偏移
                 if (end - start + 1 < rangeSize && start > 1) {
                   start = Math.max(1, end - rangeSize + 1);
                 }
@@ -128,7 +124,6 @@ const AssertionTable: React.FC<AssertionTableProps> = ({
           </Button>
         </div>
 
-        {/* 动画区域 */}
         {showAnimation && (
           <div className="mt-2">
             <AuditProgressAnimation
@@ -147,7 +142,6 @@ const AssertionTable: React.FC<AssertionTableProps> = ({
           </div>
         )}
 
-        {/* ✅ 这个是用于滚动到动画底部的占位元素 */}
         <div ref={animationSpacerRef} className="h-1" />
       </div>
     </div>
