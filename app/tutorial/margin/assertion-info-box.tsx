@@ -1,4 +1,3 @@
-// AssertionInfoBox.tsx
 import React, { FC, ReactNode } from "react";
 
 interface AssertionInfoBoxProps {

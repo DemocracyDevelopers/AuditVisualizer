@@ -9,23 +9,18 @@ import {
 import Tree from "../../../../components/tree";
 import { useEffect, useState, useRef } from "react";
 import { TreeNode } from "@/components/tree/helper";
+import { deepCloneTree } from "./utils";
 
 interface OneClickAnimationProps {
   process: Array<{
     step: number;
-    trees?: TreeNode | null; // step 0
+    trees?: TreeNode | null; // step 0 will have initial tree
     assertion?: { index: number; content: string };
-    before?: TreeNode | null;
-    after?: TreeNode | null;
+    before?: TreeNode | null; // step 1, 3, 5... will have before trees
+    after?: TreeNode | null; // step 2, 4, 6... will have after trees
     treeUnchanged?: boolean;
   }>;
-  selectedWinnerId: number; // Add selectedWinnerId as a prop
-}
-
-// Helper function to deep clone tree data
-function deepCloneTree(tree: TreeNode | undefined | null): TreeNode | null {
-  if (!tree) return null;
-  return JSON.parse(JSON.stringify(tree));
+  selectedWinnerId: number;
 }
 
 function OneClickAnimation({
@@ -44,13 +39,13 @@ function OneClickAnimation({
   }`;
   const [currentStep, setCurrentStep] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [isPaused, setIsPaused] = useState(false); // New state for pause functionality
+  const [isPaused, setIsPaused] = useState(false);
   const [animationComplete, setAnimationComplete] = useState(false);
   const [isLastStep, setIsLastStep] = useState(false);
+  const isManualNavigation = useRef(false);
+
   // Add a key state to force tree re-renders
   const [treeKey, setTreeKey] = useState(0);
-  // 添加一个标志，表示当前操作是否是由用户点击指示器触发的
-  const isManualNavigation = useRef(false);
 
   const totalSteps =
     process && process.length > 0
@@ -65,7 +60,7 @@ function OneClickAnimation({
   useEffect(() => {
     setCurrentStep(0);
     setIsAnimating(false);
-    setIsPaused(false); // Reset pause state
+    setIsPaused(false);
     setAnimationComplete(false);
     setResetHiddenNodes(true);
     setIsLastStep(false);
@@ -89,7 +84,7 @@ function OneClickAnimation({
       !animationComplete &&
       process &&
       process.length > 0 &&
-      !isManualNavigation.current // 只有当不是手动导航时才自动开始动画
+      !isManualNavigation.current // Check if this is a manual navigation
     ) {
       // Reset to the first step
       setCurrentStep(0);
@@ -99,7 +94,7 @@ function OneClickAnimation({
       setTreeKey((prev) => prev + 1);
     }
 
-    // 重置手动导航标志
+    // Reset manual navigation flag when dialog opens
     isManualNavigation.current = false;
   }, [open, isAnimating, isPaused, animationComplete, process]);
 
@@ -140,9 +135,9 @@ function OneClickAnimation({
     }
   }, [currentStep, process, totalSteps]);
 
-  // Animation timer effect - 只有在isAnimating为true且不是手动导航时且不是暂停状态才会运行
+  // Animation timer effect - This effect runs only when isAnimating is true, not manually navigating, and not paused
   useEffect(() => {
-    // 如果是手动导航或暂停状态，不执行自动动画
+    // If manual navigation or paused, do not run auto animation
     if (isManualNavigation.current || isPaused) {
       return;
     }
@@ -163,11 +158,11 @@ function OneClickAnimation({
           setIsLastStep(true);
           console.log("Animation complete at step:", nextStep);
         }
-      }, 1000); // 1 second per step
+      }, 1000);
     } else if (isAnimating && currentStep >= totalSteps - 1) {
       // Force stop animation if we're already at or beyond the last step
       setIsAnimating(false);
-      setIsPaused(false); // Reset pause state when complete
+      setIsPaused(false);
       setAnimationComplete(true);
       setIsLastStep(true);
       console.log("Animation stopped - already at final step");
@@ -229,29 +224,26 @@ function OneClickAnimation({
 
   // Handle indicator click
   const handleIndicatorClick = (index: number) => {
-    // 设置手动导航标志
+    // Set manual navigation flag
     isManualNavigation.current = true;
 
-    // 如果动画正在播放，暂停它
     if (isAnimating) {
       setIsAnimating(false);
       setIsPaused(true); // Set to paused state when manually navigating
     }
 
-    // 设置当前步骤为点击的索引
     setCurrentStep(index);
 
-    // 设置其他相关状态
     setResetHiddenNodes(false);
 
     // Increment tree key to force a re-render
     setTreeKey((prev) => prev + 1);
 
-    // 检查是否是最后一步
+    // Check if it's the last step
     if (index >= totalSteps - 1) {
       setAnimationComplete(true);
       setIsLastStep(true);
-      setIsPaused(false); // Reset pause state at final step
+      setIsPaused(false);
     } else {
       setAnimationComplete(false);
       setIsLastStep(false);
@@ -272,7 +264,7 @@ function OneClickAnimation({
             } hover:bg-blue-400 transition-colors duration-200 cursor-pointer`}
             aria-label={`Jump to step ${index + 1} of ${totalSteps}`}
             onClick={() => handleIndicatorClick(index)}
-            disabled={false} // 不再禁用按钮，即使在动画中也可以点击
+            disabled={false}
             type="button"
           />
         ))}

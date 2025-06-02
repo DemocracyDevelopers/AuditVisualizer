@@ -1,8 +1,8 @@
-// stores/useGlobalJsonStore.ts
 import { TreeNode } from "@/components/tree/helper";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 
+// Interface for the multi-winner data store
 interface MultiWinnerData {
   multiWinner:
     | {
@@ -24,9 +24,9 @@ interface MultiWinnerData {
           }>;
         };
       }[]
-    | null; // 用于存储 JSON 数据
-  setMultiWinner: (data: any) => void; // 设置 JSON 数据
-  clearMultiWinner: () => void; // 清空 JSON 数据
+    | null;
+  setMultiWinner: (data: any) => void;
+  clearMultiWinner: () => void;
   winnerInfo: { id: number; name: string } | null;
   setWinnerInfo: (data: { id: number; name: string }) => void;
   clearWinnerInfo: () => void;
@@ -38,17 +38,17 @@ interface MultiWinnerData {
   clearAssertionList: () => void;
 }
 
+// Zustand store implementation with devtools and persistence
 const useMultiWinnerDataStore = create<MultiWinnerData>()(
   devtools(
-    // 存入localStorage, 让刷新页面不会丢失数据
     persist(
       (set) => ({
         winnerInfo: null,
         setWinnerInfo: (data) => set({ winnerInfo: data }),
         clearWinnerInfo: () => set({ winnerInfo: null }),
-        multiWinner: null, // 初始状态为空
-        setMultiWinner: (data) => set({ multiWinner: data }), // 设置 JSON 数据
-        clearMultiWinner: () => set({ multiWinner: null }), // 清空 JSON 数据
+        multiWinner: null,
+        setMultiWinner: (data) => set({ multiWinner: data }),
+        clearMultiWinner: () => set({ multiWinner: null }),
         candidateList: [],
         setCandidateList: (data) => set({ candidateList: data }),
         clearCandidateList: () => set({ candidateList: [] }),

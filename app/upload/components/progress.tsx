@@ -2,8 +2,8 @@ import React from "react";
 import { File, TriangleAlert } from "lucide-react";
 
 interface UploadProgressProps {
-  currentPhase: number; // 当前进度的阶段（0, 1, 2, 3）
-  phaseErrors: boolean[]; // 每个阶段是否出错的布尔数组
+  currentPhase: number;
+  phaseErrors: boolean[];
   fileName: string;
 }
 
@@ -14,7 +14,6 @@ const phaseLabels = [
   "Finishing up",
 ];
 
-// 定义每个阶段的错误信息
 const errorMessages = [
   {
     title: "Data Parsing Error",
@@ -43,7 +42,6 @@ const UploadProgress: React.FC<UploadProgressProps> = ({
   phaseErrors,
   fileName,
 }) => {
-  // 检查是否有任何阶段出错
   const hasError = phaseErrors.some((error) => error);
 
   return (
@@ -76,17 +74,16 @@ const UploadProgress: React.FC<UploadProgressProps> = ({
             {fileName}
           </p>
         </div>
-        {/* 分段进度条 */}
+
         <div className="w-full h-2 rounded-lg bg-gray-200 overflow-hidden mb-4">
           <div
             className={`h-full transition-all duration-500 ${
               hasError ? "bg-red-500" : "bg-blue-500"
             }`}
-            style={{ width: `${(currentPhase / 3) * 100}%` }} // 使用阶段索引来计算进度条长度
+            style={{ width: `${(currentPhase / 3) * 100}%` }}
           ></div>
         </div>
 
-        {/* 显示每个阶段的文字描述 */}
         <div className="flex justify-between mt-4 text-sm">
           {phaseLabels.map((label, index) => (
             <div

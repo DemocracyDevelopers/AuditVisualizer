@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-// 定义带有 setter 和 getter 的 store 类型
 type FileDataStore = {
   fileData: string;
   setFileData: (data: string) => void;

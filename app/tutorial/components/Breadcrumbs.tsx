@@ -7,6 +7,10 @@ interface BreadcrumbsProps {
   paths: { name: string; href: string }[];
 }
 
+/**
+ * Breadcrumbs component for navigation hierarchy.
+ * Displays the current path and allows navigation to parent routes.
+ */
 const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ paths }) => {
   return (
     <nav
@@ -16,12 +20,10 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ paths }) => {
       {paths.map((path, index) => (
         <span key={index} className="flex items-center">
           {index === paths.length - 1 ? (
-            // 最后一个，用 span 显示为普通文字
             <span className="bg-gray-100 text-gray-900 font-medium px-3 py-1 rounded-full">
               {path.name}
             </span>
           ) : (
-            // 其他的仍然是链接
             <Link
               href={path.href}
               className={`hover:underline ${

@@ -4,7 +4,7 @@ import {
   assertion_all_allowed_suffixes,
 } from "../../../lib/explain/prettyprint_assertions_and_pictures";
 
-// Function to infer the winner from assertions
+// Infer the winner by applying each assertion to all possible elimination orders.
 const inferWinnerFromAssertions = (
   assertions: any[],
   numCandidates: number,
@@ -56,7 +56,7 @@ export type ExplainResult =
   | { success: true; data: any }
   | { success: false; state: 0 | 1 | 2; error_message: string };
 
-// JSON validation function
+// Validate input JSON structure and assertions to ensure internal consistency.
 export const validateInputData = (input: string | any): FormatCheckResult => {
   let data: any;
   if (typeof input === "string") {
@@ -125,7 +125,7 @@ export const validateInputData = (input: string | any): FormatCheckResult => {
         "Mismatch between num_candidates and candidates array length",
     };
   }
-
+  // Confirm that winner index is numeric and corresponds to one of the listed candidates
   // Validate if winner is within the valid range
   if (
     typeof solution.winner !== "number" ||
@@ -220,7 +220,7 @@ export const validateInputData = (input: string | any): FormatCheckResult => {
     }
   }
 
-  // At the end of validation, infer the winner and compare
+  // Cross-check the inferred winner against the declared winner in the input
   const inferredWinner = inferWinnerFromAssertions(
     solution.assertions,
     numCandidates,
@@ -247,9 +247,9 @@ export const validateInputData = (input: string | any): FormatCheckResult => {
   return { success: true, state: 0 }; // All validations passed
 };
 
-// Function to mark cut nodes in the 'before' tree by comparing with 'after' tree
+// Mark cut and eliminated nodes in the 'before' elimination tree by comparing paths with 'after' tree
 const markCutNodes = (beforeTree: any, afterTree: any | null) => {
-  // Helper function to get all paths from a tree
+  // Recursively extract all root-to-leaf paths from the given tree node
   const getPaths = (node: any, path: number[] = []): Set<string> => {
     const paths = new Set<string>();
     const currentPath = [...path, node.id];
@@ -266,7 +266,7 @@ const markCutNodes = (beforeTree: any, afterTree: any | null) => {
     return paths;
   };
 
-  // If afterTree is null, apply the new logic
+  // If no 'after' tree is provided, assume the entire tree is to be evaluated for root-level cuts
   if (!afterTree) {
     // Set 'cut: true' on root's child nodes, and 'eliminated: true' on other nodes
     const markCutsAtRoot = (node: any) => {
@@ -296,7 +296,7 @@ const markCutNodes = (beforeTree: any, afterTree: any | null) => {
   // Get all paths from afterTree
   const afterPaths = getPaths(afterTree);
 
-  // Function to mark cuts in beforeTree
+  // Recursively traverse the beforeTree and mark cuts or eliminations by comparing path existence
   const markCuts = (
     node: any,
     path: number[] = [],
@@ -369,10 +369,10 @@ export function getAssertions(jsonText: string): any[] {
       return data.solution.Ok.assertions;
     }
   } catch {}
-  return []; // invalid input or missing field
+  return []; // Returns empty array if input is not valid or assertions field is missing
 }
 
-// Main function to process inputText and return the outputData
+// Main orchestration function to validate input, infer winner, and generate annotated elimination trees
 export function explainAssertions(inputText: string): ExplainResult {
   // Parse the JSON input
   let inputData;
@@ -413,7 +413,7 @@ export function explainAssertions(inputText: string): ExplainResult {
   }
 
   try {
-    // If validation passes, call the explain function
+    // Generate elimination tree explanation using valid assertions and metadata
     const multiWinnerData = explain(
       inputData.solution.Ok.assertions.map((a: any) => a.assertion),
       inputData.metadata.candidates,
@@ -422,7 +422,7 @@ export function explainAssertions(inputText: string): ExplainResult {
       inputData.solution.Ok.winner,
     );
 
-    // Process multiWinnerData to mark 'cut' and 'eliminated' nodes
+    // Post-process each winner's tree to identify structural changes step by step
     if (multiWinnerData && Array.isArray(multiWinnerData)) {
       for (let i = 0; i < multiWinnerData.length; i++) {
         const winnerData = multiWinnerData[i];
@@ -435,7 +435,7 @@ export function explainAssertions(inputText: string): ExplainResult {
               const afterTree = step.after || null;
               markCutNodes(step.before, afterTree);
             } else if (step.trees) {
-              // For step 0, possibly only 'trees' property
+              // Special case: use 'trees' directly if no before/after distinction is given (step 0)
               markCutNodes(step.trees, step.trees);
             }
           }
@@ -443,13 +443,13 @@ export function explainAssertions(inputText: string): ExplainResult {
       }
     }
 
-    // Return the output data
+    // Return final annotated tree structure if no errors encountered
     return {
       success: true,
       data: multiWinnerData,
     };
   } catch (error) {
-    // Handle any unexpected errors
+    // Catch and report unexpected runtime errors from the explain process
     let errorMessage = "An unexpected error occurred.";
     if (error instanceof Error) {
       errorMessage = error.message;
