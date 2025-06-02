@@ -6,9 +6,14 @@ import {
   CardContent,
   CardTitle,
   CardDescription,
-} from "@/components/ui/card"; // 根据你的项目路径引入 shadcn 的组件
-import { Button } from "@/components/ui/button"; // 根据你的项目路径引入 shadcn 的组件
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
+/**
+ * CustomAlertDialog
+ * A dismissible alert card that appears at the top-right corner.
+ * Typically used for error or warning messages.
+ */
 interface CustomAlertDialogProps {
   open: boolean;
   onClose: () => void;
@@ -21,26 +26,28 @@ const CustomAlertDialog: React.FC<CustomAlertDialogProps> = ({
   title,
   description,
 }) => {
-  if (!open) return null; // 如果 open 为 false，则不显示该组件
+  if (!open) return null;
 
-  // 封装跳转函数
   const handleTryAgain = () => {
-    onClose(); // 关闭弹窗
-    window.location.reload(); // 强制刷新当前页面
+    onClose();
+    window.location.reload();
   };
 
   return (
     <div className="fixed top-2 right-2 z-50">
-      {/* 设置右上角位置 */}
+      {/* Alert container anchored to top-right corner */}
       <Card className="shadow-lg border border-gray-200 max-w-xl min-w-96">
         <CardHeader className="flex items-center flex-row">
-          <AlertCircle className="text-red-500 h-5 w-5 mr-2" /> {/* 警告图标 */}
-          <CardTitle>{title}</CardTitle> {/* 自定义标题 */}
+          {/* Alert icon and title */}
+          <AlertCircle className="text-red-500 h-5 w-5 mr-2" />
+          <CardTitle>{title}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-end">
+          {/* Description text */}
           <CardDescription className="text-left w-full text-gray-500 mb-4">
-            {description} {/* 自定义描述 */}
+            {description}
           </CardDescription>
+          {/* Retry button */}
           <Button
             className="bg-black text-white hover:bg-gray-800 w-3/12"
             onClick={handleTryAgain}

@@ -5,14 +5,17 @@ import { TourProvider } from "@reactour/tour";
 import { TourStepWatcher } from "./TourStepWatcher";
 import { TourSyncWatcher } from "./TourSyncWatcher";
 import { CloseTourOnRouteChange } from "@/hooks/CloseTourOnRouteChange";
+// @ts-ignore
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
-import { X } from "lucide-react"; // 任意图标库都可以用
+import { X } from "lucide-react";
 
-// ✅ 不再依赖外部 steps，而交由 TourSyncWatcher 设置
 interface ClientTourProviderProps {
   readonly children: React.ReactNode;
 }
 
+/**
+ * ClientTourProvider wraps the application with the Reactour TourProvider.
+ */
 export default function ClientTourProvider({
   children,
 }: ClientTourProviderProps) {
@@ -20,7 +23,7 @@ export default function ClientTourProvider({
   const enableBody = (target: any) => enableBodyScroll(target);
   return (
     <TourProvider
-      steps={[]} // 初始为空，由 TourSyncWatcher 后续动态设置
+      steps={[]}
       showNavigation={false}
       showDots={false}
       disableInteraction={true}
@@ -52,31 +55,3 @@ export default function ClientTourProvider({
     </TourProvider>
   );
 }
-
-// export default function ClientTourProvider({
-//   children,
-// }: ClientTourProviderProps) {
-//   const steps = useTourSteps().filter((step) => step !== false);
-//   console.log("steps!!!!!!!!!!", steps);
-//   return (
-//     <TourProvider
-//       steps={steps as StepType[]}
-//       onClickClose={({ setIsOpen }) => {
-//         setIsOpen(false);
-//       }}
-//       onClickMask={() => {
-//         // 不执行任何操作，用户点击遮罩不会关闭引导
-//       }}
-//       disableInteraction={true} // ✅ 禁止点击目标元素
-//       styles={{
-//         popover: (base) => ({
-//           ...base,
-//           borderRadius: "12px",
-//         }),
-//       }}
-//     >
-//       <TourStepWatcher />
-//       {children}
-//     </TourProvider>
-//   );
-// }

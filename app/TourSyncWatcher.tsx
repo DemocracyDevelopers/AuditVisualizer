@@ -15,15 +15,9 @@ export const TourSyncWatcher = () => {
 
     const count = getCandidateNumber(fileData);
     if (typeof count === "number") {
-      console.log("Candidate count:", count);
       const newSteps = getSteps(count);
-      console.log("New steps:", newSteps);
       setSteps?.(newSteps as StepType[]);
-
       setCurrentStep?.(0); // Reset to the first step
-      console.log("Tour Current steps updated.");
-
-      console.log("✅ Tour steps updated based on uploaded file.");
     }
   }, [fileData, setSteps]);
 

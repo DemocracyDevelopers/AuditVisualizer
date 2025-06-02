@@ -1,5 +1,12 @@
 import { TourNavButtons } from "@/components/TourNavButtons";
 
+/**
+ * Generates an array of tour steps for the guided walkthrough,
+ * customized based on the number of candidates in the election.
+ *
+ * @param candidateCount - The number of candidates; determines whether Step-by-Step mode is included.
+ * @returns Array of step configurations for the Reactour tour.
+ */
 export const getSteps = (candidateCount: number) => {
   const excludeStepByStep = candidateCount >= 6;
 
@@ -7,6 +14,7 @@ export const getSteps = (candidateCount: number) => {
     <span className="text-amber-700">{children}</span>
   );
 
+  // Define the array of tour steps
   const steps = [
     {
       selector: "[data-tour='first-step']",
@@ -152,6 +160,8 @@ export const getSteps = (candidateCount: number) => {
         </div>
       ),
     },
+
+    // Step-by-step mode: only included for elections with fewer than 6 candidates
     !excludeStepByStep && {
       selector: "[data-tour='step-by-step-button']",
       content: ({
@@ -235,6 +245,7 @@ export const getSteps = (candidateCount: number) => {
         </div>
       ),
     },
+    // Final step: End of the tour
     {
       selector: "[data-tour='tree']",
       content: ({ setCurrentStep, setIsOpen }: any) => (
@@ -260,6 +271,6 @@ export const getSteps = (candidateCount: number) => {
       ),
     },
   ];
-
+  // Filter out null values (when step-by-step is excluded)
   return steps.filter(Boolean);
 };
