@@ -9,12 +9,15 @@ const ExplainAssertionsPage = () => {
   const [outputData, setOutputData] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  /**
+   * Handles text input change by updating the state.
+   */
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputText(event.target.value);
   };
 
   const handleExplain = () => {
-    // 直接将输入文本传递给 explainAssertions 方法
+    // Directly pass the input text to the explainAssertions function
     const result = explainAssertions(inputText);
 
     if (result.success) {
