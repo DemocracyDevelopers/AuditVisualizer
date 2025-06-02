@@ -50,10 +50,7 @@ function StepByStepView({
 
   useEffect(() => {
     const response = explainAssertions(fileData);
-    // 根据核心库返回的 response 进行处理
     if (response.success) {
-      console.log("response.data:", response.data);
-      // 成功解析并校验，将数据存储到全局状态中
       setMultiWinner(response.data);
       const jsonData = JSON.parse(fileData);
       const candidateList = jsonData.metadata.candidates.map(
@@ -70,20 +67,16 @@ function StepByStepView({
   const possibleWinnerList = useMemo(() => {
     return Array.isArray(multiWinner)
       ? multiWinner.map((cur) => cur.winnerInfo)
-      : []; // Default to an empty array if multiWinner is not an array
+      : [];
   }, [multiWinner]);
 
-  // Find the selected winner's tree data
   const oneWinnerTrees = multiWinner
     ? multiWinner.find((cur) => cur.winnerInfo.id === selectedWinnerId) || null
     : null;
 
-  // Handle case when oneWinnerTrees is null
   if (!oneWinnerTrees) {
     return (
-      <div className="flex items-center justify-center h-full">
-        loading {/* Replace with your loading component */}
-      </div>
+      <div className="flex items-center justify-center h-full">loading</div>
     );
   }
 
@@ -128,7 +121,6 @@ function StepByStepView({
 
   const currentStepData = data.process[selectedStep];
 
-  // 安全防御：如果当前 step 数据不存在，则返回 fallback UI
   if (!currentStepData || !currentStepData.before) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -143,7 +135,6 @@ function StepByStepView({
 
   return (
     <div className="relative">
-      {/* Pass selectedWinnerId to OneClickAnimation */}
       <OneClickAnimation
         process={data.process}
         selectedWinnerId={selectedWinnerId}
@@ -153,7 +144,7 @@ function StepByStepView({
           selectedWinnerId={selectedWinnerId}
           handleSelectWinner={(id: number) => {
             handleRevertAssertion();
-            setSelectedStep(1); // Reset step
+            setSelectedStep(1);
             setSelectedWinnerId(id);
           }}
           useAvatar={false}
@@ -167,15 +158,6 @@ function StepByStepView({
           selectedStep={selectedStep}
         />
         <div className="w-full h-96" data-tour="seventh-step">
-          {/* <Tree
-            data={data.process[selectedStep].before!}
-            key={`${selectedWinnerId}-${selectedStep}`}
-            nextComponent={NextComponent}
-            backComponent={BackComponent}
-            resetHiddenNodes={resetHiddenNodes}
-            onResetComplete={handleResetComplete}
-            onNodeCut={handleNodeCut}
-          /> */}
           <Tree
             data={currentStepData.before}
             key={`${selectedWinnerId}-${selectedStep}`}
