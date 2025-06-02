@@ -2,21 +2,18 @@
 import type { MDXComponents } from "mdx/types";
 import React from "react";
 
-// 使用更安全的类型处理方式
 const withDataContent = (
   Component: React.ComponentType<React.HTMLAttributes<HTMLHeadingElement>>,
 ) => {
   return (props: React.HTMLAttributes<HTMLHeadingElement>) => {
     const { children, ...rest } = props;
 
-    // 由于确定标题是纯字符串，直接转换
     const textContent = String(children);
 
-    // 生成ID（如果没有提供）
+    // generate a unique ID based on the text content
     const headingId =
       props.id || textContent.toLowerCase().replace(/\s+/g, "-");
 
-    // 避免直接类型断言，而是扩展现有类型
     return (
       <Component {...rest} id={headingId} data-content={textContent}>
         {children}
@@ -45,7 +42,6 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         {...props}
       />
     ),
-    // <ul className="list-disc ml-6">
     ul: (props) => (
       <ul
         className="list-disc ml-6 text-gray-700 text-lg space-y-2"

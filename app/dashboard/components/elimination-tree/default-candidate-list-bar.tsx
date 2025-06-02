@@ -21,7 +21,6 @@ type CandidateListBarProps = {
 function DefaultCandidateListBar({
   selectedTreeId,
   setSelectedTreeId,
-  handleSelectWinner,
   candidateList,
 }: CandidateListBarProps) {
   const { winnerInfo } = useMultiWinnerDataStore();
@@ -42,7 +41,6 @@ function DefaultCandidateListBar({
 
   const handleCandidateSelect = (candidateId: number) => {
     setSelectedTreeId(candidateId);
-    //handleSelectWinner(candidateId);
   };
 
   return (
@@ -74,15 +72,6 @@ function DefaultCandidateListBar({
               </div>
               <TooltipProvider>
                 <Tooltip>
-                  {/*<TooltipTrigger*/}
-                  {/*  onClick={() => setSelectedTreeId(candidate.id)}*/}
-                  {/*  className={`flex items-center justify-center rounded-full cursor-pointer */}
-                  {/*			  border-2 text-[10px] leading-tight text-center font-bold px-1 */}
-                  {/*			  w-10 h-10*/}
-                  {/*			  ${selectedTreeId === candidate.id ? "border-blue-500" : "border-black"}`}*/}
-                  {/*>*/}
-                  {/*  {shortName}*/}
-                  {/*</TooltipTrigger>*/}
                   <TooltipTrigger asChild>
                     <div onClick={() => handleCandidateSelect(candidate.id)}>
                       <Avatar

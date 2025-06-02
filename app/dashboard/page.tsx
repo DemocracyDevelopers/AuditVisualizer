@@ -193,7 +193,6 @@ const Dashboard: FC = () => {
           </div>
         </div>
       </div>
-
       <AssertionsDetailsModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
