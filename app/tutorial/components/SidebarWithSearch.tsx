@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
-import { Search } from "lucide-react"; // ✅ 加上这一行引入
+import { Search } from "lucide-react";
 import { contentData } from "./data-content";
 
 interface SidebarProps {
@@ -15,7 +15,6 @@ interface SidebarProps {
 
 const SidebarWithSearch: React.FC<SidebarProps> = ({
   sidebarWidth,
-  setSidebarWidth,
   collapsed,
   setCollapsed,
 }) => {
@@ -211,7 +210,7 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
                 <p className="text-gray-500 mt-3 text-sm">No results found.</p>
               )}
 
-              {/* 内容目录区域 */}
+              {/* Table of content field */}
               <div className="mt-6 pt-4 border-t">
                 <h4 className="text-xl font-bold mb-4">Table of Content</h4>
                 <ul className="space-y-2">
