@@ -40,13 +40,14 @@ function CandidateListBar({
     };
   }, []);
 
+  // Trigger when an avatar is clicked
   const handleCandidateSelect = (candidateId: number) => {
     handleSelectWinner(candidateId);
   };
 
   return (
     <div
-      className="flex justify-center items-end mb-5 gap-10"
+      className="flex flex-wrap justify-center items-end mb-5 gap-10 w-full"
       data-tour="fifth-step"
     >
       <div
@@ -96,10 +97,14 @@ function CandidateListBar({
         })}
       </div>
 
-      <SearchDropdown
-        candidateList={candidateList}
-        onSelect={handleCandidateSelect}
-      />
+      {/* Search bar for filtering/selecting candidates */}
+      {/* Responsive: on small screens it wraps to second line */}
+      <div className="w-full sm:w-auto mt-2 sm:mt-0">
+        <SearchDropdown
+          candidateList={candidateList}
+          onSelect={handleCandidateSelect}
+        />
+      </div>
     </div>
   );
 }
