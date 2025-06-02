@@ -1,6 +1,6 @@
 "use strict";
 
-import { add, addSVG } from "./explain_utils";
+import { add } from "./explain_utils";
 
 // This file contains utility functions to show how a RAIRE assertion
 // eliminates potential elimination sequence suffixes.
@@ -27,8 +27,6 @@ export interface TreeNode {
   body: number | null;
   orderedChildren: TreeNode[];
   valid: boolean;
-  start_x?: number;
-  width?: number;
   assertion?: Assertion;
   height: number;
 }
@@ -236,10 +234,7 @@ export class EliminationTreeNode implements TreeNode {
   body: number | null;
   children: { [key: number]: EliminationTreeNode };
   valid: boolean;
-  start_x?: number;
-  width?: number;
   assertion?: Assertion;
-  //orderedChildren?: EliminationTreeNode[];
 
   /**
    * Make a new tree node representing a candidate.
@@ -309,107 +304,6 @@ export class EliminationTreeNode implements TreeNode {
   }
 }
 
-/**
- * After this call, this tree and its children will occupy horizontal space from tree_node.start_x to tree_node.start_x + tree_node.width.
- * @param tree_node - The node of a tree. It (and all its children) will be assigned start_x and width fields.
- * @param start_x - The number of nodes to the left of this node when drawn on a tree.
- * @returns The width (in units of number of nodes) that this tree occupies.
- */
-export function computeWidthsForTreeNode(
-  tree_node: EliminationTreeNode,
-  start_x: number,
-): number {
-  tree_node.start_x = start_x;
-  let width = 0;
-  for (const c of tree_node.orderedChildren || []) {
-    const cw = computeWidthsForTreeNode(c, start_x);
-    start_x += cw;
-    width += cw;
-  }
-  tree_node.width = Math.max(1, width);
-  return tree_node.width;
-}
-
-/**
- * A second way of viewing things is a tree which shows what assertions stopped it.
- * Each tree either has children, or has an assertion showing what stopped it, or is valid.
- * A tree with a valid child will also be valid.
- */
-export class TreeShowingWhatEliminatedItNode implements TreeNode {
-  body: number;
-  orderedChildren: TreeShowingWhatEliminatedItNode[];
-  valid: boolean;
-  assertion?: Assertion;
-
-  /**
-   * Make a new tree showing all paths until they can be eliminated.
-   * @param parent_elimination_order_suffix - A suffix of the elimination order corresponding to the parent of this. [] if no parent.
-   * @param body - The candidate index this node represents.
-   * @param assertions - A list of all the assertions that may apply to this tree.
-   * @param num_candidates - The total number of candidates.
-   */
-  constructor(
-    parent_elimination_order_suffix: number[],
-    body: number,
-    assertions: Assertion[],
-    num_candidates: number,
-  ) {
-    const elimination_order_suffix = [body, ...parent_elimination_order_suffix];
-    this.body = body;
-    this.orderedChildren = [];
-    const assertions_requiring_more_info: Assertion[] = [];
-    for (const assertion of assertions) {
-      const effect = assertion_ok_elimination_order_suffix(
-        assertion,
-        elimination_order_suffix,
-      );
-      if (effect === EffectOfAssertionOnEliminationOrderSuffix.Contradiction) {
-        this.assertion = assertion;
-        this.valid = false;
-        return;
-      } else if (effect === EffectOfAssertionOnEliminationOrderSuffix.Ok) {
-        // Ignore it.
-      } else {
-        // Must need more information.
-        assertions_requiring_more_info.push(assertion);
-      }
-    }
-    // If we got here, nothing contradicted it.
-    if (assertions_requiring_more_info.length === 0) {
-      // Nothing required more info => everything OK.
-      this.valid = true;
-    } else {
-      // We need to get more info.
-      this.valid = false; // May be changed if any child is valid.
-      for (let candidate = 0; candidate < num_candidates; candidate++) {
-        if (elimination_order_suffix.includes(candidate)) continue;
-        const child = new TreeShowingWhatEliminatedItNode(
-          elimination_order_suffix,
-          candidate,
-          assertions_requiring_more_info,
-          num_candidates,
-        );
-        if (child.valid) this.valid = true;
-        this.orderedChildren.push(child);
-      }
-    }
-  }
-
-  /**
-   * The maximum height of the tree, in number of nodes.
-   * @returns The height of the tree.
-   */
-  get height(): number {
-    let max_child_height = 0;
-    for (const c of this.orderedChildren) {
-      max_child_height = Math.max(max_child_height, c.height);
-    }
-    return 1 + max_child_height;
-  }
-}
-
-// Utilities for drawing trees below here.
-
 // Global variable to collect images for saving.
 export let allImages: { svg: SVGSVGElement; name: string }[] = [];
 
@@ -438,46 +332,12 @@ export function make_trees(
   return root.orderedChildren!;
 }
 
-// Above this line are utilities.
-// Below this line are GUI stuff
-
-/**
- * Compute n! (factorial of n).
- * @param n - The number to compute factorial for.
- * @returns n factorial.
- */
-export function factorial(n: number): number {
-  if (n === 0) return 1;
-  else return n * factorial(n - 1);
-}
-
-/**
- * Get the class description of the candidate.
- * @param candidate - The candidate index.
- * @param assertion - The optional assertion used to color code and annotate paths.
- * @returns A string representing the class.
- */
-export function candidate_class(
-  candidate: number,
-  assertion?: Assertion | null,
-): string {
-  if (assertion) {
-    if (candidate === assertion.winner) return "winner";
-    else if (candidate === assertion.loser) return "loser";
-    else if (assertion.continuing) {
-      if (assertion.continuing.includes(candidate)) return "continuing";
-      else return "eliminated";
-    } else return "irrelevant";
-  } else return "no_assertion";
-}
-
 /**
  * Make a human-readable explanation of what the assertions imply.
  * @param div - The DOM element where things should be inserted.
  * @param assertions - The list of assertions. We will add an "assertion_index" field to each if it is not already there.
  * @param candidate_names - A list of the candidate names.
  * @param expand_fully_at_start - If true, expand all num_candidates factorial paths. If false, use minimal elimination order suffixes where possible.
- * @param draw_text_not_trees - If true, draw as text rather than as an SVG tree.
  * @param hide_winner - If true, don't draw trees that imply the winner won.
  * @param winner_id - 0-based index indicating who the winner is. Only used if hide_winner is true.
  */
@@ -654,19 +514,6 @@ export function describe_raire_result(
     return `Candidate ${id}`;
   }
 
-  function describe_time(
-    what: string,
-    time_taken: { seconds: number; work: number },
-  ): void {
-    if (time_taken) {
-      const time_desc =
-        time_taken.seconds > 0.1
-          ? `${Number(time_taken.seconds).toFixed(1)} seconds`
-          : `${Number(time_taken.seconds * 1000).toFixed(2)} milliseconds`;
-      add(output_div, "p").innerText =
-        `Time to ${what}: ${time_desc} (${time_taken.work} operations)`;
-    }
-  }
   function candidate_name_list(ids: number[]): string {
     return ids.map(candidate_name).join(",");
   }
@@ -676,14 +523,6 @@ export function describe_raire_result(
       add(output_div, "p", "warning").innerText =
         "Warning: Trimming timed out. Some assertions may be redundant.";
     }
-    // Output timing information.
-
-    describe_time(
-      "determine winners",
-      data.solution.Ok.time_to_determine_winners,
-    );
-    describe_time("find assertions", data.solution.Ok.time_to_find_assertions);
-    describe_time("trim assertions", data.solution.Ok.time_to_trim_assertions);
     // Output assertions with their details.
     let heading_name = "Assertions";
     if (data.metadata.hasOwnProperty("contest"))
@@ -758,9 +597,6 @@ export function describe_raire_result(
       candidate_names,
       expand_fully_at_start: (
         document.getElementById("ExpandAtStart") as HTMLInputElement
-      ).checked,
-      draw_text_not_trees: (
-        document.getElementById("DrawAsText") as HTMLInputElement
       ).checked,
       hide_winner,
       winner_id,

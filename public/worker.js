@@ -1,20 +1,20 @@
-// 监听来自主线程的消息
+// Listen for messages from the main thread
 self.addEventListener("message", function (e) {
   const { id, fn, args } = e.data;
 
   try {
-    // 执行传入的函数字符串
+    // Execute the passed-in function string
     const func = new Function("return " + fn)();
     const result = func(...args);
 
-    // 将结果返回给主线程
+    // Send the result back to the main thread
     self.postMessage({
       id,
       success: true,
       result,
     });
   } catch (error) {
-    // 发生错误时，返回错误信息
+    // If an error occurs, return the error message
     self.postMessage({
       id,
       success: false,
@@ -23,7 +23,7 @@ self.addEventListener("message", function (e) {
   }
 });
 
-// 通知主线程 worker 已准备好
+// Notify the main thread that the worker is ready
 self.postMessage({
   type: "ready",
 });

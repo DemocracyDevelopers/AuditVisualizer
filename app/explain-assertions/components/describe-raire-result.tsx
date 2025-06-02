@@ -24,28 +24,6 @@ const DescribeRaireResult: React.FC<DescribeRaireResultProps> = ({ data }) => {
     return ids.map(candidate_name).join(",");
   };
 
-  /**
-   * Describe how much time and operations it took to complete a particular step.
-   * Displays in milliseconds or seconds depending on duration.
-   */
-  const describe_time = (
-    what: string,
-    time_taken: { seconds: number; work: number },
-  ) => {
-    if (time_taken) {
-      const time_desc =
-        time_taken.seconds > 0.1
-          ? `${Number(time_taken.seconds).toFixed(1)} seconds`
-          : `${Number(time_taken.seconds * 1000).toFixed(2)} milliseconds`;
-      return (
-        <p>
-          Time to {what}: {time_desc} ({time_taken.work} operations)
-        </p>
-      );
-    }
-    return null;
-  };
-
   // Render explanation if the solution exists and is marked as "Ok"
   if (data.solution && data.solution.Ok) {
     // Extract relevant solution data
@@ -96,18 +74,6 @@ const DescribeRaireResult: React.FC<DescribeRaireResultProps> = ({ data }) => {
           <p className="warning">
             Warning: Trimming timed out. Some assertions may be redundant.
           </p>
-        )}
-        {describe_time(
-          "determine winners",
-          data.solution.Ok.time_to_determine_winners,
-        )}
-        {describe_time(
-          "find assertions",
-          data.solution.Ok.time_to_find_assertions,
-        )}
-        {describe_time(
-          "trim assertions",
-          data.solution.Ok.time_to_trim_assertions,
         )}
         <h3>Assertions</h3>
         {assertionElements}
