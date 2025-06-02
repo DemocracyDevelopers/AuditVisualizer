@@ -485,16 +485,16 @@ describe("Assertion Evaluation Logic", () => {
 
       if (assertionSteps.length >= 1) {
         expect(assertionSteps[0].assertion).toBeDefined();
-        expect(assertionSteps[0].assertion.content).toContain(
-          "Alice beats Bob always",
-        );
+
+        const assertion0 = assertionSteps[0].assertion!;
+        expect(assertion0.content).toContain("Alice beats Bob always");
       }
 
       if (assertionSteps.length >= 2) {
         expect(assertionSteps[1].assertion).toBeDefined();
-        expect(assertionSteps[1].assertion.content).toContain(
-          "Alice beats Charlie always",
-        );
+
+        const assertion1 = assertionSteps[1].assertion!;
+        expect(assertion1.content).toContain("Alice beats Charlie always");
       }
     });
 
