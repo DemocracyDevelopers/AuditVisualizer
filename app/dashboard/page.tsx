@@ -225,9 +225,6 @@ const Dashboard: FC = () => {
         </div>
       </div>
 
-      {/* verification */}
-      {/* <VerificationProgress /> */}
-
       {/* Modal 组件 */}
       <AssertionsDetailsModal
         isOpen={isModalOpen}

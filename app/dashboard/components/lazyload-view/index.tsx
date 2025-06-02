@@ -35,7 +35,6 @@ const NODE_RADIUS = 18;
 const NODE_MARGIN = 15; // Minimum margin between nodes
 const dimensions = { width: 800, height: 500 }; // Increased dimensions for better spacing
 
-// TypeScript interfaces
 interface CountsObject {
   [depth: number]: number;
 }
@@ -65,7 +64,7 @@ function LazyLoadView() {
   const { candidateList, winnerInfo } = useMultiWinnerDataStore();
   const { defaultTrees, setDefaultTrees } = useDefaultTree();
 
-  // 计算树布局数据并居中 - 提取为复用函数
+  // Calculate tree layout data and center it
   const calculateTreeLayout = useCallback(
     (treeData: TreeNode, width: number, height: number) => {
       // Create hierarchy
@@ -132,21 +131,19 @@ function LazyLoadView() {
     [],
   );
 
-  // 计算最佳缩放比例 - 提取为复用函数
+  // calculate optimal scale based on tree width and viewport width
   const calculateOptimalScale = useCallback(
     (treeWidth: number, viewportWidth: number) => {
-      if (treeWidth <= 0) return 0.8; // 默认缩放
+      if (treeWidth <= 0) return 0.8; // Avoid division by zero
       return Math.min(viewportWidth / (treeWidth * 1.2), 0.9);
     },
     [],
   );
 
-  // 创建初始化变换 - 提取为复用函数
   const createInitialTransform = useCallback((optimalScale: number) => {
     return d3.zoomIdentity.translate(0, 10).scale(optimalScale);
   }, []);
 
-  // Initialize the tree data when fileData changes
   const initializeTree = useCallback(() => {
     if (fileData) {
       const trees = candidateList.map((candidate) => ({
@@ -420,96 +417,107 @@ function LazyLoadView() {
     );
   }, [winnerInfo, selectedTreeId, fileData]);
 
-  // Helper function to determine pruning type and color
-
-  // 修复拖拽功能并添加滚轮缩放
+  // Setup drag and zoom handling for SVG visualization
   const setupDragHandling = useCallback(
     (svgElement: d3.Selection<SVGSVGElement, unknown, null, undefined>) => {
+      // Get reference to the main group element that contains the visualization
       const g = d3.select(gRef.current);
 
-      // 获取中心坐标
+      // Calculate layout dimensions and positioning
       const width = containerDimensions.width || dimensions.width;
       const centerX = width / 2;
       const margin = { top: 30, right: 40, bottom: 30, left: 40 };
 
-      // 设置拖拽开始处理函数
+      // Handle mouse down event to start dragging
       const handleMouseDown = (event: MouseEvent) => {
-        // 重要: 检查是否点击在SVG本身而不是子元素
+        // Only handle clicks directly on the SVG element (not child elements)
         if (event.target === svgElement.node()) {
-          if (event.button !== 0) return; // 只处理左键点击
-          console.log("SVG背景被点击，开始拖拽");
+          // Only respond to left mouse button clicks
+          if (event.button !== 0) return;
 
+          // Set dragging state and record initial mouse position
           setIsDragging(true);
           setDragStart({
             x: event.clientX,
             y: event.clientY,
           });
 
+          // Change cursor to indicate active dragging
           svgElement.style("cursor", "grabbing");
         }
       };
 
-      // 设置拖拽移动处理函数
+      // Handle mouse move event during dragging
       const handleMouseMove = (event: MouseEvent) => {
+        // Exit early if not dragging or no current transform exists
         if (!isDragging || !currentTransform) return;
 
+        // Calculate movement delta from last position
         const dx = event.clientX - dragStart.x;
         const dy = event.clientY - dragStart.y;
 
-        // 更新变换参数
+        // Create new transform by adding the movement delta to current position
         const newTransform = d3.zoomIdentity
           .translate(currentTransform.x + dx, currentTransform.y + dy)
           .scale(currentTransform.k);
 
-        // 应用新的变换
+        // Apply the new transform to the visualization group
+        // The transform includes: centering, margin offset, translation, and scaling
         g.attr(
           "transform",
           `translate(${centerX}, ${margin.top}) translate(${newTransform.x}, ${newTransform.y}) scale(${newTransform.k})`,
         );
 
-        // 更新拖拽起始点和当前变换
+        // Update drag start position for next move calculation
         setDragStart({
           x: event.clientX,
           y: event.clientY,
         });
+
+        // Update the current transform state
         setCurrentTransform(newTransform);
       };
 
-      // 设置拖拽结束处理函数
+      // Handle mouse up event to end dragging
       const handleMouseUp = () => {
         setIsDragging(false);
+        // Reset cursor to default grab state
         svgElement.style("cursor", "grab");
       };
 
-      // 处理滚轮缩放事件
+      // Handle mouse wheel event for zooming
       const handleWheel = (event: WheelEvent) => {
+        // Prevent default browser scroll behavior
         event.preventDefault();
 
+        // Exit early if no current transform exists
         if (!currentTransform) return;
 
-        // 计算缩放因子
-        const delta = -event.deltaY;
-        const zoomFactor = 0.05;
+        // Calculate zoom direction and amount
+        const delta = -event.deltaY; // Negative to make scroll up = zoom in
+        const zoomFactor = 0.05; // Zoom sensitivity
         const scale =
           currentTransform.k * (1 + (delta > 0 ? zoomFactor : -zoomFactor));
 
-        // 限制缩放范围在0.25到2之间
+        // Clamp zoom scale between 0.25x and 2x
         const newScale = Math.max(0.25, Math.min(2, scale));
 
-        // 获取鼠标相对于SVG的位置
+        // Get mouse position relative to SVG element for zoom center point
         const svgRect = svgRef.current!.getBoundingClientRect();
         const mouseX = event.clientX - svgRect.left;
         const mouseY = event.clientY - svgRect.top;
 
-        // 向鼠标位置缩放
+        // Convert mouse position to visualization coordinate space
         const x = mouseX - centerX;
         const y = mouseY - margin.top;
 
-        // 根据缩放比例变化调整平移
+        // Only apply zoom if scale actually changed (within bounds)
         if (newScale !== currentTransform.k) {
+          // Calculate scale ratio for position adjustment
           const scaleRatio = newScale / currentTransform.k;
 
-          // 创建新变换
+          // Create new transform that zooms around the mouse cursor position
+          // This keeps the point under the mouse cursor fixed during zoom
           const newTransform = d3.zoomIdentity
             .translate(
               x - (x - currentTransform.x) * scaleRatio,
@@ -517,30 +525,30 @@ function LazyLoadView() {
             )
             .scale(newScale);
 
-          // 应用新变换
+          // Apply the new transform to the visualization
           g.attr(
             "transform",
             `translate(${centerX}, ${margin.top}) translate(${newTransform.x}, ${newTransform.y}) scale(${newTransform.k})`,
           );
 
-          // 更新状态
+          // Update state with new zoom level and transform
           setCurrentZoom(newScale);
           setCurrentTransform(newTransform);
         }
       };
 
-      // 添加事件监听器
+      // Attach event listeners to the SVG element
       svgElement
-        .on("mousedown", handleMouseDown)
-        .on("mousemove", handleMouseMove)
-        .on("mouseup", handleMouseUp)
-        .on("mouseleave", handleMouseUp)
-        .on("wheel", handleWheel);
+        .on("mousedown", handleMouseDown) // Start dragging
+        .on("mousemove", handleMouseMove) // Handle drag movement
+        .on("mouseup", handleMouseUp) // End dragging
+        .on("mouseleave", handleMouseUp) // End dragging when mouse leaves SVG
+        .on("wheel", handleWheel); // Handle zoom
 
-      // 设置初始光标样式
+      // Set initial cursor style to indicate draggable
       svgElement.style("cursor", "grab");
 
-      // 返回清理函数
+      // Return cleanup function to remove event listeners
       return () => {
         svgElement
           .on("mousedown", null)
@@ -550,6 +558,7 @@ function LazyLoadView() {
           .on("wheel", null);
       };
     },
+    // Dependencies: re-create handler when these values change
     [containerDimensions, isDragging, dragStart, currentTransform],
   );
 
@@ -604,7 +613,6 @@ function LazyLoadView() {
       gRef.current = g.node();
     }
 
-    // 设置拖拽处理
     setupDragHandling(svgElement);
 
     // Draw links with proper positioning
@@ -741,11 +749,6 @@ function LazyLoadView() {
         return tooltip;
       });
 
-    // Add expandable indicators - MODIFIED CODE
-    // Only add indicators for nodes that:
-    // 1. Have remaining candidates
-    // 2. Are not pruned
-    // 3. Don't already have expanded children
     groups
       .filter(
         (d) =>
@@ -774,14 +777,10 @@ function LazyLoadView() {
       .attr("class", "text-lg text-black")
       .text((d) => `${d.data.remaining.length}`);
 
-    // 设置初始变换
     if (isInitialRender) {
-      // 计算最佳缩放比例
       const optimalScale = calculateOptimalScale(layout.width, innerWidth);
-      // 创建初始变换
       const initialTransform = createInitialTransform(optimalScale);
 
-      // 应用初始变换
       if (currentTransform) {
         g.attr(
           "transform",
@@ -798,7 +797,6 @@ function LazyLoadView() {
 
       setIsInitialRender(false);
     } else if (currentTransform) {
-      // 应用已有的变换
       g.attr(
         "transform",
         `translate(${centerX}, ${margin.top}) translate(${currentTransform.x}, ${currentTransform.y}) scale(${currentTransform.k})`,
@@ -838,12 +836,11 @@ function LazyLoadView() {
     (scaleFactor: number) => {
       if (!currentTransform || !gRef.current) return;
 
-      // 获取当前变换的位置，保持位置不变，只改变缩放比例
+      // Get the current transform position, keep the position unchanged, only change the scale factor
       const newTransform = d3.zoomIdentity
         .translate(currentTransform.x, currentTransform.y)
         .scale(scaleFactor);
 
-      // 应用新变换
       const width = containerDimensions.width || dimensions.width;
       const centerX = width / 2;
       const margin = { top: 30, right: 40, bottom: 30, left: 40 };
@@ -856,7 +853,6 @@ function LazyLoadView() {
           `translate(${centerX}, ${margin.top}) translate(${newTransform.x}, ${newTransform.y}) scale(${newTransform.k})`,
         );
 
-      // 更新状态
       setCurrentZoom(scaleFactor);
       setCurrentTransform(newTransform);
     },
@@ -872,33 +868,34 @@ function LazyLoadView() {
   const handleResetView = useCallback(() => {
     if (!gRef.current) return;
 
+    // Get container dimensions with fallback to default dimensions
     const width = containerDimensions.width || dimensions.width;
     const height = containerDimensions.height || dimensions.height;
     const margin = { top: 30, right: 40, bottom: 30, left: 40 };
     const innerWidth = width - margin.left - margin.right;
     const centerX = width / 2;
 
-    // 获取当前树
+    // Find the target tree based on selected tree ID
     const targetTree = defaultTrees.find(
       (tree) => tree.rootId === selectedTreeId,
     );
 
     if (!targetTree) return;
 
-    // 计算树布局
+    // Calculate tree layout with available dimensions
     const layout = calculateTreeLayout(
       targetTree.tree,
       innerWidth,
       height - margin.top - margin.bottom,
     );
 
-    // 计算最佳缩放比例
+    // Calculate optimal scale ratio to fit the tree
     const optimalScale = calculateOptimalScale(layout.width, innerWidth);
 
-    // 创建初始变换
+    // Create initial transform configuration
     const initialTransform = createInitialTransform(optimalScale);
 
-    // 应用变换
+    // Apply transform with smooth transition animation
     d3.select(gRef.current)
       .transition()
       .duration(500)
@@ -907,11 +904,11 @@ function LazyLoadView() {
         `translate(${centerX}, ${margin.top}) translate(${initialTransform.x}, ${initialTransform.y}) scale(${initialTransform.k})`,
       );
 
-    // 更新状态
+    // Update zoom and transform state
     setCurrentZoom(optimalScale);
     setCurrentTransform(initialTransform);
 
-    // 强制重新渲染视图
+    // Force re-render of the view
     setRenderKey((prev) => prev + 1);
   }, [
     containerDimensions,
@@ -1022,8 +1019,6 @@ function LazyLoadView() {
   const renderWinnerMessage = useCallback(() => {
     if (!winnerInfo) return null;
 
-    const { shortName } = getSmartDisplayName(winnerInfo.id, candidateList);
-
     return (
       <div className="flex flex-col items-center justify-center h-full p-8 text-center">
         <div className="bg-green-50 border border-green-200 rounded-lg p-6 max-w-2xl shadow-sm">
@@ -1108,24 +1103,14 @@ function LazyLoadView() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => handleZoomChange(0.25)}>
-                    25%
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleZoomChange(0.5)}>
-                    50%
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleZoomChange(0.75)}>
-                    75%
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleZoomChange(1)}>
-                    100%
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleZoomChange(1.5)}>
-                    150%
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleZoomChange(2)}>
-                    200%
-                  </DropdownMenuItem>
+                  {[0.25, 0.5, 0.75, 1, 1.5, 2].map((zoom) => (
+                    <DropdownMenuItem
+                      key={zoom}
+                      onClick={() => handleZoomChange(zoom)}
+                    >
+                      {zoom * 100}%
+                    </DropdownMenuItem>
+                  ))}
                 </DropdownMenuContent>
               </DropdownMenu>
               <Button
@@ -1186,24 +1171,14 @@ function LazyLoadView() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => handleZoomChange(0.25)}>
-                  25%
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleZoomChange(0.5)}>
-                  50%
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleZoomChange(0.75)}>
-                  75%
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleZoomChange(1)}>
-                  100%
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleZoomChange(1.5)}>
-                  150%
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleZoomChange(2)}>
-                  200%
-                </DropdownMenuItem>
+                {[0.25, 0.5, 0.75, 1, 1.5, 2].map((zoom) => (
+                  <DropdownMenuItem
+                    key={zoom}
+                    onClick={() => handleZoomChange(zoom)}
+                  >
+                    {zoom * 100}%
+                  </DropdownMenuItem>
+                ))}
               </DropdownMenuContent>
             </DropdownMenu>
             <Button

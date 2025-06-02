@@ -54,7 +54,7 @@ function CandidateListBar({
         ref={scrollContainerRef}
       >
         {candidateList.map((candidate) => {
-          const { shortName, explanation } = getSmartDisplayName(
+          const { explanation } = getSmartDisplayName(
             candidate.id,
             candidateList,
           );
