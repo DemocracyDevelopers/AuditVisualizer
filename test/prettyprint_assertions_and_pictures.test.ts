@@ -462,7 +462,17 @@ describe("Assertion Evaluation Logic", () => {
       const bobEntry = result.find((entry) => entry.winnerInfo.name === "Bob");
       expect(bobEntry).toBeDefined();
 
-      const process = bobEntry.data.process;
+      type ProcessStep = {
+        step: number;
+        assertion?: {
+          content: string;
+          [key: string]: any;
+        };
+        [key: string]: any;
+      };
+
+      const process = bobEntry.data.process as ProcessStep[];
+
       expect(process.length).toBeGreaterThanOrEqual(2); // At least step 0 + 1 assertion
 
       // Check step 0 (initial state)
