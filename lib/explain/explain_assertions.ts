@@ -6,8 +6,6 @@ export function explain_assertions(): void {
   const inputElement = document.getElementById("Input") as HTMLInputElement;
   const input = inputElement.value;
 
-  console.log("原始输入:", input); // Log raw input
-
   const format_div = document.getElementById("Format") as HTMLElement;
   const output_div = document.getElementById("Output") as HTMLElement;
   const explanation_div = document.getElementById("Explanation") as HTMLElement;
@@ -21,7 +19,6 @@ export function explain_assertions(): void {
   try {
     // Use JSON.parse() to convert string into object and store in parsed_input
     parsed_input = JSON.parse(input);
-    console.log("parsed解析之后的输入:", parsed_input);
   } catch (e) {
     add(output_div, "p", "error").innerText = "Error: input is not JSON";
     return;
@@ -29,8 +26,6 @@ export function explain_assertions(): void {
 
   // interpret_input_formats() detects format: raire, Michelle Blom RAIRE, or ShangriLa log
   const contests = interpret_input_formats(parsed_input);
-
-  console.log("Contests打印解释后的格式:", contests); // Log detected format and contest structure
 
   if (contests && contests.format) {
     add(format_div, "p").innerText = "Format: " + contests.format;

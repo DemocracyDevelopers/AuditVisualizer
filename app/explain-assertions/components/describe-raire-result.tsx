@@ -1,5 +1,3 @@
-// components/describe-raire-result.tsx
-
 import React from "react";
 import { Assertion } from "../../../lib/explain/prettyprint_assertions_and_pictures";
 

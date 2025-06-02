@@ -52,10 +52,6 @@ function OneClickAnimation({
       ? process.length * 2 - 1 // Initial tree + (before & after for each process item)
       : 0;
 
-  useEffect(() => {
-    console.log("Selected winner ID changed:", selectedWinnerId, process);
-  }, [selectedWinnerId, process, currentStep]);
-
   // Reset animation state when selectedWinnerId changes
   useEffect(() => {
     setCurrentStep(0);
@@ -104,10 +100,6 @@ function OneClickAnimation({
   useEffect(() => {
     if (!process || process.length === 0) return;
 
-    console.log(
-      `Updating tree for step ${currentStep} of ${totalSteps} total steps`,
-    );
-
     // Check if this is the last step
     setIsLastStep(currentStep >= totalSteps - 1);
 
@@ -117,7 +109,6 @@ function OneClickAnimation({
     // Update tree and assertion based on current step
     if (currentStep === 0) {
       // First step uses process[0].trees
-      console.log("Setting tree to process[0].trees");
       setCurrentTree(deepCloneTree(process[0].trees) || null);
       setCurrentAssertion(process[0]?.assertion ?? null);
     } else {
@@ -125,10 +116,8 @@ function OneClickAnimation({
       const processIndex = Math.floor((currentStep + 1) / 2);
 
       if (isBefore) {
-        console.log(`Setting tree to process[${processIndex}].before`);
         setCurrentTree(deepCloneTree(process[processIndex].before) || null);
       } else {
-        console.log(`Setting tree to process[${processIndex}].after`);
         setCurrentTree(deepCloneTree(process[processIndex].after) || null);
       }
       setCurrentAssertion(process[processIndex]?.assertion ?? null);
@@ -156,7 +145,6 @@ function OneClickAnimation({
           setIsPaused(false); // Reset pause state when complete
           setAnimationComplete(true);
           setIsLastStep(true);
-          console.log("Animation complete at step:", nextStep);
         }
       }, 1000);
     } else if (isAnimating && currentStep >= totalSteps - 1) {
@@ -165,7 +153,6 @@ function OneClickAnimation({
       setIsPaused(false);
       setAnimationComplete(true);
       setIsLastStep(true);
-      console.log("Animation stopped - already at final step");
     }
 
     return () => {

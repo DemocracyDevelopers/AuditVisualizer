@@ -8,7 +8,7 @@ type FileDataStore = {
 
 export const useFileDataStore = create<FileDataStore>()(
   persist(
-    (set, get) => ({
+    (set, _) => ({
       fileData: "",
       setFileData: (data: string) => set({ fileData: data }),
     }),

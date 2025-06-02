@@ -81,7 +81,6 @@ const SampleSelector = () => {
         if (typeof result === "string") {
           useFileDataStore.setState({ fileData: result });
           const response = validateInputData(result);
-          console.log("response", response);
           if (response.success) {
             const jsonData = JSON.parse(result);
             const candidateList = jsonData.metadata.candidates.map(

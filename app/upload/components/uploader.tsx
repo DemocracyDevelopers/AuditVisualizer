@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { CloudUpload, File, ArrowLeft, Link } from "lucide-react";
+import { CloudUpload, File, ArrowLeft } from "lucide-react";
 import CustomAlertDialog from "./alert-dialog";
 import UploadProgress from "./progress";
 import useMultiWinnerDataStore from "../../../store/multi-winner-data";
