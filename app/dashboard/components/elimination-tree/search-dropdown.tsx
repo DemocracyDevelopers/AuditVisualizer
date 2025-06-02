@@ -28,7 +28,7 @@ function SearchDropdown({
     setIsOpen(false);
   };
   return (
-    <div className="relative">
+    <div className="relative w-[220px] max-w-[80vw] min-w-[140px] flex-shrink">
       <Input
         value={searchTerm}
         type="search"

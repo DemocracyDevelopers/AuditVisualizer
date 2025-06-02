@@ -46,7 +46,7 @@ function CandidateListBar({
 
   return (
     <div
-      className="flex justify-center items-end mb-5 gap-10"
+      className="flex flex-wrap justify-center items-end mb-5 gap-10 w-full"
       data-tour="fifth-step"
     >
       <div
@@ -96,10 +96,13 @@ function CandidateListBar({
         })}
       </div>
 
-      <SearchDropdown
-        candidateList={candidateList}
-        onSelect={handleCandidateSelect}
-      />
+      {/* Search bar — will wrap below on small screens */}
+      <div className="w-full sm:w-auto mt-2 sm:mt-0">
+        <SearchDropdown
+          candidateList={candidateList}
+          onSelect={handleCandidateSelect}
+        />
+      </div>
     </div>
   );
 }
