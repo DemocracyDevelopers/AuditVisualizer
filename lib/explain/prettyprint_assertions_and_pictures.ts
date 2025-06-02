@@ -1,7 +1,5 @@
 "use strict";
 
-import { add } from "./explain_utils";
-
 // This file contains utility functions to show how a RAIRE assertion
 // eliminates potential elimination sequence suffixes.
 
@@ -518,10 +516,6 @@ export function describe_raire_result(
   }
   // Check if the input format is recognized.
   if (data.solution && data.solution.Ok) {
-    if (data.solution.Ok.warning_trim_timed_out) {
-      add(output_div, "p", "warning").innerText =
-        "Warning: Trimming timed out. Some assertions may be redundant.";
-    }
     // Output assertions with their details.
     let heading_name = "Assertions";
     if (data.metadata.hasOwnProperty("contest"))
@@ -530,12 +524,10 @@ export function describe_raire_result(
       heading_name += ` - difficulty = ${data.solution.Ok.difficulty}`;
     if (data.solution.Ok.hasOwnProperty("margin"))
       heading_name += ` margin = ${data.solution.Ok.margin}`;
-    add(output_div, "h3", "Assertions").innerText = heading_name;
     const assertionRisks = data.metadata && data.metadata.assertionRisks;
     const riskLimit = data.metadata && data.metadata.riskLimit;
     let assertionIndex = 0;
     for (const av of data.solution.Ok.assertions) {
-      const adiv = add(output_div, "div");
       const risk =
         av.hasOwnProperty("status") && av.status.hasOwnProperty("risk")
           ? av.status.risk
@@ -550,23 +542,6 @@ export function describe_raire_result(
               ? "risk_ok"
               : "risk_bad"
             : "risk";
-        const span = add(adiv, "span", isGood);
-        span.innerText = `${risk}`;
-        if (typeof riskLimit === "number")
-          span.title = `Risk limit = ${riskLimit}`;
-      }
-      if (av.hasOwnProperty("difficulty"))
-        add(adiv, "span", "difficulty_start").innerText = `${av.difficulty}`;
-      if (av.hasOwnProperty("margin"))
-        add(adiv, "span", "margin_start").innerText = `${av.margin}`;
-      const a = av.assertion;
-      const adesc = add(adiv, "span");
-      if (a["type"] === "NEN") {
-        adesc.innerText = `NEN: ${candidate_name(a.winner)} > ${candidate_name(a.loser)} if only {${candidate_name_list(a.continuing!)}} remain`;
-      } else if (a["type"] === "NEB") {
-        adesc.innerText = `${candidate_name(a.winner)} NEB ${candidate_name(a.loser)}`;
-      } else {
-        adesc.innerText = "Unknown assertion type";
       }
       assertionIndex++;
     }
@@ -580,9 +555,6 @@ export function describe_raire_result(
     ) {
       candidate_names.push(`Candidate ${i}`);
     }
-    if (data.metadata.hasOwnProperty("contest"))
-      add(explanation_div, "h4").innerText =
-        `Contest: ${data.metadata.contest}`;
     const hide_winner_checkbox = document.getElementById(
       "HideWinner",
     ) as HTMLInputElement;
@@ -600,41 +572,6 @@ export function describe_raire_result(
     );
   } else if (data.solution && data.solution.Err) {
     const err = data.solution.Err;
-    if (err === "InvalidCandidateNumber") {
-      add(output_div, "p", "error").innerText =
-        "Invalid candidate number in the preference list. Candidate numbers should be 0 to num_candidates-1 inclusive.";
-    } else if (err === "InvalidNumberOfCandidates") {
-      add(output_div, "p", "error").innerText =
-        "Invalid number of candidates. There should be at least one candidate.";
-    } else if (err === "TimeoutCheckingWinner") {
-      add(output_div, "p", "error").innerText =
-        "Timeout checking winner - either your problem is exceptionally difficult, or your timeout is exceedingly small.";
-    } else if (err.hasOwnProperty("TimeoutFindingAssertions")) {
-      add(output_div, "p", "error").innerText =
-        `Timeout finding assertions - your problem is quite hard. Difficulty when interrupted: ${err.TimeoutFindingAssertions}`;
-    } else if (err === "InvalidTimeout") {
-      add(output_div, "p", "error").innerText =
-        "Timeout is not valid. Timeout should be a number greater than zero.";
-    } else if (Array.isArray(err.CouldNotRuleOut)) {
-      add(output_div, "p", "error").innerText =
-        "Impossible to audit. Could not rule out the following elimination order:";
-      for (let i = 0; i < err.CouldNotRuleOut.length; i++) {
-        add(output_div, "p", "candidate_name").innerText =
-          `${candidate_name(err.CouldNotRuleOut[i])}` +
-          (i === 0 ? " (First eliminated)" : "") +
-          (i === err.CouldNotRuleOut.length - 1 ? " (Winner)" : "");
-      }
-    } else if (Array.isArray(err.TiedWinners)) {
-      add(output_div, "p", "error").innerText =
-        `Audit not possible as ${candidate_name_list(err.TiedWinners)} are tied IRV winners and a one vote difference would change the outcome.`;
-    } else if (Array.isArray(err.WrongWinner)) {
-      add(output_div, "p", "error").innerText =
-        `The votes are not consistent with the provided winner. Perhaps ${candidate_name_list(err.WrongWinner)}?`;
-    } else {
-      add(output_div, "p", "error").innerText = `Error: ${JSON.stringify(err)}`;
-    }
-  } else {
-    add(output_div, "p", "error").innerText = "Output is wrong format";
   }
 }
 
@@ -650,21 +587,7 @@ export function output_elimination_orders(
   elimination_orders: number[][],
   candidate_names: string[],
   title: string,
-): void {
-  const container = add(div, "div", "elimination_orders");
-  const heading = add(container, "h5");
-  heading.innerText = title;
-
-  const list = add(container, "ol");
-
-  elimination_orders.forEach((eo) => {
-    const listItem = add(list, "li");
-    const orderStr = eo
-      .map((candidateIndex) => candidate_names[candidateIndex])
-      .join(" < ");
-    listItem.innerText = orderStr;
-  });
-}
+): void {}
 
 function areTreesEqual(tree1: any, tree2: any): boolean {
   if (!tree1 || !tree2) return false;
