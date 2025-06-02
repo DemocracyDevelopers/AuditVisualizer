@@ -1,5 +1,3 @@
-// app/tutorial/components/data-content.js
-
 export const contentData = [
   {
     title: "Getting Started",

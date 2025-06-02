@@ -15,7 +15,10 @@ interface MultiWinnerData {
           process: Array<{
             step: number;
             trees?: TreeNode | null;
-            assertion?: string;
+            assertion?: {
+              index: number;
+              content: string;
+            };
             before?: TreeNode | null;
             after?: TreeNode | null;
           }>;

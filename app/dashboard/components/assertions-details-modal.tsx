@@ -82,7 +82,6 @@ const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Candidate Info */}
           <div>
             <h3 className="text-lg font-semibold mb-2">Candidates</h3>
             <ul className="list-disc list-inside text-gray-700">
@@ -100,7 +99,6 @@ const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
             </ul>
           </div>
 
-          {/* Difficulty and Margin */}
           <div>
             <p className="text-gray-700">
               <span className="font-semibold">Maximum Difficulty:</span>{" "}
@@ -110,7 +108,6 @@ const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
             </p>
           </div>
 
-          {/* Table with Pagination */}
           <div className="space-y-3">
             <div className="max-h-[300px] overflow-auto border rounded">
               <Table className="min-w-full">
@@ -145,7 +142,6 @@ const AssertionsDetailsModal: React.FC<AssertionsDetailsModalProps> = ({
               </Table>
             </div>
 
-            {/* Pagination Controls */}
             <div className="flex justify-center items-center gap-2">
               <Button
                 size="sm"

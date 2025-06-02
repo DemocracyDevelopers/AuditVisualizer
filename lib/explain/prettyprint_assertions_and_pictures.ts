@@ -20,7 +20,7 @@ export interface Assertion {
   loser: number;
   continuing?: number[];
   type: string;
-  assertion_index?: number;
+  assertion_index: number;
 }
 
 export interface TreeNode {
@@ -546,12 +546,19 @@ export function explain(
         candidateNames,
       );
 
+      // Compare before and after trees
+      const treeUnchanged = areTreesEqual(beforeTree, afterTree);
+
       // Add to process
       stepByStep.process.push({
         step: stepIndex + 1,
-        assertion: assertionText,
+        assertion: {
+          index: stepIndex, // 或者 assertion.assertion_index
+          content: assertionText,
+        },
         before: beforeTree,
         after: afterTree,
+        treeUnchanged, // true if the tree is unchanged after applying the assertion
       });
 
       // Update current elimination orders
@@ -834,4 +841,21 @@ export function output_elimination_orders(
       .join(" < ");
     listItem.innerText = orderStr;
   });
+}
+
+function areTreesEqual(tree1: any, tree2: any): boolean {
+  if (!tree1 || !tree2) return false;
+  if (tree1.id !== tree2.id) return false;
+
+  const children1 = tree1.children || [];
+  const children2 = tree2.children || [];
+
+  if (children1.length !== children2.length) return false;
+
+  // Compare all children recursively
+  for (let i = 0; i < children1.length; i++) {
+    if (!areTreesEqual(children1[i], children2[i])) return false;
+  }
+
+  return true;
 }

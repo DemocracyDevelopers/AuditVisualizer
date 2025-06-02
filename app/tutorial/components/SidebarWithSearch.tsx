@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
-import { contentData } from "./data-content";
 import { Search } from "lucide-react"; // ✅ 加上这一行引入
+import { contentData } from "./data-content";
 
 interface SidebarProps {
   sidebarWidth: number;
@@ -168,7 +168,7 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
         style={{ height: "88vh" }}
       >
         <div
-          className="bg-white shadow-xl rounded-xl transition-transform duration-300 flex-1 overflow-auto"
+          className="bg-background shadow-xl rounded-xl transition-transform duration-300 flex-1 overflow-auto"
           style={{ width: collapsed ? "0px" : `${sidebarWidth}px` }}
         >
           {!collapsed && (
@@ -233,7 +233,7 @@ const SidebarWithSearch: React.FC<SidebarProps> = ({
                             (pathname === section.path &&
                               pathname === "/tutorial")
                               ? "text-blue-600 font-semibold"
-                              : "text-gray-800"
+                              : "text-gray-700"
                           }`}
                         >
                           {section.title}
