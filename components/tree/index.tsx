@@ -144,7 +144,7 @@ export default function Tree({
     const treeWidth = maxX - minX;
 
     // Center the tree horizontally - calculate correct offset
-    const xOffset = -((maxX + minX) / 2); // 将树居中到原点(0,0)
+    const xOffset = -((maxX + minX) / 2); // align tree to (0, 0)
 
     // Apply offset to all nodes
     descendants.forEach((node) => {
@@ -154,8 +154,8 @@ export default function Tree({
     return {
       nodes: descendants,
       links: treeDataLayout.links().filter((link) => !link.target.data.hide),
-      width: treeWidth, // 树宽度用于缩放计算
-      center: { x: 0, y: 0 }, // 树中心现在在原点
+      width: treeWidth, // tree width used for scaling calculation
+      center: { x: 0, y: 0 }, // align tree center to (0, 0)
     };
   };
 
@@ -426,7 +426,7 @@ export default function Tree({
     const centerX = dimensions.width / 2;
 
     // Create group with transform already applied
-    // 首先应用整体居中变换，然后应用用户的平移，最后应用缩放
+    // First apply global centering transform, then user translation, and finally scaling
     const g = svg
       .append("g")
       .attr(
