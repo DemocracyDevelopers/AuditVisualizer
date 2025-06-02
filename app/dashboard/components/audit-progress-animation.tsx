@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import anime from "animejs";
 import { X } from "lucide-react";
-import { on } from "events";
 
 interface AuditProgressAnimationProps {
   championName: string;
@@ -23,7 +22,7 @@ const AuditProgressAnimation = ({
   useEffect(() => {
     if (!isVisible) return;
 
-    // 动态配色和图标
+    // Dynamic color and icon
     const fromColor = isValid ? "#4caf50" : "#e53e3e";
     const toColor = isValid ? "#81c784" : "#fc8181";
     const icon = isValid ? "🏆" : "❌";
@@ -33,14 +32,14 @@ const AuditProgressAnimation = ({
 
     anime
       .timeline({ easing: "easeInOutQuad", duration: 2000 })
-      // 进度条从 0 到 100%
+      // Progress bar from 0 to 100%
       .add({
         targets: progressBarRef.current,
         width: ["0%", "100%"],
         background: [`linear-gradient(90deg, ${fromColor}, ${toColor})`],
         backgroundSize: ["200% 100%", "200% 100%"],
       })
-      // 弹出验证信息
+      // Pop up verification message
       .add({
         targets: confirmationRef.current,
         opacity: [0, 1],
@@ -57,7 +56,7 @@ const AuditProgressAnimation = ({
           }
         },
       })
-      // 轻微抖动
+      // Slight shake effect
       .add({
         targets: confirmationRef.current,
         translateY: [0, -5, 0],
@@ -87,7 +86,7 @@ const AuditProgressAnimation = ({
         <div
           ref={progressBarRef}
           className="h-full w-0"
-          // 初始背景色，动画时会被覆盖
+          // Initial background color, will be overridden by animation
           style={{
             background: `linear-gradient(90deg, ${isValid ? "#4caf50" : "#e53e3e"}, ${isValid ? "#81c784" : "#fc8181"})`,
             backgroundSize: "200% 100%",

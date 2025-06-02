@@ -1,8 +1,7 @@
-// 该模块实现 lazy load 功能，用于扩展整棵淘汰顺序树中指定节点的一层。
-// 外部调用时传入整棵树、目标节点的 id 以及完整的 Assertions 列表，
-// 函数内部直接使用目标节点的 remaining 和 remainingAssertions 进行扩展，返回更新后的整棵树。
+// This module implements a lazy loading mechanism to expand one layer of a given node in the elimination tree.
+// The caller provides the full tree, the target node's ID (path), and a list of assertions.
+// The function uses the node's `remaining` and `remainingAssertions` to generate its immediate children.
 
-import { assert } from "console";
 import {
   Assertion,
   EffectOfAssertionOnEliminationOrderSuffix,
@@ -10,24 +9,24 @@ import {
 } from "../../../lib/explain/prettyprint_assertions_and_pictures";
 
 /**
- * 定义树节点接口
- * 每个节点包含：
- *  - id：节点的唯一标识（一般用候选人索引作为 id）
- *  - path：从该节点到根节点的淘汰顺序（例如 [2,1] 表示候选人2在候选人1前被淘汰）
- *  - remainingAssertions：该分支上剩余可用的 Assertions
- *  - children：子节点数组
- *  - remaining：该节点尚未使用的候选人索引列表
- *  - pruned：是否被剪枝
- *  - prunedBy：剪枝时使用的断言（如果有）
+ * Interface for a tree node.
+ * Each node contains:
+ *  - id: unique identifier for the node (typically the candidate index)
+ *  - path: elimination order from this node to the root (e.g., [2,1] means candidate 2 eliminated before 1)
+ *  - remainingAssertions: list of remaining assertions applicable to this branch
+ *  - children: array of child nodes
+ *  - remaining: list of unused candidate indexes at this node
+ *  - pruned: whether this node is pruned
+ *  - prunedBy: the assertion that caused pruning (if any)
  */
 export interface TreeNode {
-  id: number; // 节点唯一标识
-  path: number[]; // 当前节点的淘汰顺序（从当前节点到根节点）
-  remainingAssertions: Assertion[]; // 剩余可用的 Assertions
-  children: TreeNode[]; // 子节点数组
-  remaining: number[]; // 剩余未使用的候选人索引
-  pruned: boolean; // 是否被剪枝
-  prunedBy?: Assertion; // 剪枝时使用的断言（如果有）
+  id: number; // Unique node identifier
+  path: number[]; // Elimination path from current node to root
+  remainingAssertions: Assertion[]; // Remaining assertions for this branch
+  children: TreeNode[]; // Array of child nodes
+  remaining: number[]; // Remaining candidate indexes not yet used
+  pruned: boolean; // Whether the node is pruned
+  prunedBy?: Assertion; // Assertion that caused pruning (if applicable)
 }
 
 function pathsEqual(a: number[], b: number[]): boolean {
@@ -36,9 +35,9 @@ function pathsEqual(a: number[], b: number[]): boolean {
 }
 
 /**
- * 递归按 path 查找节点（path 唯一）
- * @param root   树根
- * @param target 完整淘汰顺序 path，例如 [3,1,0]
+ * Recursively search for a node by its path (path is unique).
+ * @param root   Root of the tree
+ * @param target Full elimination order path, e.g., [3,1,0]
  */
 export function findNodeByPath(
   root: TreeNode,
@@ -46,16 +45,17 @@ export function findNodeByPath(
 ): TreeNode | null {
   if (!path || path.length === 0) return null;
 
-  // 检查根节点路径是否匹配
+  // Check if root path matches
   if (pathsEqual(root.path, path)) return root;
 
-  // 使用队列进行广度优先搜索
+  // Perform breadth-first search using a queue
   const queue: TreeNode[] = [root];
 
   while (queue.length > 0) {
     const node = queue.shift()!;
 
-    // 检查每个子节点
+    // Check each child node
+    // If the child node's path matches the target path, return it
     if (node.children && node.children.length > 0) {
       for (const child of node.children) {
         if (pathsEqual(child.path, path)) {
@@ -70,9 +70,9 @@ export function findNodeByPath(
 }
 
 /**
- * 检查节点是否已展开（有子节点）
- * @param node 要检查的节点
- * @returns 如果节点有子节点，则返回 true；否则返回 false
+ * Check whether a node has been expanded (i.e., has children)
+ * @param node Node to check
+ * @returns True if node has children, otherwise false
  */
 export function isNodeExpanded(node: TreeNode): boolean {
   return node.children && node.children.length > 0;
@@ -87,26 +87,25 @@ export function collapseTreeByNode(
     throw new Error(`Node with path [${targetPath.join(",")}] not found.`);
   }
 
-  // 直接清空子节点数组
+  // Directly clear the child node array
   targetNode.children = [];
 
   return currentTree;
 }
 
 /**
- * 扩展指定节点的一层
- * 根据目标节点当前的 path、remaining 列表以及该节点自身的 remainingAssertions，
- * 对每个 remaining 中的候选人生成新的子节点，新子节点的 path 为 [candidate, ...目标节点.path]，
- * 同时更新新的 remaining（去除已使用的候选人）以及更新 remainingAssertions：
- *  - 如果断言返回 Ok，则认为该断言已满足，不保留；
- *  - 如果返回 NeedsMoreDetail，则保留该断言；
- *  - 如果返回 Contradiction，则标记该子节点为剪枝（pruned），并记录 prunedBy。
+ * Expand one layer of a specific node.
+ * Based on the current node's path, remaining list, and its remainingAssertions,
+ * for each candidate in remaining, generate a new child node.
+ * Each new child node will have path = [candidate, ...parent.path],
+ * updated remaining (removing used candidate), and updated remainingAssertions:
+ *  - If assertion returns Ok → discard it;
+ *  - If returns NeedsMoreDetail → keep it;
+ *  - If returns Contradiction → mark the node as pruned and store prunedBy.
  *
- *
- * 根据目标节点的 path 扩展其下一层
- * @param currentTree   当前整棵树
- * @param targetPath    目标节点的 path（唯一标识）
- * @returns 更新后的整棵树
+ * @param currentTree   The full tree
+ * @param targetPath    The path identifying the target node
+ * @returns The updated full tree
  */
 export function expandTreeByNode(
   currentTree: TreeNode,
@@ -117,18 +116,19 @@ export function expandTreeByNode(
     throw new Error(`Node with path [${targetPath.join(",")}] not found.`);
   }
 
-  // 使用目标节点的 remaining 列表
+  // Use the remaining list of the target node
   const remaining = targetNode.remaining;
 
-  // 扩展目标节点：对 remaining 中的每个候选人生成新子节点
+  // Expand the target node: for each candidate in remaining, generate a new child node
   targetNode.children = remaining.map((candidate) => {
-    // 新的淘汰顺序：将 candidate 插入当前节点 path 的前面
+    // New elimination path: insert candidate in front of current node's path
     const newPath = [candidate, ...targetNode.path];
-    // 新的 remaining：去除当前 candidate
+    // New remaining list: remove current candidate
     const newRemaining = targetNode.remaining.filter((c) => c !== candidate);
-    // 更新 remainingAssertions：遍历目标节点的 remainingAssertions，
-    // 如果断言对新 path 返回 Ok，则不保留；返回 NeedsMoreDetail，则保留；
-    // 如果返回 Contradiction，则标记剪枝。
+    // Update remainingAssertions:
+    // - If the assertion returns Ok → discard;
+    // - If NeedsMoreDetail → keep;
+    // - If Contradiction → mark as pruned.
     const newRemainingAssertions: Assertion[] = [];
     let pruned = false;
     let prunedBy: Assertion | undefined = undefined;
@@ -137,23 +137,23 @@ export function expandTreeByNode(
       if (effect === EffectOfAssertionOnEliminationOrderSuffix.Contradiction) {
         pruned = true;
         prunedBy = assertion;
-        break; // 一旦出现矛盾，停止检查
+        break; // Stop checking as soon as contradiction is found
       } else if (
         effect === EffectOfAssertionOnEliminationOrderSuffix.NeedsMoreDetail
       ) {
         newRemainingAssertions.push(assertion);
       }
-      // 如果返回 Ok，则该断言已满足，不保留
+      // If Ok, the assertion is fulfilled and not kept
     }
 
     return {
-      id: candidate, // 使用 candidate 索引作为节点 id
-      path: newPath, // 新的淘汰顺序
-      remainingAssertions: newRemainingAssertions, // 更新后的 Assertions
-      children: [], // 初始无子节点
-      remaining: newRemaining, // 更新后的 remaining 列表
-      pruned, // 剪枝标记
-      prunedBy, // 导致剪枝的断言（如果有）
+      id: candidate, // Use candidate index as node id
+      path: newPath, // Updated elimination path
+      remainingAssertions: newRemainingAssertions, // Updated assertions
+      children: [], // Initially no children
+      remaining: newRemaining, // Updated remaining list
+      pruned, // Prune flag
+      prunedBy, // Assertion that caused pruning (if any)
     } as TreeNode;
   });
 
@@ -161,14 +161,14 @@ export function expandTreeByNode(
 }
 
 /**
- * 创建初始树
- * 输入：根候选人的索引、总候选人数以及完整的 Assertions 列表，
- * 初始化根节点的 remaining 为除根之外的所有候选人，并将完整的 Assertions 赋给根节点的 remainingAssertions。
+ * Create the initial tree.
+ * Inputs: root candidate index, total number of candidates, and full list of assertions.
+ * Initialize root node with all assertions and remaining candidates (excluding the root).
  *
- * @param rootCandidate - 选择作为根节点的候选人索引
- * @param numCandidates - 总候选人数
- * @param assertions - 完整的 Assertions 列表
- * @returns 初始树
+ * @param rootCandidate - Index of the candidate to use as root
+ * @param numCandidates - Total number of candidates
+ * @param assertions - Full list of assertions
+ * @returns Initial tree
  */
 export function createInitialTree(
   rootCandidate: number,
@@ -184,7 +184,7 @@ export function createInitialTree(
   return {
     id: rootCandidate,
     path: [rootCandidate],
-    remainingAssertions: assertions, // 初始时全部 Assertions 均可用
+    remainingAssertions: assertions, // Initially, all assertions are usable
     children: [],
     remaining: remaining,
     pruned: false,
@@ -192,8 +192,8 @@ export function createInitialTree(
 }
 
 /**
- * 从完整 JSON 文件内容直接创建初始树
- * 文件应包含：
+ * Create an initial tree directly from full JSON file content.
+ * The JSON file should have the format:
  * {
  *   metadata: { candidates: string[] },
  *   solution: { Ok: { winner: number; assertions: { assertion: Assertion }[] } }

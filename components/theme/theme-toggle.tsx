@@ -10,7 +10,6 @@ export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  // 组件首屏挂载完毕后再渲染图标，避免水合不一致
   useEffect(() => setMounted(true), []);
 
   if (!mounted) return null;
