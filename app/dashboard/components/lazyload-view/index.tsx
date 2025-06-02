@@ -152,7 +152,6 @@ function LazyLoadView() {
       }));
       setSelectedTreeId(winnerInfo?.id || 0);
       setDefaultTrees(trees);
-      console.log("Initial tree data:", trees, winnerInfo);
     }
   }, [fileData, candidateList, winnerInfo, setDefaultTrees]);
 
@@ -221,7 +220,6 @@ function LazyLoadView() {
         // Check if the node is already expanded
         if (isNodeExpanded(node)) {
           // Node is expanded, so collapse it
-          console.log("Collapsing node:", node.path);
           const newTree = collapseTreeByNode(wantUpdateTree, node.path);
 
           // Update the specific tree in the array
@@ -235,7 +233,6 @@ function LazyLoadView() {
         } else {
           // If node has remaining candidates, expand it
           if (node.remaining && node.remaining.length > 0) {
-            console.log("Expanding node:", node.path);
             const newTree = expandTreeByNode(wantUpdateTree, node.path);
 
             // Update the specific tree in the array
@@ -335,10 +332,6 @@ function LazyLoadView() {
         workingTree,
         currentLayer,
       );
-      console.log(
-        `Layer ${currentLayer}: Found ${nodesToExpand.length} expandable nodes`,
-      );
-
       // If no expandable nodes at this layer, move to the next layer
       if (nodesToExpand.length === 0) {
         currentLayer++;
@@ -363,7 +356,6 @@ function LazyLoadView() {
       // Expand each node in this layer
       for (let i = 0; i < nodesToExpand.length; i++) {
         const node = nodesToExpand[i];
-        console.log(`Expanding node with path [${node.path.join(", ")}]`);
 
         try {
           // Expand this node
@@ -691,7 +683,6 @@ function LazyLoadView() {
       .attr("transform", (d) => `translate(${d.x},${d.y})`)
       .classed("cursor-pointer", true)
       .on("click", function (event: MouseEvent, d) {
-        console.log("svg clicked");
         event.stopPropagation();
         handleNodeClick(d.data as TreeNode, selectedTreeId);
       });

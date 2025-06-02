@@ -5,7 +5,6 @@ import { TourProvider } from "@reactour/tour";
 import { TourStepWatcher } from "./TourStepWatcher";
 import { TourSyncWatcher } from "./TourSyncWatcher";
 import { CloseTourOnRouteChange } from "@/hooks/CloseTourOnRouteChange";
-// @ts-ignore
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import { X } from "lucide-react";
 

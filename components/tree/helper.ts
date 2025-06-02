@@ -1,5 +1,3 @@
-// treeHelpers.ts
-
 interface TreeNode {
   id: number;
   eliminated?: boolean; // eliminated children
@@ -8,7 +6,7 @@ interface TreeNode {
   _children?: TreeNode[]; // Hidden children when collapsed
   collapsedCount?: number; // Count of collapsed children
   hiddenCutCount?: number; // Count of hidden cut nodes
-  hide?: boolean; // 隐藏节点及其子节点
+  hide?: boolean; // Hide this node and its children
 }
 
 // Function to toggle the children (collapse/expand)

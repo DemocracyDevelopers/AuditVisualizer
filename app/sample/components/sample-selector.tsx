@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import useMultiWinnerDataStore from "../../../store/multi-winner-data";
-import {
-  explainAssertions,
-  validateInputData,
-} from "../../explain-assertions/components/explain-process";
+import { validateInputData } from "../../explain-assertions/components/explain-process";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -24,23 +21,24 @@ type SampleFile = {
   fileUrl: string;
 };
 
+// Static list of sample files displayed to the user
 const sampleFiles: SampleFile[] = [
   {
     name: "NEB Assertion",
     description: "NEB assertions example",
-    imageUrl: "/sample-images/img.png",
+    imageUrl: "/sample-images/img-removebg.png",
     fileUrl: "/sample-jsons/a_guide_to_RAIRE_eg_NEB_assertions.json",
   },
   {
     name: "One candidate dominates example",
     description: "One candidate dominates example",
-    imageUrl: "/sample-images/img.png",
+    imageUrl: "/sample-images/img-removebg.png",
     fileUrl: "/sample-jsons/a_guide_to_RAIRE_eg_one_candidate_dominates.json",
   },
   {
     name: "Two leading candidates example",
     description: "Two leading candidates example ",
-    imageUrl: "/sample-images/img.png",
+    imageUrl: "/sample-images/img-removebg.png",
     fileUrl: "/sample-jsons/a_guide_to_RAIRE_eg_two_leading_candidates.json",
   },
 ];
@@ -60,6 +58,7 @@ const SampleSelector = () => {
   const [isConfirming, setIsConfirming] = useState(false);
   const [selectedSample, setSelectedSample] = useState<SampleFile | null>(null);
 
+  // Handle user clicking a sample file card
   const handleSampleClick = async (sample: SampleFile) => {
     try {
       setSelectedSample(sample);
@@ -82,7 +81,6 @@ const SampleSelector = () => {
         if (typeof result === "string") {
           useFileDataStore.setState({ fileData: result });
           const response = validateInputData(result);
-          console.log("response", response);
           if (response.success) {
             const jsonData = JSON.parse(result);
             const candidateList = jsonData.metadata.candidates.map(
@@ -164,6 +162,7 @@ const SampleSelector = () => {
     }
   };
 
+  // Simulate loading state before navigating to the dashboard
   const handleProceedToDashboard = () => {
     setIsConfirming(true); // Start loading
     setTimeout(() => {
@@ -200,7 +199,7 @@ const SampleSelector = () => {
         ))}
       </div>
 
-      {/* Modal to show selected sample info */}
+      {/* Confirmation Dialog after a sample is selected */}
       {selectedSample && (
         <Dialog
           open={!!selectedSample}

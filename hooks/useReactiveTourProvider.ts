@@ -13,11 +13,6 @@ export const useReactiveTourProvider = () => {
   const candidateCount = getCandidateNumber(fileData);
   const ready = !!fileData && typeof candidateCount === "number";
 
-  //   const steps = useMemo(() => {
-  //     if (!ready) return [];
-  //     return getSteps(candidateCount);
-  //   }, [candidateCount, ready]);
-
   const steps = useMemo(() => {
     return ready ? getSteps(candidateCount) : [];
   }, [candidateCount, ready]);

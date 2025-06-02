@@ -1,5 +1,3 @@
-"use strict";
-
 export interface AssertionInternal {
   high: string;
   low: string;
@@ -12,10 +10,10 @@ export interface AssertionInternal {
  * Under each state mask, try to apply all applicable assertions to eliminate a candidate and recursively check the sub-states.
  * And output each step's decision and state to the console.
  *
- * @param assertions 
- * @param candidates 
- * @param reportedWinner 
- * @returns 
+ * @param assertions
+ * @param candidates
+ * @param reportedWinner
+ * @returns
  */
 export function verifyWinnerByDP(
   assertions: AssertionInternal[],
@@ -33,20 +31,20 @@ export function verifyWinnerByDP(
       const i = candidates.indexOf(name);
       if (i >= 0) mask |= 1 << i;
     }
-   
+
     return mask;
   });
 
   const fullMask = (1 << n) - 1;
   const winnerMask = 1 << winnerIndex;
-  
+
   const dp = new Array<number>(1 << n).fill(-1);
 
-/** 
- * Verify whether the given winner can be derived through a series of assertions. 
- * This function uses DFS + memoization search (with state compression) to traverse all possible candidate elimination paths.
- * The purpose is to determine whether the given winner can be uniquely derived under the premise that all assertions are true.
-*/
+  /**
+   * Verify whether the given winner can be derived through a series of assertions.
+   * This function uses DFS + memoization search (with state compression) to traverse all possible candidate elimination paths.
+   * The purpose is to determine whether the given winner can be uniquely derived under the premise that all assertions are true.
+   */
 
   function dfs(mask: number): boolean {
     if (dp[mask] !== -1) {
@@ -57,14 +55,14 @@ export function verifyWinnerByDP(
       return false;
     }
     if (mask === winnerMask) {
-      dp[mask] = 1; 
+      dp[mask] = 1;
       return true;
     }
 
     for (let i = 0; i < n; i++) {
       const bit = 1 << i;
       if (i === winnerIndex || (mask & bit) === 0) continue;
-    
+
       for (let j = 0; j < assertions.length; j++) {
         const a = assertions[j];
         if (a.low !== candidates[i]) continue;
@@ -74,7 +72,7 @@ export function verifyWinnerByDP(
 
         const nextMask = mask ^ bit;
         if (dfs(nextMask)) {
-          dp[mask] = i + 1; 
+          dp[mask] = i + 1;
           return true;
         }
       }
@@ -92,8 +90,8 @@ export function verifyWinnerByDP(
   const path: string[] = [];
   let mask = fullMask;
   while (mask !== winnerMask) {
-    const elim = dp[mask] - 1; 
-    
+    const elim = dp[mask] - 1;
+
     path.push(candidates[elim]);
     mask ^= 1 << elim;
   }

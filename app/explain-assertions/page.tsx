@@ -1,6 +1,4 @@
 "use client";
-// pages/explain-assertions.tsx
-
 import React, { useState } from "react";
 import { explainAssertions } from "./components/explain-process";
 
