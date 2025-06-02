@@ -40,6 +40,7 @@ function CandidateListBar({
     };
   }, []);
 
+  // Trigger when an avatar is clicked
   const handleCandidateSelect = (candidateId: number) => {
     handleSelectWinner(candidateId);
   };
@@ -96,7 +97,8 @@ function CandidateListBar({
         })}
       </div>
 
-      {/* Search bar — will wrap below on small screens */}
+      {/* Search bar for filtering/selecting candidates */}
+      {/* Responsive: on small screens it wraps to second line */}
       <div className="w-full sm:w-auto mt-2 sm:mt-0">
         <SearchDropdown
           candidateList={candidateList}
