@@ -8,7 +8,6 @@ import { expandTreeLayerByLayer } from "@/utils/treeActions";
  */
 const stepEffects: Record<number, () => void> = {
   6: () => {
-    console.log("Simulate Expand All");
     expandTreeLayerByLayer();
   },
 };

@@ -1,4 +1,3 @@
-// mdx-components.tsx
 import type { MDXComponents } from "mdx/types";
 import React from "react";
 

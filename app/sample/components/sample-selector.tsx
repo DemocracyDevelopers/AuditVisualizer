@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import useMultiWinnerDataStore from "../../../store/multi-winner-data";
-import {
-  explainAssertions,
-  validateInputData,
-} from "../../explain-assertions/components/explain-process";
+import { validateInputData } from "../../explain-assertions/components/explain-process";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -82,7 +79,6 @@ const SampleSelector = () => {
         if (typeof result === "string") {
           useFileDataStore.setState({ fileData: result });
           const response = validateInputData(result);
-          console.log("response", response);
           if (response.success) {
             const jsonData = JSON.parse(result);
             const candidateList = jsonData.metadata.candidates.map(

@@ -1,4 +1,3 @@
-// src/hooks/useSelectFirstNonWinner.ts
 import useMultiWinnerDataStore from "@/store/multi-winner-data";
 import useTreeSelectionStore from "@/store/use-tree-selection-store";
 

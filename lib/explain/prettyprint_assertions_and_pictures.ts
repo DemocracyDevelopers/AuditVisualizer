@@ -1,6 +1,6 @@
 "use strict";
 
-import { add, addSVG } from "./explain_utils";
+import { add } from "./explain_utils";
 
 // This file contains utility functions to show how a RAIRE assertion
 // eliminates potential elimination sequence suffixes.
@@ -553,7 +553,7 @@ export function explain(
       stepByStep.process.push({
         step: stepIndex + 1,
         assertion: {
-          index: stepIndex, // 或者 assertion.assertion_index
+          index: stepIndex,
           content: assertionText,
         },
         before: beforeTree,
@@ -642,7 +642,6 @@ export function describe_raire_result(
   explanation_div: HTMLElement,
   data: any,
 ): void {
-  console.log("Data input to describe_raire_result:", data);
   // Helper functions to get candidate names.
   function candidate_name(id: number): string {
     if (data.metadata && Array.isArray(data.metadata.candidates)) {
@@ -752,27 +751,12 @@ export function describe_raire_result(
     const winner_id = data.solution.Ok.winner;
     const assertions = data.solution.Ok.assertions.map((a: any) => a.assertion);
 
-    // Log parameters before calling explain.
-    console.log("Parameters before calling explain function:", {
-      assertions,
-      candidate_names,
-      expand_fully_at_start: (
-        document.getElementById("ExpandAtStart") as HTMLInputElement
-      ).checked,
-      draw_text_not_trees: (
-        document.getElementById("DrawAsText") as HTMLInputElement
-      ).checked,
-      hide_winner,
-      winner_id,
-    });
     // Call the explain function.
     explain(
-      //explanation_div,
       assertions,
       candidate_names,
       (document.getElementById("ExpandAtStart") as HTMLInputElement).checked,
       (document.getElementById("DrawAsText") as HTMLInputElement).checked,
-      //hide_winner,
       winner_id,
     );
   } else if (data.solution && data.solution.Err) {
@@ -834,7 +818,7 @@ export function output_elimination_orders(
 
   const list = add(container, "ol");
 
-  elimination_orders.forEach((eo, index) => {
+  elimination_orders.forEach((eo) => {
     const listItem = add(list, "li");
     const orderStr = eo
       .map((candidateIndex) => candidate_names[candidateIndex])
