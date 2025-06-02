@@ -3,15 +3,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import anime from "animejs";
 import { X } from "lucide-react";
+import { on } from "events";
 
 interface AuditProgressAnimationProps {
   championName: string;
   isValid: boolean;
+  onClose?: () => void;
 }
 
 const AuditProgressAnimation = ({
   championName,
   isValid,
+  onClose,
 }: AuditProgressAnimationProps) => {
   const [isVisible, setIsVisible] = useState(true);
   const progressBarRef = useRef<HTMLDivElement>(null);
@@ -66,11 +69,14 @@ const AuditProgressAnimation = ({
   if (!isVisible) return null;
 
   return (
-    <div className="absolute bottom-0 left-0 w-full border-t border-b border-gray-300 bg-white p-4 rounded-b-lg z-50">
+    <div className="w-full border border-gray-300 bg-background p-4 rounded-b-lg shadow-sm">
       <div className="flex justify-between items-center mb-2">
         <div className="text-sm font-bold text-gray-600">Audit Progress</div>
         <button
-          onClick={() => setIsVisible(false)}
+          onClick={() => {
+            setIsVisible(false);
+            onClose?.();
+          }}
           className="p-1 bg-transparent hover:bg-gray-100 rounded"
           aria-label="Close Animation"
         >

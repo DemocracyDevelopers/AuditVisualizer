@@ -1,9 +1,9 @@
 "use client";
 import React, { useEffect, useRef, useState, useLayoutEffect } from "react";
 import * as d3 from "d3";
-import { toggleChildren, TreeNode } from "./helper";
+import { toggleChildren, TreeNode, countCutNodes } from "./helper";
 import { Button } from "../ui/button";
-import { Maximize, Minimize, Minus, Plus } from "lucide-react";
+import { Maximize, Minimize, Minus, Plus, Scissors } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +20,7 @@ interface TreeProps {
   resetHiddenNodes: boolean;
   onResetComplete: () => void;
   onNodeCut: () => void;
+  currentAssertionString: string;
 }
 
 // Node sizing constants
@@ -34,10 +35,12 @@ export default function Tree({
   resetHiddenNodes,
   onResetComplete,
   onNodeCut,
+  currentAssertionString,
 }: TreeProps) {
   // Refs
   const containerRef = useRef<HTMLDivElement | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const { candidateList } = useMultiWinnerDataStore.getState();
 
   // State
   const [treeData, setTreeData] = useState<TreeNode>(data);
@@ -485,6 +488,10 @@ export default function Tree({
           <path d="M14.8 14.8 20 20"/>
         </svg>`,
       )
+      .append("title")
+      .text(() => {
+        return currentAssertionString;
+      })
       .on("click", (event, d) => {
         event.stopPropagation();
         markNodeAndChildrenAsHidden(d.target.data);
@@ -520,7 +527,6 @@ export default function Tree({
       .attr("font-size", "10px")
       .attr("fill", "black")
       .text(function (d) {
-        const { candidateList } = useMultiWinnerDataStore.getState();
         const { shortName } = getSmartDisplayName(d.data.id, candidateList);
         const maxWidth = 35;
         let text = shortName;
@@ -542,12 +548,11 @@ export default function Tree({
       })
       .append("title")
       .text(function (d) {
-        const { candidateList } = useMultiWinnerDataStore.getState();
         const { explanation, shortName } = getSmartDisplayName(
           d.data.id,
           candidateList,
         );
-        return explanation || shortName; //这里的返回值应是shortName kwj 2025/5/7
+        return explanation || shortName;
       });
 
     // Add collapsed node count indicator
@@ -567,17 +572,60 @@ export default function Tree({
       .attr("class", "text-lg text-black")
       .text((d) => (d.data.collapsedCount ? `${d.data.collapsedCount}` : ""));
 
-    // REMOVED: The expandable/collapsible indicators (circles with + and - symbols)
-    // The following 3 blocks have been removed:
-    // 1. The circle background for the +/- indicator
-    // 2. The "-" text for collapsible nodes
-    // 3. The "+" text for expandable nodes
+    // Add cut count indicators for nodes with collapsed children
+    const nodesWithCollapsedChildren = groups.filter((d) => !!d.data._children);
+
+    // Add cut count and scissors for each path leading to collapsed nodes
+    nodesWithCollapsedChildren.each(function (d) {
+      const node = d3.select(this);
+      if (!d.data._children) return;
+
+      // Calculate the hidden cut count
+      const hiddenCutCount = countCutNodes(d.data._children);
+
+      // Calculate position - below the node
+      const yOffset = 76; // Position below the node
+
+      // Add scissors icon with the same style as the ones on branches
+      node
+        .append("foreignObject")
+        .attr("class", "cut-marker-collapsed")
+        .attr("x", 0) // Centered on the node
+        .attr("y", yOffset)
+        .attr("width", 24)
+        .attr("height", 24)
+        .attr("class", "cursor-pointer")
+        .html(
+          `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scissors">
+            <circle cx="6" cy="6" r="3"/>
+            <path d="M8.12 8.12 12 12"/>
+            <path d="M20 4 8.12 15.88"/>
+            <circle cx="6" cy="18" r="3"/>
+            <path d="M14.8 14.8 20 20"/>
+          </svg>`,
+        );
+
+      // Add black text to the left of scissors showing the count
+      node
+        .append("text")
+        .attr("x", -12) // Position to the left of the scissors
+        .attr("y", yOffset + 16) // Align with the scissors
+        .attr("text-anchor", "end") // Right-align the text
+        .attr("font-size", "16px")
+        .attr("font-weight", "bold")
+        .attr("fill", "black")
+        .text(hiddenCutCount)
+        .append("title")
+        .text(
+          `${hiddenCutCount} cut node${hiddenCutCount !== 1 ? "s" : ""} hidden`,
+        );
+    });
   }, [treeData, dimensions, currentScale, currentTranslate, renderKey]);
 
   return (
     <div
       ref={containerRef}
-      className={`flex flex-col ${isFullScreen ? "h-screen bg-white" : "h-full"} overflow-hidden relative`}
+      className={`flex flex-col ${isFullScreen ? "h-screen bg-background" : "h-full"} overflow-hidden relative`}
       data-tour="seventh-step"
     >
       <div className="flex-grow relative overflow-hidden">

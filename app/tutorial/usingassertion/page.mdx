@@ -1,0 +1,55 @@
+import Image from "next/image";
+
+# Using assertions to audit IRV outcomes
+
+We have a set of assertions which imply that the announced winner won. We could (but we won't) verify each assertion by manually examining all the ballot papers. For example, **Diego NEB Chuan** could be verified by manually counting all the first preferences for Diego and checking that that tally was greater than the (manually counted) total number of times Chuan was preferenced without being preceded by Diego. Similarly, NEN assertions could be verified by counting the tallies ignoring candidates not specified in the assertion. For example, we could verify **NEN: Bob > Chuan if only \{Bob, Chuan, Diego\} remain** by sorting every ballot into a tally pile according to which of Bob, Chuan, and Diego was the highest preference, ignoring any preference for Alice, and then checking that Bob's total was higher than Chuan's. If we did this for every assertion in the set, it would be a logically sound way to verify the election result, but it would be very inefficient.
+
+Instead, we test each of the assertions using an RLA at some risk limit α. If the audit accepts them all, we conclude the audit and accept the IRV election result.
+
+## NEB Assertions
+
+### Scoring NEB assertions
+
+An NEB assertion, for example **Alice NEB Bob**, says that Alice's first preferences exceed the total number of mentions of Bob that are not preceded by a higher preference for Alice.
+
+<div className="flex justify-center mb-8">
+  <Image
+    src="/tutorial-images/usingassertion-cvrsets.png"
+    alt="CVR Sets for NEB Assertions"
+    width={600}
+    height={300}
+    className="rounded-md"
+  />
+</div>
+
+## NEN Assertions
+
+### Scoring NEN assertions
+
+An NEN assertion, for example **NEN: Alice > Bob if only \{Alice, Bob, Chuan\} remain**, says that Alice beats Bob when only Alice, Bob, and Chuan are the only continuing candidates.
+
+<div className="flex justify-center mb-8">
+  <Image
+    src="/tutorial-images/usingassertion-cvrsets2.png"
+    alt="CVR Sets for NEN Assertions"
+    width={500}
+    height={200}
+    className="rounded-md"
+  />
+</div>
+
+### Assertion scoring summary
+
+<div className="flex justify-center mb-8">
+  <Image
+    src="/tutorial-images/usingassertion-summary.png"
+    alt="Assertion Scoring Summary"
+    width={700}
+    height={400}
+    className="rounded-md"
+  />
+</div>
+
+Table above shows how to score each ballot for each possible kind of
+assertion. Note that the score is a function of the assertion and the
+vote only - it does not depend on the apparent outcome.

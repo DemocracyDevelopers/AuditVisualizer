@@ -5,8 +5,9 @@ import UploadProgress from "./progress";
 import useMultiWinnerDataStore from "../../../store/multi-winner-data";
 import { validateInputData } from "../../explain-assertions/components/explain-process";
 import { useRouter } from "next/navigation";
-import { useFileDataStore } from "@/store/fileData";
-import { getContentFromAssertion } from "@/utils/candidateTools";
+import { useFileDataStore } from "../../../store/fileData";
+import { getContentFromAssertion } from "../../../utils/candidateTools";
+import { Assertion } from "@/lib/explain/prettyprint_assertions_and_pictures";
 
 interface UploaderProps {
   className?: string;
@@ -122,6 +123,7 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
       setErrorTitle,
       setErrorMsg,
       setShowAlert,
+      setPhaseErrors,
     ],
   );
 
@@ -153,6 +155,8 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
             );
 
             setCandidateList(candidateList);
+            // ✅ 添加这行日志输出
+            console.log("✅ File loaded. Expect Tour to show after dashboard.");
 
             // 从 jsonData 中提取 assertions
             const assertions = jsonData.solution.Ok.assertions;
@@ -161,28 +165,23 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
             const assertionList = assertions.map(
               (
                 assertionObj: {
-                  assertion: {
-                    type: string;
-                    winner: number;
-                    loser: number;
-                    continuing: number[];
-                  };
+                  assertion: Assertion;
                   difficulty: number;
                   margin: number;
                 },
-                index: number,
+                idx: number,
               ) => {
                 const { assertion, difficulty, margin } = assertionObj;
-                const { type, winner } = assertion;
+                const { type, winner } = assertion; // 此时可能还没有assertion_index
 
                 // 返回 assertionList 的每一项
                 return {
-                  index: index + 1, // index 从 1 开始
+                  index: idx + 1, // index 从 1 开始
                   winner: winner, // 将 winner 转化为名字
                   content: getContentFromAssertion({
                     assertion,
                     candidateList,
-                  }), // 生成的内容
+                  }).text, // 生成的内容
                   type, // 保持 type 不变
                   difficulty, // 保持 difficulty 不变
                   margin, // 保持 margin 不变
@@ -312,7 +311,7 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
       ) : uploadComplete && selectedFile ? (
         <>
           {/* 上传完成 */}
-          <div className="border-2 border-gray-300 p-8 rounded-lg bg-gray-50 cursor-pointer w-full relative text-center flex flex-grow justify-center items-center">
+          <div className="border-2 border-gray-300 p-8 rounded-lg bg-muted cursor-pointer w-full relative text-center flex flex-grow justify-center items-center">
             <div>
               <h2 className="text-2xl font-bold text-gray-600 mb-2">
                 Uploaded!
@@ -360,7 +359,7 @@ const Uploader: React.FC<UploaderProps> = ({ className }) => {
             Use the dropzone below to upload your file.
           </p>
           <div
-            className="border-2 border-gray-300 p-8 rounded-lg bg-gray-50 cursor-pointer w-full relative text-center flex flex-grow justify-center items-center"
+            className="h-[calc(100vh-400px)] border-2 border-gray-300 p-8 rounded-lg bg-neutral cursor-pointer w-full relative text-center flex flex-grow justify-center items-center"
             onDragOver={handleDragOver}
             onDrop={handleDrop}
           >

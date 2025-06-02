@@ -1,5 +1,4 @@
 import {
-  MutableRefObject,
   useEffect,
   useRef,
   useState,
@@ -29,6 +28,7 @@ import DefaultCandidateListBar from "../elimination-tree/default-candidate-list-
 import useDefaultTree from "@/store/use-default-tree";
 import { getContentFromAssertion } from "@/utils/candidateTools";
 import { getCandidateNumber } from "@/app/explain-assertions/components/explain-process";
+import useTreeSelectionStore from "@/store/use-tree-selection-store";
 
 // Node sizing constants
 const NODE_RADIUS = 18;
@@ -44,13 +44,10 @@ function LazyLoadView() {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const gRef = useRef<SVGGElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  // Updated to use SVGSVGElement instead of Element
-  const zoomBehaviorRef = useRef<d3.ZoomBehavior<
-    SVGSVGElement,
-    unknown
-  > | null>(null);
 
-  const [selectedTreeId, setSelectedTreeId] = useState(0);
+  const selectedTreeId = useTreeSelectionStore((s) => s.selectedTreeId);
+  const setSelectedTreeId = useTreeSelectionStore((s) => s.setSelectedTreeId);
+
   const [currentZoom, setCurrentZoom] = useState(1);
   const [currentTransform, setCurrentTransform] =
     useState<d3.ZoomTransform | null>(null);
@@ -667,10 +664,11 @@ function LazyLoadView() {
       .text((d) => {
         // Add tooltip showing the pruning reason
         if (d.target.data.prunedBy) {
-          return `Pruned by: ${getContentFromAssertion({
+          const obj = getContentFromAssertion({
             assertion: d.target.data.prunedBy,
             candidateList,
-          })}`;
+          });
+          return `[${obj.idx}] Pruned by: ${obj.text}`;
         }
         return "Pruned node";
       });
@@ -732,10 +730,12 @@ function LazyLoadView() {
 
         // If node is pruned, show pruning reason
         if (d.data.pruned && d.data.prunedBy) {
-          tooltip += `\nPruned by: ${getContentFromAssertion({
-            assertion: d.data.prunedBy,
-            candidateList,
-          })}`;
+          tooltip += `\nPruned by: ${
+            getContentFromAssertion({
+              assertion: d.data.prunedBy,
+              candidateList,
+            }).text
+          }`;
         }
 
         return tooltip;
@@ -1022,10 +1022,7 @@ function LazyLoadView() {
   const renderWinnerMessage = useCallback(() => {
     if (!winnerInfo) return null;
 
-    const { name, shortName } = getSmartDisplayName(
-      winnerInfo.id,
-      candidateList,
-    );
+    const { shortName } = getSmartDisplayName(winnerInfo.id, candidateList);
 
     return (
       <div className="flex flex-col items-center justify-center h-full p-8 text-center">
@@ -1074,7 +1071,7 @@ function LazyLoadView() {
         ref={containerRef}
         className={`relative ${
           isFullScreen
-            ? "fixed inset-0 bg-white z-10"
+            ? "fixed inset-0 bg-background z-10"
             : "w-full h-96 flex-grow overflow-hidden"
         }`}
         data-tour="tree-view"
@@ -1093,7 +1090,7 @@ function LazyLoadView() {
         )}
 
         {isFullScreen && !isBigDataWinnerSelected() && (
-          <div className="fixed bottom-0 left-0 right-0 flex justify-between items-center px-4 py-2 border-t bg-white z-20">
+          <div className="fixed bottom-0 left-0 right-0 flex justify-between items-center px-4 py-2 border-t bg-background z-20">
             <div></div>
             <div className="flex items-center space-x-2">
               <Button
@@ -1157,7 +1154,11 @@ function LazyLoadView() {
                 <Minimize className="h-4 w-4" />
               </Button>
             </div>
-            <Button variant="outline" onClick={expandAllNodes}>
+            <Button
+              variant="outline"
+              onClick={expandAllNodes}
+              data-tour="expand-all-button"
+            >
               <ExpandIcon className="h-4 w-4 mr-2" />
               Expand All
             </Button>
@@ -1167,7 +1168,7 @@ function LazyLoadView() {
 
       {/* Controls when not in fullscreen mode */}
       {!isFullScreen && !isBigDataWinnerSelected() && (
-        <div className="flex justify-between items-center mt-2 px-4 py-2 border-t bg-white">
+        <div className="flex justify-between items-center mt-2 px-4 py-2 border-t bg-background">
           <div></div>
           <div className="flex items-center space-x-2">
             <Button
@@ -1231,7 +1232,11 @@ function LazyLoadView() {
               <Maximize className="h-4 w-4" />
             </Button>
           </div>
-          <Button variant="outline" onClick={expandAllNodes}>
+          <Button
+            variant="outline"
+            onClick={expandAllNodes}
+            data-tour="expand-all-button"
+          >
             <ExpandIcon className="h-4 w-4 mr-2" />
             Expand All
           </Button>
