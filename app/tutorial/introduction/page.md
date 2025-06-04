@@ -18,7 +18,7 @@ for IRV by integrating RAIRE.
 1. Commit to the ballot manifest and CVRs.
 2. Choose contest(s) for audit.
 3. **Run RAIRE to generate assertions for audit.**
-4. **Use the RAIRE assertion validation and visualization module to check that the assertions imply the announced winner won.**
+4. **Use the RAIRE assertion validation and visualisation module to check that the assertions imply the announced winner won.**
 5. Generate a trustworthy random seed, e.g., by public dice rolling.
 6. Estimate the required sample size, based on the margin, **for each assertion**.
 7. Use the seed to generate the list of sampled ballots.

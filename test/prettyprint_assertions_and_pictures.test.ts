@@ -9,7 +9,7 @@
  * - Generating human-readable explanations of assertion effects
  * - NEB (Not Eliminated Before) and NEN (Not Eliminated Next) assertion handling
  *
- * These functions are crucial for visualizing how assertions eliminate
+ * These functions are crucial for visualising how assertions eliminate
  * possible election outcomes and prove a particular winner.
  */
 
