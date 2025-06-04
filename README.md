@@ -5,7 +5,7 @@
 ## Team Member
 
 | Name        | Roles                               |
-|-------------|-------------------------------------|
+| ----------- | ----------------------------------- |
 | Aaron Lee   | Technical Officer/Client Liaison    |
 | Emily Zhang | Project Manager/Front-end Developer |
 | Yilin Lyu   | Scrum Mater/Front-end Developer     |
@@ -19,14 +19,25 @@
 
 # Technologies Used
 
-- react
-- typescript
-- nextjs
-- tailwind css
-- shadcn
-- zustand
-- jest
-- husky
+- React (^18) - JavaScript library for building user interfaces
+- TypeScript (^5) - Typed superset of JavaScript
+- Next.js (14.2.5) - React framework for production applications
+- Tailwind CSS (^3.4.1) - Utility-first CSS framework
+- shadcn/ui - Re-usable components built using Radix UI and Tailwind CSS
+- Zustand (^4.5.4) - Small, fast, and scalable state management
+- Jest (^29.7.0) - JavaScript testing framework
+- Husky (^9.1.4) - Git hooks made easy
+- @mdi/js: ^7.4.47 - Material Design Icons JavaScript library
+- @mdi/react: ^1.6.1 - Material Design Icons React components
+- lucide: ^0.439.0 - Beautiful & consistent icon toolkit
+- lucide-react: ^0.427.0 - Lucide icons for React
+- react-icons: ^5.3.0 - Popular icon libraries for React
+
+Icons
+
+Lucide (lucide ^0.439.0, lucide-react ^0.427.0) - Beautiful & consistent icon toolkit
+MDI (@mdi/js ^7.4.47, @mdi/react ^1.6.1) - Material Design Icons
+React Icons (react-icons ^5.3.0) - Popular icon libraries including support for Iconfont
 
 # Environment and Tools
 

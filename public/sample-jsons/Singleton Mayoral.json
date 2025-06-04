@@ -1,0 +1,37 @@
+{
+  "Ok": {
+    "assertions": [
+      {
+        "assertion": { "type": "NEB", "winner": 0, "loser": 2 },
+        "difficulty": 11.021634615384615,
+        "margin": 1248,
+        "status": { "risk": 1.0 }
+      },
+      {
+        "assertion": { "type": "NEB", "winner": 0, "loser": 3 },
+        "difficulty": 5.2924201616006155,
+        "margin": 2599,
+        "status": { "risk": 1.0 }
+      },
+      {
+        "assertion": {
+          "type": "NEN",
+          "winner": 0,
+          "loser": 1,
+          "continuing": [0, 1]
+        },
+        "difficulty": 12.118942731277533,
+        "margin": 1135,
+        "status": { "risk": 1.0 }
+      }
+    ],
+    "difficulty": 12.118942731277533,
+    "margin": 1135,
+    "winner": 0,
+    "num_candidates": 4,
+    "time_to_determine_winners": null,
+    "time_to_find_assertions": null,
+    "time_to_trim_assertions": null,
+    "warning_trim_timed_out": false
+  }
+}

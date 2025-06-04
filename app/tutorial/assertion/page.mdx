@@ -1,0 +1,123 @@
+import Image from "next/image";
+
+# Assertions for IRV winners
+
+In IRV elections, assertions are critical conditions used to verify
+that the announced winner truly won the election. Assertions allow us
+to narrow down the key elimination steps that need to be checked,
+rather than verifying every elimination order. There are two main
+types of assertions used in RAIRE: Not Eliminated Before (NEB)
+Assertions and Not Eliminated Next (NEN) Assertions.
+
+## Not Eliminated Before (NEB) Assertions
+
+A Not Eliminated Before (NEB) assertion is a condition that states one
+candidate cannot be eliminated before another. This assertion allows
+us to focus on specific elimination orders and disregard paths that
+don’t affect the outcome. **_Alice NEB Bob_** is an assertion saying that Alice cannot be eliminated before Bob,
+irrespective of which other candidates are continuing. In other words,
+no outcome is possible in which Alice is eliminated before Bob.
+
+When expressed as a comparison of tallies, this assertion says that
+the smallest number of votes Alice can have, at any point in counting,
+is greater than the largest number of votes Bob can ever have while
+Alice is continuing. Alice’s smallest tally is equal to her first
+preference count – the number of ballots on which she is ranked first.
+The largest number of votes Bob can have while Alice is continuing is
+the number of ballots on which he is ranked higher than Alice, or he
+is ranked and Alice is not.
+
+### Example
+
+In the following example, **_Alice NEB Bob_** is true because Bob is ranked a total of 80 times without being
+preceded by Alice, which is less than Alice’s first-preference tally
+of 100. However, **_Alice NEB Diego_** is not true, because Diego is ranked 125 times without being preceded
+by Alice, which is more than Alice’s first preference tally.
+
+<div className="flex justify-center mb-8">
+  <Image
+    src="/tutorial-images/assertion-preference.png"
+    alt="Preferences and Counts Table"
+    width={250}
+    height={180}
+    className="rounded-md"
+  />
+</div>
+
+## Not Eliminated Next (NEN) Assertions
+
+NEN assertions compare the tallies of two candidates under the assumption
+that a specific set of candidates have been eliminated. An instance of this
+kind of assertion could look like this: **_NEN: Alice > Bob if only \{Alice,
+Bob, Diego\}_** remain. This means that in the context where Chuan has been
+eliminated, Alice cannot be eliminated next, because Bob has a lower tally.
+When expressed as a comparison of tallies, this assertion says that the
+number of ballots in Alice's tally pile, in the context where only Alice,
+Bob, and Diego are continuing, is greater than the number of ballots in
+Bob's tally pile in this context.
+
+This example assumes one eliminated candidate – Chuan – however, NEN assertions can be constructed with contexts involving no eliminated candidates, or more than one eliminated candidate. The assertion **_NEN: Alice > Chuan if only \{Alice, Bob, Chuan, Diego\}_** remain says that Alice cannot be the first eliminated candidate, as she has more votes than Chuan when no candidates have yet been eliminated. The assertion **_NEN: Diego > Bob if only \{Bob, Diego\}_** remain says that Diego has more votes than Bob in the context where those two are the only continuing candidates.
+
+## Simple assertions sometimes work
+
+RAIRE works by generating a set of assertions which, together, imply a particular winner. In this section, we introduce some common patterns that those sets of assertions might use. We aim to make it obvious why certain sets of assertions are enough to imply a particular winner, and to match a person's intuition about why a certain candidate won an IRV election.
+
+### One candidate dominates
+
+Sometimes one candidate happens to be so strongly ahead of all the others that NEB assertions hold with all other candidates.
+
+#### Example
+
+Suppose that for the four candidates Alice, Bob, Chuan, and Diego, we have:
+
+**_Alice NEB Bob_**,
+**_Alice NEB Chuan_** _and_
+**_Alice NEB Diego._**
+
+### Two leading candidates
+
+Now suppose there are two candidates who accumulate most of the votes: Alice and Bob.
+
+#### Example
+
+Suppose **_Alice NEB Bob_** is not true, but the following weaker fact is true:
+
+**_NEN: Alice > Bob if only \{Alice, Bob\}_** remain.
+
+This says that, after Chuan and Diego are eliminated, Alice's tally is higher than Bob's.
+
+Assume we still have two NEB assertions:
+
+**_Alice NEB Chuan_**
+_and_
+**_Alice NEB Diego._**
+
+This, again, is enough to prove that Alice won. To see why, consider the last elimination step. Alice must reach this step, because she cannot have been eliminated before Chuan or Diego. If Chuan or Diego is the other remaining candidate, Alice beats them (by the NEB assertion). The only other possibility is Bob—for this case, the NEN assertion shows that, in the last round, Alice beats Bob.
+
+### Visualising assertions
+
+This reasoning can be visualized using elimination trees. For an audit, we need to disprove all elimination orders that result in a winner other than the announced winner.
+
+The assertion **_Alice NEB Chuan_** is enough to disprove every elimination order in which Alice is eliminated before Chuan, and hence to disprove the entire tree in which Chuan wins. It also allows us to disprove the orders in Bob's tree and Diego's tree in which Alice is eliminated before Chuan.
+
+The consequences of **_Alice NEB Chuan_** in Bob's tree and Chuan's tree are shown below. It still allows the possibility that Bob might win via elimination orders Diego, Chuan, Alice, Bob, or Chuan, Diego, Alice, Bob, or Chuan, Alice, Diego, Bob.
+
+<div className="flex justify-center mb-8">
+  <Image
+    src="/tutorial-images/assertion-eliminationtree1.png"
+    alt="Elimination Tree 1"
+    width={600}
+    height={500}
+    className="rounded-md"
+  />
+</div>
+
+<div className="flex justify-center mb-8">
+  <Image
+    src="/tutorial-images/assertion-eliminationtree2.png"
+    alt="Elimination Tree 2"
+    width={600}
+    height={500}
+    className="rounded-md"
+  />
+</div>
