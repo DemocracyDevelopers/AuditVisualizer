@@ -145,11 +145,11 @@ export const getSteps = (candidateCount: number) => {
           <strong className="text-gray-500">Gray branches</strong>
           <Brown> are cut by assertions (scissors here), </Brown>
           <strong className="text-yellow-500">Yellow ones</strong>
-          <Brown>survive.</Brown>
+          <Brown> survive.</Brown>
           <br />
           <Brown>If someone wins, they’ve got </Brown>
           <strong className="text-blue-600"> at least one yellow path</strong>
-          <Brown> reaching the top—no cuts, no doubts!</Brown>
+          <Brown> reaching the top - no cuts, no doubts!</Brown>
           <TourNavButtons
             back={5}
             next={7}

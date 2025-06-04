@@ -8,12 +8,12 @@ export const contentData = [
     path: "/tutorial",
   },
   {
-    title: "Introduction: IRV RAs with RAIRE",
+    title: "Introduction: IRV RLAs with RAIRE",
     path: "/tutorial/introduction",
     subItems: ["The Audit Process from Beginning to End"],
   },
   {
-    title: "IRV elections and Visualizing Outcomes",
+    title: "IRV elections and Visualising Outcomes",
     path: "/tutorial/outcomes",
     subItems: ["How IRV Counts Work"],
   },
@@ -26,7 +26,7 @@ export const contentData = [
       "Simple assertions sometimes work",
       "One candidate dominates",
       "Two leading candidates",
-      "Visualizing assertions",
+      "Visualising assertions",
     ],
   },
   {

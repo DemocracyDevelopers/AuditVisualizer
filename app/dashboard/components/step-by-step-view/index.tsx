@@ -184,7 +184,7 @@ function StepByStepView({
           {(data.process[selectedStep] as any).treeUnchanged === true && (
             <p className="text-xs text-gray-500 italic mt-2">
               This assertion did{" "}
-              <span className="font-bold text-red-500">not</span> eliminate any
+              <span className="font-bold text-red-500">not</span> rule out any
               elimination orders.
             </p>
           )}
