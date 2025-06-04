@@ -31,19 +31,18 @@ const TooltipWithIcon: React.FC<TooltipWithIconProps> = ({
     setIsOpen(true);
   };
 
-  const handleMouseLeave = () => {
-    setIsOpen(false);
-  };
-
   return (
     <TooltipProvider>
-      <Tooltip open={isOpen} onOpenChange={setIsOpen}>
+      <Tooltip
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        disableHoverableContent={false}
+      >
         <TooltipTrigger asChild>
           <span
             className="ml-2 relative"
             onClick={handleClick}
             onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
           >
             {/* Information Icon */}
             <FaInfoCircle className="text-primary cursor-pointer" size={18} />

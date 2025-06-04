@@ -1,4 +1,4 @@
-# Introduction: IRV RAs with RAIRE
+# Introduction: IRV RLAs with RAIRE
 
 Risk-Limiting Audits (RLAs) for Instant Runoff Voting (IRV) elections can be efficiently conducted using the RAIRE tool. RAIRE helps
 election administrators verify whether the announced winner in an IRV

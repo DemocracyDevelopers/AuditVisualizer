@@ -1017,12 +1017,14 @@ function LazyLoadView() {
             You have selected the Winner - {winnerInfo.name}
           </h3>
           <p className="text-gray-700 mb-4">
-            The winner&apos;s elimination tree is typically very large and
-            complex, which may cause performance issues if displayed.
+            Since {winnerInfo.name} wasn’t eliminated, <br />
+            their tree simply follows the active path to victory.
+            <br />
+            To simplify the view, we’ve hidden the winner’s tree.
           </p>
           <p className="text-gray-700 mb-6">
-            Please select another candidate from the list above to view their
-            elimination tree instead.
+            If you’re curious, try selecting another candidate to explore how
+            they were eliminated along the way.
           </p>
           <div className="flex justify-center">
             <Button
